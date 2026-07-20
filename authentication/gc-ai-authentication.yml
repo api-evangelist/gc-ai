@@ -1,0 +1,34 @@
+generated: '2026-07-19'
+method: searched
+source: openapi/gc-ai-openapi-original.yml
+docs: https://docs.gc.ai/api-reference/concepts/api-keys
+summary:
+  types:
+  - apiKey
+  api_key_in:
+  - header
+schemes:
+- name: ApiKeyAuth
+  type: apiKey
+  in: header
+  parameter: Authorization
+  description: |-
+    API key for authentication, passed in the Authorization header.
+    Create API keys in the GC AI app under Settings → API.
+  key_types:
+  - scope: organization
+    prefix: gcai_
+    identity: Represents the whole workspace (system account). Created/revoked by org admins.
+    access: Only non-access-controlled resources; rejected by user-scoped endpoints (422).
+    use_case: Backend services, scheduled jobs, shared automations.
+  - scope: user
+    prefix: 'u:gcai_'
+    identity: Carries the individual member's identity; requires the org "User API Keys Policy" to be enabled.
+    access: Everything the user can read, including privately shared files and projects; works with user-scoped endpoints (e.g. chat search, star/unstar).
+    use_case: Individual scripting/analysis where attribution matters.
+  sources:
+  - openapi/gc-ai-openapi-original.yml
+notes: >-
+  The External API is key-only (no OAuth scopes). GC AI does run an OAuth 2.1
+  authorization server, but only for its MCP server (see mcp/gc-ai-mcp.yml and
+  well-known/gc-ai-oauth-authorization-server.json), not for the REST API.
