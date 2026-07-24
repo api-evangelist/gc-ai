@@ -1,0 +1,925 @@
+openapi: 3.0.3
+info:
+  title: GC AI External Chat Folders API
+  version: 1.0.0
+  description: 'The GC AI External API allows programmatic access to GC AI''s chat capabilities. It''s designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.
+
+
+    ## Authentication
+
+
+    All API requests must include an API key in the `Authorization` header:
+
+
+    ```
+
+    Authorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+    ```
+
+
+    API keys can be created in the GC AI app under **Settings → API**.
+
+
+    ## Multi-turn Conversations
+
+
+    Conversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).
+
+
+    ## Current Limitations
+
+
+    The following is not yet available via API:
+
+
+    - **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta
+
+
+    ## Usage
+
+
+    Usage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.
+
+
+    ## Support
+
+
+    For API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.'
+  contact:
+    email: support@gc.ai
+servers:
+- url: https://app.gc.ai/api/external/v1
+  description: Production server
+tags:
+- name: Folders
+  description: Folder management endpoints
+paths:
+  /folders:
+    get:
+      summary: List folders
+      description: 'List all folders accessible to the authenticated user, returned as a flat list with full paths.
+
+
+        Pass `scope` to filter to one of the three top-level meta-collections shown in the GC AI UI:
+
+        - `my-files`: folders rooted in the user''s personal "My Files" tree
+
+        - `shared-with-me`: folders explicitly shared with the user by other users
+
+        - `organization`: folders rooted in the organization''s "Organization Files" tree
+
+
+        Filtering by `scope` requires a user-scoped API key (`u:gcai_...`).'
+      operationId: listFolders
+      tags:
+      - Folders
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 500
+          default: 100
+          description: Max items to return (default 100, max 500)
+        required: false
+        description: Max items to return (default 100, max 500)
+        name: limit
+        in: query
+      - schema:
+          type: integer
+          nullable: true
+          minimum: 0
+          default: 0
+          description: Number of items to skip (default 0)
+        required: false
+        description: Number of items to skip (default 0)
+        name: offset
+        in: query
+      - schema:
+          type: string
+          description: Case-insensitive substring search on folder name or description. System-owned collection types (my-files, org-files, etc.) are excluded from results. Composes with `scope`.
+          example: contracts
+        required: false
+        description: Case-insensitive substring search on folder name or description. System-owned collection types (my-files, org-files, etc.) are excluded from results. Composes with `scope`.
+        name: q
+        in: query
+      - schema:
+          type: string
+          enum:
+          - my-files
+          - shared-with-me
+          - organization
+          description: Filter folders to a single meta-collection. Requires a user-scoped API key.
+          example: my-files
+        required: false
+        description: Filter folders to a single meta-collection. Requires a user-scoped API key.
+        name: scope
+        in: query
+      responses:
+        '200':
+          description: List of folders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FolderListResponse'
+        '400':
+          description: Invalid scope parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Scope filter requires a user-scoped API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a folder
+      description: 'Create a new folder for organizing files. Folders can be nested by specifying a `parent_folder_id`.
+
+
+        Org-scoped keys can create folders under non-access-controlled parents. The `scope` parameter requires a user-scoped key.'
+      operationId: createFolder
+      tags:
+      - Folders
+      security:
+      - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFolderRequest'
+      responses:
+        '201':
+          description: Folder created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Folder'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Parent folder access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /folders/{id}:
+    get:
+      summary: Get a folder
+      description: Retrieve a single folder by ID.
+      operationId: getFolder
+      tags:
+      - Folders
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The folder ID
+        required: true
+        description: The folder ID
+        name: id
+        in: path
+      responses:
+        '200':
+          description: Folder details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Folder'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Folder not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update a folder
+      description: 'Update a folder''s name, description, parent, or access-control flag. At least one field must be provided. System folders cannot be modified.
+
+
+        Org-scoped keys can update non-access-controlled folders.'
+      operationId: updateFolder
+      tags:
+      - Folders
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The folder ID
+        required: true
+        description: The folder ID
+        name: id
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFolderRequest'
+      responses:
+        '200':
+          description: Folder updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Folder'
+        '400':
+          description: Invalid request body, system folder, or invalid parent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Folder or destination folder not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a folder
+      description: 'Delete a folder. By default, only empty folders can be deleted; pass `?recursive=true` to delete a folder along with all of its subfolders and files. System folders cannot be deleted.
+
+
+        Org-scoped keys can delete non-access-controlled folders.'
+      operationId: deleteFolder
+      tags:
+      - Folders
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The folder ID
+        required: true
+        description: The folder ID
+        name: id
+        in: path
+      - schema:
+          type: string
+          enum:
+          - 'true'
+          - 'false'
+          description: When `true`, recursively delete subfolders and files. Defaults to `false`.
+          example: 'true'
+        required: false
+        description: When `true`, recursively delete subfolders and files. Defaults to `false`.
+        name: recursive
+        in: query
+      responses:
+        '204':
+          description: Folder deleted successfully
+        '400':
+          description: Invalid folder ID or system folder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Recursive delete blocked by insufficient descendant access or access-controlled descendants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Folder not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Folder is not empty and `recursive` was not set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /folders/{id}/children:
+    get:
+      summary: List a folder's children
+      description: 'List the direct children of a folder. The response items are a discriminated union of subfolders and files: subfolders are returned first (alphabetical), then files (alphabetical).'
+      operationId: listFolderChildren
+      tags:
+      - Folders
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The folder ID
+        required: true
+        description: The folder ID
+        name: id
+        in: path
+      responses:
+        '200':
+          description: Direct children of the folder
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FolderChildrenResponse'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Folder not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Folder:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique folder identifier
+        name:
+          type: string
+          description: Folder name
+        description:
+          type: string
+          nullable: true
+          description: Folder description, or null if unset
+        path:
+          type: string
+          description: Path through ancestors visible to the requester. Inaccessible ancestors are skipped, so this may not reflect absolute depth. Use `parent_folder_id` to traverse hierarchy.
+          example: /My Files/Contracts
+        parent_folder_id:
+          type: string
+          nullable: true
+          format: uuid
+          description: Parent folder ID, or null for root
+        folder_type:
+          type: string
+          description: Folder type (custom, my-files, etc.)
+        created_at:
+          type: string
+          description: ISO 8601 creation timestamp
+      required:
+      - id
+      - name
+      - description
+      - path
+      - parent_folder_id
+      - folder_type
+      - created_at
+    FolderChildrenResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FolderChild'
+          description: Direct children of the folder. Subfolders first (alphabetical), then files (alphabetical).
+      required:
+      - items
+    FolderListResponse:
+      type: object
+      properties:
+        folders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Folder'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      required:
+      - folders
+      - pagination
+    FolderChild:
+      oneOf:
+      - allOf:
+        - $ref: '#/components/schemas/Folder'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - folder
+          required:
+          - type
+      - allOf:
+        - $ref: '#/components/schemas/File'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - file
+          required:
+          - type
+    CreateFolderRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          description: Folder name (min 2 characters)
+          example: Q4 Contracts
+        description:
+          type: string
+          description: Optional description
+        parent_folder_id:
+          type: string
+          format: uuid
+          description: Parent folder ID. Mutually exclusive with `scope`. If both are omitted, creates a top-level folder.
+        scope:
+          type: string
+          enum:
+          - my-files
+          - organization
+          description: Create the folder at the root of a meta-collection. Mutually exclusive with `parent_folder_id`. `shared-with-me` is not valid for create.
+          example: my-files
+      required:
+      - name
+    Pagination:
+      type: object
+      properties:
+        limit:
+          type: number
+          description: Page size
+        offset:
+          type: number
+          description: Current offset
+        has_more:
+          type: boolean
+          description: Whether more results exist
+      required:
+      - limit
+      - offset
+      - has_more
+    File:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique file identifier
+        name:
+          type: string
+          description: Original filename
+        size:
+          type: number
+          description: File size in bytes
+        content_type:
+          type: string
+          description: MIME type of the file
+        status:
+          type: string
+          enum:
+          - extracting
+          - embedding
+          - ready
+          - failed
+          description: Current processing status
+        created_at:
+          type: string
+          description: ISO 8601 creation timestamp
+      required:
+      - id
+      - name
+      - size
+      - content_type
+      - status
+      - created_at
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties:
+            nullable: true
+          description: Validation error details (for 400 errors)
+      required:
+      - error
+    UpdateFolderRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          description: New folder name (minimum 2 characters)
+        description:
+          type: string
+          description: New folder description
+        parent_folder_id:
+          type: string
+          format: uuid
+          description: Target parent folder ID. The destination must not be the folder itself or one of its descendants.
+        is_access_controlled:
+          type: boolean
+          description: Whether the folder requires explicit access grants
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'API key for authentication. Format: `gcai_xxxxxxxxx`
+
+
+        Create API keys in the GC AI app under Settings → API.'

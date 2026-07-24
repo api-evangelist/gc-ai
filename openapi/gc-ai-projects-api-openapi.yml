@@ -1,0 +1,1842 @@
+openapi: 3.0.3
+info:
+  title: GC AI External Chat Projects API
+  version: 1.0.0
+  description: 'The GC AI External API allows programmatic access to GC AI''s chat capabilities. It''s designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.
+
+
+    ## Authentication
+
+
+    All API requests must include an API key in the `Authorization` header:
+
+
+    ```
+
+    Authorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+    ```
+
+
+    API keys can be created in the GC AI app under **Settings → API**.
+
+
+    ## Multi-turn Conversations
+
+
+    Conversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).
+
+
+    ## Current Limitations
+
+
+    The following is not yet available via API:
+
+
+    - **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta
+
+
+    ## Usage
+
+
+    Usage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.
+
+
+    ## Support
+
+
+    For API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.'
+  contact:
+    email: support@gc.ai
+servers:
+- url: https://app.gc.ai/api/external/v1
+  description: Production server
+tags:
+- name: Projects
+  description: Project management endpoints
+paths:
+  /projects:
+    get:
+      summary: List projects
+      description: 'List projects accessible to the caller, optionally filtered by name.
+
+
+        With a user-scoped key (`u:gcai_...`), the user sees projects they created, projects shared with them, and non-access-controlled projects. With an org-scoped key (`gcai_...`), only non-access-controlled (org-wide) projects are returned.'
+      operationId: listProjects
+      tags:
+      - Projects
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 500
+          default: 100
+          description: Max items to return (default 100, max 500)
+        required: false
+        description: Max items to return (default 100, max 500)
+        name: limit
+        in: query
+      - schema:
+          type: integer
+          nullable: true
+          minimum: 0
+          default: 0
+          description: Number of items to skip (default 0)
+        required: false
+        description: Number of items to skip (default 0)
+        name: offset
+        in: query
+      - schema:
+          type: string
+          description: Case-insensitive substring match on project name
+        required: false
+        description: Case-insensitive substring match on project name
+        name: search
+        in: query
+      responses:
+        '200':
+          description: Paginated list of projects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectListResponse'
+        '400':
+          description: Result set too large for offset pagination
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a project
+      description: 'Create a new project to group files, folders, and chats around a single matter (deal, vendor, or program).
+
+
+        With a user-scoped key, the caller is recorded as the project creator and granted admin access. With an org-scoped key, `creatorId` is null and the project defaults to non-access-controlled (org-wide).'
+      operationId: createProject
+      tags:
+      - Projects
+      security:
+      - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectRequest'
+      responses:
+        '201':
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /projects/{id}:
+    get:
+      summary: Get a project
+      description: Retrieve a single project by ID. Returns the caller's access level alongside the project metadata.
+      operationId: getProject
+      tags:
+      - Projects
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The project ID
+        required: true
+        description: The project ID
+        name: id
+        in: path
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found or access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update a project
+      description: 'Update a project''s name, description, or custom instructions. Only the fields you supply are changed; omitted fields are left untouched. Pass `null` for `description` or `custom_instructions` to clear them.
+
+
+        Requires write access to the project. Org-scoped keys can update non-access-controlled projects.'
+      operationId: updateProject
+      tags:
+      - Projects
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The project ID
+        required: true
+        description: The project ID
+        name: id
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProjectRequest'
+      responses:
+        '200':
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found or insufficient write access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a project
+      description: 'Delete a project. Files, folders, and chats linked to the project are detached, not deleted — they remain in the organization and can be reattached elsewhere.
+
+
+        Requires admin access to the project. Org-scoped keys can delete non-access-controlled projects.'
+      operationId: deleteProject
+      tags:
+      - Projects
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The project ID
+        required: true
+        description: The project ID
+        name: id
+        in: path
+      responses:
+        '204':
+          description: Project deleted
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found or insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /projects/{id}/files:
+    post:
+      summary: Attach a file to a project
+      description: 'Attach an already-uploaded file to a project. The file remains in its current folder; this only records the project link.
+
+
+        Requires write access to the project and read access to the file. Org-scoped keys can attach non-access-controlled files to non-access-controlled projects.'
+      operationId: attachFileToProject
+      tags:
+      - Projects
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The project ID
+        required: true
+        description: The project ID
+        name: id
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttachFileRequest'
+      responses:
+        '204':
+          description: File attached (idempotent, repeat calls are no-ops)
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found, file not found, or insufficient write access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: List files on a project
+      description: List files directly linked to a project. Files reachable only via a linked folder are not included; list those folders separately with `GET /projects/{id}/folders`.
+      operationId: listProjectFiles
+      tags:
+      - Projects
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The project ID
+        required: true
+        description: The project ID
+        name: id
+        in: path
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 500
+          default: 100
+          description: Max items to return (default 100, max 500)
+        required: false
+        description: Max items to return (default 100, max 500)
+        name: limit
+        in: query
+      - schema:
+          type: integer
+          nullable: true
+          minimum: 0
+          default: 0
+          description: Number of items to skip (default 0)
+        required: false
+        description: Number of items to skip (default 0)
+        name: offset
+        in: query
+      responses:
+        '200':
+          description: Paginated list of files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectFileListResponse'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found or access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /projects/{id}/files/{fileId}:
+    delete:
+      summary: Detach a file from a project
+      description: 'Remove the link between a file and a project. The file itself is not deleted — it stays in the organization and can be reattached later. Idempotent: detaching a file that is not attached is a no-op.
+
+
+        Requires write access to the project. Org-scoped keys can detach files from non-access-controlled projects.'
+      operationId: detachFileFromProject
+      tags:
+      - Projects
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The project ID
+        required: true
+        description: The project ID
+        name: id
+        in: path
+      - schema:
+          type: string
+          format: uuid
+          description: The file ID
+        required: true
+        description: The file ID
+        name: fileId
+        in: path
+      responses:
+        '204':
+          description: File detached (idempotent, repeat calls are no-ops)
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found or insufficient write access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /projects/{id}/folders:
+    get:
+      summary: List folders linked to a project
+      description: List folders linked to a project. To enumerate the contents of a folder, call `GET /folders/{id}/children`.
+      operationId: listProjectFolders
+      tags:
+      - Projects
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The project ID
+        required: true
+        description: The project ID
+        name: id
+        in: path
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 500
+          default: 100
+          description: Max items to return (default 100, max 500)
+        required: false
+        description: Max items to return (default 100, max 500)
+        name: limit
+        in: query
+      - schema:
+          type: integer
+          nullable: true
+          minimum: 0
+          default: 0
+          description: Number of items to skip (default 0)
+        required: false
+        description: Number of items to skip (default 0)
+        name: offset
+        in: query
+      responses:
+        '200':
+          description: Paginated list of linked folders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectFolderListResponse'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found or access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Attach a folder to a project
+      description: 'Link a folder to a project. Once attached, all files in the folder become available as project context. The folder is not moved or copied; only the project link is recorded.
+
+
+        Requires write access to the project and read access to the folder. Idempotent: re-attaching an already-linked folder is a no-op. Org-scoped keys can attach non-access-controlled folders to non-access-controlled projects.'
+      operationId: attachFolderToProject
+      tags:
+      - Projects
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The project ID
+        required: true
+        description: The project ID
+        name: id
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttachFolderRequest'
+      responses:
+        '204':
+          description: Folder attached (idempotent, repeat calls are no-ops)
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found, folder not found, or insufficient write access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /projects/{id}/folders/{folderId}:
+    delete:
+      summary: Detach a folder from a project
+      description: 'Remove the link between a folder and a project. The folder itself is not deleted — it stays in the organization. Idempotent: detaching a folder that is not attached is a no-op.
+
+
+        Requires write access to the project. Org-scoped keys can detach folders from non-access-controlled projects.'
+      operationId: detachFolderFromProject
+      tags:
+      - Projects
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The project ID
+        required: true
+        description: The project ID
+        name: id
+        in: path
+      - schema:
+          type: string
+          format: uuid
+          description: The folder ID
+        required: true
+        description: The folder ID
+        name: folderId
+        in: path
+      responses:
+        '204':
+          description: Folder detached (idempotent, repeat calls are no-ops)
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found or insufficient write access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /projects/{id}/star:
+    post:
+      summary: Star a project
+      description: Pin a project to the calling user's sidebar. Idempotent. Starring is per-user state (each user has their own starred set), so it requires a user-scoped key (`u:gcai_...`). Org-scoped keys carry no user identity and receive 422.
+      operationId: starProject
+      tags:
+      - Projects
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The project ID
+        required: true
+        description: The project ID
+        name: id
+        in: path
+      responses:
+        '204':
+          description: Project starred (idempotent, repeat calls are no-ops)
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found or access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Starring requires a user-scoped key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Unstar a project
+      description: Remove a project from the calling user's sidebar pins. Idempotent. Starring is per-user state (each user has their own starred set), so it requires a user-scoped key (`u:gcai_...`). Org-scoped keys carry no user identity and receive 422.
+      operationId: unstarProject
+      tags:
+      - Projects
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The project ID
+        required: true
+        description: The project ID
+        name: id
+        in: path
+      responses:
+        '204':
+          description: Project unstarred (idempotent, repeat calls are no-ops)
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found or access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Starring requires a user-scoped key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /projects/{id}/chats:
+    get:
+      summary: List chats in a project
+      description: List chats associated with a project. Returns chat metadata only. Per-chat message retrieval is not exposed via the API.
+      operationId: listProjectChats
+      tags:
+      - Projects
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The project ID
+        required: true
+        description: The project ID
+        name: id
+        in: path
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 500
+          default: 100
+          description: Max items to return (default 100, max 500)
+        required: false
+        description: Max items to return (default 100, max 500)
+        name: limit
+        in: query
+      - schema:
+          type: integer
+          nullable: true
+          minimum: 0
+          default: 0
+          description: Number of items to skip (default 0)
+        required: false
+        description: Number of items to skip (default 0)
+        name: offset
+        in: query
+      responses:
+        '200':
+          description: Paginated list of chats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectChatListResponse'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found or access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    AttachFolderRequest:
+      type: object
+      properties:
+        folder_id:
+          type: string
+          format: uuid
+          description: ID of the folder to attach. All files in the folder become available as project context.
+      required:
+      - folder_id
+    UpdateProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: New project name (non-empty after trim)
+          example: 'Vendor: Acme MSA (renamed)'
+        description:
+          type: string
+          nullable: true
+          description: New project description, or null to clear it
+        custom_instructions:
+          type: string
+          nullable: true
+          description: New custom instructions for chats in this project, or null to clear them
+    AttachFileRequest:
+      type: object
+      properties:
+        file_id:
+          type: string
+          format: uuid
+          description: ID of an already-uploaded file to attach to the project
+      required:
+      - file_id
+    CreateProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Project name (required, non-empty after trim)
+          example: 'Vendor: Acme MSA'
+        description:
+          type: string
+          nullable: true
+          description: Optional project description
+        custom_instructions:
+          type: string
+          nullable: true
+          description: Optional custom instructions for chats in this project
+        is_access_controlled:
+          type: boolean
+          description: When true (default), the project is visible only to the creator and explicitly granted users. When false, any member of the organization can see it.
+      required:
+      - name
+    ProjectResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique project identifier
+        name:
+          type: string
+          description: Project name
+        description:
+          type: string
+          nullable: true
+          description: Project description, or null if unset
+        custom_instructions:
+          type: string
+          nullable: true
+          description: Custom instructions injected into chats opened in this project
+        is_access_controlled:
+          type: boolean
+          description: When true, only the creator and explicitly granted users can see the project. When false, any member of the organization can see it.
+        my_access_level:
+          type: string
+          nullable: true
+          enum:
+          - read
+          - write
+          - admin
+          - null
+          description: 'Caller''s access level on this project: `admin` (creator or explicitly granted admin), `write`, `read`, or `null` if the caller has no recorded grant. `null` is also returned for org-scoped keys, which carry no user identity.'
+        created_at:
+          type: string
+          description: ISO 8601 creation timestamp
+        updated_at:
+          type: string
+          description: ISO 8601 last-update timestamp
+      required:
+      - id
+      - name
+      - description
+      - custom_instructions
+      - is_access_controlled
+      - my_access_level
+      - created_at
+      - updated_at
+    ProjectChat:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique chat identifier
+        title:
+          type: string
+          nullable: true
+          description: Chat title, or null if untitled
+        summary:
+          type: string
+          nullable: true
+          description: AI-generated summary of the chat, if any
+        created_at:
+          type: string
+          description: ISO 8601 creation timestamp
+        updated_at:
+          type: string
+          description: ISO 8601 last-update timestamp
+      required:
+      - id
+      - title
+      - summary
+      - created_at
+      - updated_at
+    ProjectFolderListResponse:
+      type: object
+      properties:
+        folders:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectFolder'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      required:
+      - folders
+      - pagination
+    ProjectFile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique file identifier
+        name:
+          type: string
+          description: Original filename
+        size:
+          type: number
+          description: File size in bytes
+        content_type:
+          type: string
+          description: MIME type of the file
+        status:
+          type: string
+          enum:
+          - extracting
+          - embedding
+          - ready
+          - failed
+          description: Current processing status
+        folder_id:
+          type: string
+          nullable: true
+          format: uuid
+          description: Folder the file is stored in, or null
+        created_at:
+          type: string
+          description: ISO 8601 creation timestamp
+      required:
+      - id
+      - name
+      - size
+      - content_type
+      - status
+      - folder_id
+      - created_at
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties:
+            nullable: true
+          description: Validation error details (for 400 errors)
+      required:
+      - error
+    Pagination:
+      type: object
+      properties:
+        limit:
+          type: number
+          description: Page size
+        offset:
+          type: number
+          description: Current offset
+        has_more:
+          type: boolean
+          description: Whether more results exist
+      required:
+      - limit
+      - offset
+      - has_more
+    ProjectListResponse:
+      type: object
+      properties:
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      required:
+      - projects
+      - pagination
+    ProjectChatListResponse:
+      type: object
+      properties:
+        chats:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectChat'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      required:
+      - chats
+      - pagination
+    ProjectFileListResponse:
+      type: object
+      properties:
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectFile'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      required:
+      - files
+      - pagination
+    ProjectFolder:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique folder identifier
+        name:
+          type: string
+          description: Folder name
+        description:
+          type: string
+          nullable: true
+          description: Folder description, or null if unset
+        folder_type:
+          type: string
+          description: Folder type (custom, my-files, etc.)
+      required:
+      - id
+      - name
+      - description
+      - folder_type
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'API key for authentication. Format: `gcai_xxxxxxxxx`
+
+
+        Create API keys in the GC AI app under Settings → API.'

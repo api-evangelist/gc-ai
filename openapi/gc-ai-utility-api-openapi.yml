@@ -1,0 +1,184 @@
+openapi: 3.0.3
+info:
+  title: GC AI External Chat Utility API
+  version: 1.0.0
+  description: 'The GC AI External API allows programmatic access to GC AI''s chat capabilities. It''s designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.
+
+
+    ## Authentication
+
+
+    All API requests must include an API key in the `Authorization` header:
+
+
+    ```
+
+    Authorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+    ```
+
+
+    API keys can be created in the GC AI app under **Settings → API**.
+
+
+    ## Multi-turn Conversations
+
+
+    Conversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).
+
+
+    ## Current Limitations
+
+
+    The following is not yet available via API:
+
+
+    - **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta
+
+
+    ## Usage
+
+
+    Usage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.
+
+
+    ## Support
+
+
+    For API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.'
+  contact:
+    email: support@gc.ai
+servers:
+- url: https://app.gc.ai/api/external/v1
+  description: Production server
+tags:
+- name: Utility
+  description: Health check and connectivity endpoints
+paths:
+  /ping:
+    get:
+      summary: Health check
+      description: Returns a simple health check response. Useful for verifying API key validity and connectivity.
+      operationId: ping
+      tags:
+      - Utility
+      security:
+      - ApiKeyAuth: []
+      responses:
+        '200':
+          description: API is reachable and key is valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PingResponse'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties:
+            nullable: true
+          description: Validation error details (for 400 errors)
+      required:
+      - error
+    PingResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - pong
+          description: Always `pong`
+        timestamp:
+          type: string
+          description: ISO 8601 server timestamp
+      required:
+      - status
+      - timestamp
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'API key for authentication. Format: `gcai_xxxxxxxxx`
+
+
+        Create API keys in the GC AI app under Settings → API.'

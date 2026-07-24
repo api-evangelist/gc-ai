@@ -1,0 +1,800 @@
+openapi: 3.0.3
+info:
+  title: GC AI External Chat Skills API
+  version: 1.0.0
+  description: 'The GC AI External API allows programmatic access to GC AI''s chat capabilities. It''s designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.
+
+
+    ## Authentication
+
+
+    All API requests must include an API key in the `Authorization` header:
+
+
+    ```
+
+    Authorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+    ```
+
+
+    API keys can be created in the GC AI app under **Settings → API**.
+
+
+    ## Multi-turn Conversations
+
+
+    Conversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).
+
+
+    ## Current Limitations
+
+
+    The following is not yet available via API:
+
+
+    - **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta
+
+
+    ## Usage
+
+
+    Usage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.
+
+
+    ## Support
+
+
+    For API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.'
+  contact:
+    email: support@gc.ai
+servers:
+- url: https://app.gc.ai/api/external/v1
+  description: Production server
+tags:
+- name: Skills
+  description: Skill library management endpoints
+paths:
+  /skills:
+    get:
+      summary: List skills
+      description: 'List skills accessible to the caller.
+
+
+        With a user-scoped key, returns skills the user created, org-visible skills, skills explicitly shared with the user, and official skills. With an org-scoped key, returns org-visible skills and official skills.'
+      operationId: listSkills
+      tags:
+      - Skills
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 500
+          default: 100
+          description: Max items to return (default 100, max 500)
+        required: false
+        description: Max items to return (default 100, max 500)
+        name: limit
+        in: query
+      - schema:
+          type: integer
+          nullable: true
+          minimum: 0
+          default: 0
+          description: Number of items to skip (default 0)
+        required: false
+        description: Number of items to skip (default 0)
+        name: offset
+        in: query
+      - schema:
+          type: string
+          description: Optional case-insensitive search over skill name and description
+        required: false
+        description: Optional case-insensitive search over skill name and description
+        name: q
+        in: query
+      responses:
+        '200':
+          description: List of skills
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillListResponse'
+        '400':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a skill
+      description: 'Create a new skill in the caller''s organization.
+
+
+        User-scoped keys own the skill and default it to `private`; org-scoped keys create `organization`-visible skills. Official skills cannot be created via the API.'
+      operationId: createSkill
+      tags:
+      - Skills
+      security:
+      - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSkillRequest'
+      responses:
+        '201':
+          description: The created skill
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Skill'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: One or more `file_ids` were not found in the organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /skills/{id}:
+    get:
+      summary: Get a skill
+      description: 'Fetch a single skill by ID, including its instructions and attached files.
+
+
+        Returns `404` if the skill does not exist or is not accessible to the caller. Official skills are readable by any caller; user skills follow the same visibility rules as `GET /skills`.'
+      operationId: getSkill
+      tags:
+      - Skills
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: Skill ID from `GET /skills`.
+        required: true
+        description: Skill ID from `GET /skills`.
+        name: id
+        in: path
+      responses:
+        '200':
+          description: The skill
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Skill'
+        '400':
+          description: Invalid skill ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Skill not found or not accessible to the caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update a skill
+      description: 'Partially update a skill''s name, instructions, description, or attached files.
+
+
+        Requires write access to the skill. Official skills cannot be edited via the API. Visibility is not editable here — manage skill sharing in the GC AI app.'
+      operationId: updateSkill
+      tags:
+      - Skills
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: Skill ID from `GET /skills`.
+        required: true
+        description: Skill ID from `GET /skills`.
+        name: id
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSkillRequest'
+      responses:
+        '200':
+          description: The updated skill
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Skill'
+        '400':
+          description: Invalid request body or skill ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Caller has read-only access to the skill
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Skill not found or not accessible to the caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: One or more `file_ids` were not found in the organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a skill
+      description: 'Delete a skill. Attached files are detached, not deleted — manage file lifecycle via the files API.
+
+
+        User-scoped keys require write access to the skill; org-scoped keys can delete org-visible (non-private) skills. Official skills cannot be deleted via the API.'
+      operationId: deleteSkill
+      tags:
+      - Skills
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The skill ID to delete
+        required: true
+        description: The skill ID to delete
+        name: id
+        in: path
+      responses:
+        '200':
+          description: Skill successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteSkillResponse'
+        '400':
+          description: Invalid skill ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Caller has read-only access to the skill
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Skill not found or not accessible to the caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    DeleteSkillResponse:
+      type: object
+      properties:
+        deleted:
+          type: boolean
+          description: Always `true` on success
+      required:
+      - deleted
+    SkillFile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Attached file identifier
+        name:
+          type: string
+          description: Attached file name
+      required:
+      - id
+      - name
+    UpdateSkillRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Updated skill name (1-255 chars)
+        content:
+          type: string
+          minLength: 1
+          maxLength: 100000
+          description: Updated skill instructions (1-100000 chars)
+        description:
+          type: string
+          nullable: true
+          maxLength: 1000
+          description: Updated description (max 1000 chars). Pass `null` or an empty string to clear it.
+        file_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 50
+          description: Replacement set of attached file IDs (max 50). When provided, the skill's attachments are reconciled to exactly this list. Omit to leave attachments unchanged.
+    CreateSkillRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Skill name (required, 1-255 chars)
+          example: NDA Risk Reviewer
+        content:
+          type: string
+          minLength: 1
+          maxLength: 100000
+          description: The skill instructions — the prompt text the model receives when the skill runs (required, 1-100000 chars)
+          example: Review the attached NDA and flag any clauses that deviate from our standard positions.
+        description:
+          type: string
+          nullable: true
+          maxLength: 1000
+          description: Optional short description of what the skill does (max 1000 chars)
+        visibility:
+          type: string
+          enum:
+          - private
+          - organization
+          description: Skill visibility. Defaults to `private` for user-scoped keys. Org-scoped keys always create `organization`-visible skills (they have no owning user).
+        file_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 50
+          description: Optional uploaded file IDs to attach as reference context (max 50). Upload files first via `POST /files`.
+      required:
+      - name
+      - content
+    SkillListResponse:
+      type: object
+      properties:
+        skills:
+          type: array
+          items:
+            $ref: '#/components/schemas/Skill'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      required:
+      - skills
+      - pagination
+    Skill:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique skill identifier
+        name:
+          type: string
+          description: Skill name
+        description:
+          type: string
+          nullable: true
+          description: Short description of what the skill does, or null if unset
+        content:
+          type: string
+          description: The skill instructions — the prompt text the model receives when the skill runs
+        visibility:
+          type: string
+          enum:
+          - private
+          - organization
+          description: '`private` (only the creator and users it has been explicitly shared with) or `organization` (visible to everyone in the org). Official skills report `organization`.'
+        is_official:
+          type: boolean
+          description: Whether this is an official GC AI skill. Official skills are read-only and cannot be edited or deleted via the API.
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillFile'
+          description: Files attached to the skill as reference context
+        created_at:
+          type: string
+          nullable: true
+          description: ISO 8601 creation timestamp
+        updated_at:
+          type: string
+          nullable: true
+          description: ISO 8601 last-updated timestamp
+      required:
+      - id
+      - name
+      - description
+      - content
+      - visibility
+      - is_official
+      - files
+      - created_at
+      - updated_at
+    Pagination:
+      type: object
+      properties:
+        limit:
+          type: number
+          description: Page size
+        offset:
+          type: number
+          description: Current offset
+        has_more:
+          type: boolean
+          description: Whether more results exist
+      required:
+      - limit
+      - offset
+      - has_more
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties:
+            nullable: true
+          description: Validation error details (for 400 errors)
+      required:
+      - error
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'API key for authentication. Format: `gcai_xxxxxxxxx`
+
+
+        Create API keys in the GC AI app under Settings → API.'

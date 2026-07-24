@@ -1,0 +1,1181 @@
+openapi: 3.0.3
+info:
+  title: GC AI External Chat Files API
+  version: 1.0.0
+  description: 'The GC AI External API allows programmatic access to GC AI''s chat capabilities. It''s designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.
+
+
+    ## Authentication
+
+
+    All API requests must include an API key in the `Authorization` header:
+
+
+    ```
+
+    Authorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+    ```
+
+
+    API keys can be created in the GC AI app under **Settings → API**.
+
+
+    ## Multi-turn Conversations
+
+
+    Conversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).
+
+
+    ## Current Limitations
+
+
+    The following is not yet available via API:
+
+
+    - **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta
+
+
+    ## Usage
+
+
+    Usage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.
+
+
+    ## Support
+
+
+    For API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.'
+  contact:
+    email: support@gc.ai
+servers:
+- url: https://app.gc.ai/api/external/v1
+  description: Production server
+tags:
+- name: Files
+  description: File upload and management endpoints
+paths:
+  /files:
+    post:
+      summary: Upload a file
+      description: 'Upload a file to GC AI for processing and storage. Files are uploaded as multipart form data and automatically processed (text extraction, summarization, and embedding creation).
+
+
+        With a user-scoped key, files default to the user''s "My Files" folder. With an org-scoped key, files default to the "Organization Files" folder and the `my-files` scope is not available.
+
+
+        For PDFs and Word documents, extraction runs asynchronously. Poll `GET /files/{id}` until `status` is `ready`.'
+      operationId: uploadFile
+      tags:
+      - Files
+      security:
+      - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FileUploadRequest'
+      responses:
+        '200':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+        '400':
+          description: Invalid request (unsupported file type, empty content, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Insufficient project access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: Search files
+      description: 'Hybrid (vector + keyword) search across accessible files. Results are ranked by relevance and capped at 100.
+
+
+        User-scoped keys search all files the user can read. Org-scoped keys search all non-access-controlled files in the organization.
+
+
+        Pass `scope` (user-scoped keys only) to constrain the search to one of the three top-level meta-collections shown in the GC AI UI:
+
+        - `my-files`: files in the user''s personal "My Files" tree
+
+        - `shared-with-me`: files explicitly shared with the user (and files inside shared folders)
+
+        - `organization`: files in the organization''s "Organization Files" tree'
+      operationId: searchFiles
+      tags:
+      - Files
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          minLength: 1
+          description: Search query (required)
+          example: force majeure
+        required: true
+        description: Search query (required)
+        name: q
+        in: query
+      - schema:
+          type: string
+          enum:
+          - my-files
+          - shared-with-me
+          - organization
+          description: Optional scope filter. When omitted, searches all files the user can read.
+          example: my-files
+        required: false
+        description: Optional scope filter. When omitted, searches all files the user can read.
+        name: scope
+        in: query
+      responses:
+        '200':
+          description: Files matching the query, ranked by relevance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileSearchResponse'
+        '400':
+          description: Missing or invalid query parameters, or scope used with an org-scoped key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /files/{id}:
+    get:
+      summary: Get file status
+      description: Retrieve the current status and metadata of an uploaded file. Use this to poll for extraction completion after uploading a file.
+      operationId: getFileStatus
+      tags:
+      - Files
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The file ID
+        required: true
+        description: The file ID
+        name: id
+        in: path
+      responses:
+        '200':
+          description: File metadata and status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Move a file
+      description: Move a file to a different folder by updating its `folder_id`. Org-scoped keys can move non-access-controlled files to non-access-controlled destination folders.
+      operationId: updateFile
+      tags:
+      - Files
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The file ID
+        required: true
+        description: The file ID
+        name: id
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFileRequest'
+      responses:
+        '200':
+          description: File moved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Destination folder access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: File not found or access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /files/uploads:
+    post:
+      summary: Initiate a chunked upload
+      description: 'Start a multipart upload session for a large file. Validates the file type, size, and destination up front, then returns an `upload_id`. Send the file in parts with `PUT /files/uploads/{upload_id}/parts/{part_number}`, then finalize with `POST /files/uploads/{upload_id}/complete`.
+
+
+        Use this instead of `POST /files` when a single request is impractical (large files, or clients with per-request payload limits). The destination options (`folder_id` / `project_id` / `scope`) behave exactly as on `POST /files`.'
+      operationId: initiateUpload
+      tags:
+      - Files
+      security:
+      - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitiateUploadRequest'
+      responses:
+        '200':
+          description: Upload session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitiateUploadResponse'
+        '400':
+          description: Invalid request (unsupported file type, size over the limit, conflicting destination options)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Insufficient project access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Folder or project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /files/uploads/{upload_id}/parts/{part_number}:
+    put:
+      summary: Upload a file part
+      description: Upload one part of a chunked upload. The request body is the raw bytes of the part (`application/octet-stream`). Parts may be uploaded in any order; re-sending the same `part_number` overwrites it, so a failed part is safe to retry.
+      operationId: uploadPart
+      tags:
+      - Files
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The upload session ID from initiate.
+        required: true
+        description: The upload session ID from initiate.
+        name: upload_id
+        in: path
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 32
+          description: Part index, from 1 to 32.
+        required: true
+        description: Part index, from 1 to 32.
+        name: part_number
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Part stored
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadPartResponse'
+        '400':
+          description: Empty part body or part number out of range
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Upload session not found or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /files/uploads/{upload_id}/complete:
+    post:
+      summary: Complete a chunked upload
+      description: Assemble the uploaded parts into the final file and start processing (text extraction, summarization, embeddings), returning the same file object as `POST /files`. For PDFs and Word documents, extraction runs asynchronously — poll `GET /files/{id}` until `status` is `ready`.
+      operationId: completeUpload
+      tags:
+      - Files
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The upload session ID from initiate.
+        required: true
+        description: The upload session ID from initiate.
+        name: upload_id
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompleteUploadRequest'
+      responses:
+        '200':
+          description: File assembled and processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+        '400':
+          description: Missing parts, or the assembled file is empty or over the size limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Insufficient project access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Upload session not found or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /files/uploads/{upload_id}:
+    delete:
+      summary: Abort a chunked upload
+      description: 'Discard an in-flight upload session and delete any parts already uploaded. Idempotent: aborting an unknown or already-finalized session still returns success.'
+      operationId: abortUpload
+      tags:
+      - Files
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The upload session ID from initiate.
+        required: true
+        description: The upload session ID from initiate.
+        name: upload_id
+        in: path
+      responses:
+        '200':
+          description: Session aborted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbortUploadResponse'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    InitiateUploadRequest:
+      type: object
+      properties:
+        file_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Original filename, including extension.
+          example: msa-2026.pdf
+        content_type:
+          type: string
+          description: MIME type of the file. When omitted, it is derived from the filename extension.
+          example: application/pdf
+        size:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: Total size of the complete file in bytes. Validated up front against the file-size limit so oversized uploads fail before any parts are sent.
+          example: 12582912
+        folder_id:
+          type: string
+          format: uuid
+          description: Target folder ID. Defaults to the user's "My Files" folder. Mutually exclusive with `project_id` and `scope`.
+        project_id:
+          type: string
+          format: uuid
+          description: Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.
+        scope:
+          type: string
+          enum:
+          - my-files
+          - organization
+          description: Upload to the root of a meta-collection ("my-files" or "organization"). Mutually exclusive with `folder_id` and `project_id`. User-scoped keys only.
+          example: my-files
+      required:
+      - file_name
+      - size
+    UpdateFileRequest:
+      type: object
+      properties:
+        folder_id:
+          type: string
+          nullable: true
+          format: uuid
+          description: Target folder ID to move the file to. Pass null to move to the root.
+      required:
+      - folder_id
+    AbortUploadResponse:
+      type: object
+      properties:
+        upload_id:
+          type: string
+          format: uuid
+        aborted:
+          type: boolean
+          enum:
+          - true
+      required:
+      - upload_id
+      - aborted
+    FileResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique file identifier
+        name:
+          type: string
+          description: Original filename
+        size:
+          type: number
+          description: File size in bytes
+        content_type:
+          type: string
+          description: MIME type of the file
+          example: application/pdf
+        status:
+          type: string
+          enum:
+          - extracting
+          - embedding
+          - ready
+          - failed
+          description: Current processing status of the file
+        created_at:
+          type: string
+          description: ISO 8601 creation timestamp
+        folder_id:
+          type: string
+          nullable: true
+          format: uuid
+          description: Folder the file belongs to
+        extraction_error:
+          type: string
+          description: Error message if extraction failed
+        project_id:
+          type: string
+          format: uuid
+          description: Project the file is linked to, if uploaded with project_id
+        warning:
+          type: string
+          description: Present when the file was uploaded successfully but a secondary operation (e.g. project linking) failed
+      required:
+      - id
+      - name
+      - size
+      - content_type
+      - status
+      - created_at
+    SearchedFile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique file identifier
+        name:
+          type: string
+          description: Original filename
+        size:
+          type: number
+          description: File size in bytes
+        content_type:
+          type: string
+          description: MIME type of the file
+        status:
+          type: string
+          enum:
+          - extracting
+          - embedding
+          - ready
+          - failed
+          description: Current processing status
+        folder_id:
+          type: string
+          nullable: true
+          format: uuid
+          description: Parent folder ID, or null if the file is at the root
+        created_at:
+          type: string
+          description: ISO 8601 creation timestamp
+      required:
+      - id
+      - name
+      - size
+      - content_type
+      - status
+      - folder_id
+      - created_at
+    CompleteUploadRequest:
+      type: object
+      properties:
+        part_count:
+          type: integer
+          minimum: 1
+          maximum: 32
+          description: The total number of parts you uploaded. Parts must be a contiguous run from 1 to this value; completion fails if any are missing.
+          example: 3
+      required:
+      - part_count
+    UploadPartResponse:
+      type: object
+      properties:
+        upload_id:
+          type: string
+          format: uuid
+        part_number:
+          type: number
+          description: The part just stored.
+        size:
+          type: number
+          description: Bytes received for this part.
+      required:
+      - upload_id
+      - part_number
+      - size
+    InitiateUploadResponse:
+      type: object
+      properties:
+        upload_id:
+          type: string
+          format: uuid
+          description: Opaque identifier for this upload session. Use it in the part and complete requests.
+        part_size:
+          type: number
+          description: Recommended part size in bytes. Split the file into parts no larger than this for reliable transfers.
+        max_parts:
+          type: number
+          description: Maximum number of parts allowed for this session. Part numbers run from 1 to this value.
+        expires_at:
+          type: string
+          description: ISO 8601 timestamp after which the session expires. Upload all parts and call complete before this.
+      required:
+      - upload_id
+      - part_size
+      - max_parts
+      - expires_at
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties:
+            nullable: true
+          description: Validation error details (for 400 errors)
+      required:
+      - error
+    FileUploadRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: The file to upload
+        folder_id:
+          type: string
+          format: uuid
+          description: Target folder ID. Defaults to the user's "My Files" folder. Mutually exclusive with `project_id` and `scope`.
+        project_id:
+          type: string
+          format: uuid
+          description: Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.
+        scope:
+          type: string
+          enum:
+          - my-files
+          - organization
+          description: Upload to the root of a meta-collection ("my-files" or "organization"). Mutually exclusive with `folder_id` and `project_id`. `shared-with-me` is not valid for upload.
+          example: my-files
+      required:
+      - file
+    FileSearchResponse:
+      type: object
+      properties:
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchedFile'
+          description: Files matching the query, ranked by hybrid (vector + keyword) relevance. At most 100 results.
+      required:
+      - files
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'API key for authentication. Format: `gcai_xxxxxxxxx`
+
+
+        Create API keys in the GC AI app under Settings → API.'

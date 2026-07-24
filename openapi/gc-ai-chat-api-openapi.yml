@@ -1,0 +1,913 @@
+openapi: 3.0.3
+info:
+  title: GC AI External Chat API
+  version: 1.0.0
+  description: 'The GC AI External API allows programmatic access to GC AI''s chat capabilities. It''s designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.
+
+
+    ## Authentication
+
+
+    All API requests must include an API key in the `Authorization` header:
+
+
+    ```
+
+    Authorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+    ```
+
+
+    API keys can be created in the GC AI app under **Settings → API**.
+
+
+    ## Multi-turn Conversations
+
+
+    Conversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).
+
+
+    ## Current Limitations
+
+
+    The following is not yet available via API:
+
+
+    - **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta
+
+
+    ## Usage
+
+
+    Usage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.
+
+
+    ## Support
+
+
+    For API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.'
+  contact:
+    email: support@gc.ai
+servers:
+- url: https://app.gc.ai/api/external/v1
+  description: Production server
+tags:
+- name: Chat
+  description: AI chat completion endpoints
+paths:
+  /chat/completions:
+    post:
+      summary: Create chat completion
+      description: 'Send a message to GC AI and receive an AI-generated response.
+
+
+        <Note>
+
+        This endpoint is asynchronous: it returns a job envelope, and the result is filled in once the job completes. See [Asynchronous Requests](/api-reference/concepts/async-jobs) for how waiting, polling, and the envelope work.
+
+        </Note>
+
+
+        ## Multi-turn conversations
+
+
+        Every response includes a `chat_id`. Pass it back as `chat_id` on a later request to continue that conversation. Conversation state — prior messages, tool calls, and any returned documents, emails, or diagrams — is held server-side, so each turn sends only the new `message` (plus any new `file_ids`); never re-send prior turns or previously returned outputs.
+
+
+        Only one turn may be in flight per chat at a time: a request whose `chat_id` already has a turn running is rejected with `409`. Wait for the prior turn to reach a terminal state before sending the next.
+
+
+        Continuing a chat is scoped like [materialization](/api-reference/concepts/chat-visibility): personal keys continue chats they created; organization keys continue organization chats. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).
+
+
+        ## Server-side tools
+
+
+        The model can invoke tools automatically while generating a response. Tool calls happen server-side. Only the final assistant text is returned in `result.result`.
+
+
+        | Tool | Description | Key type |
+
+        |---|---|---|
+
+        | Document reading | Read, query, and search within attached files | All |
+
+        | Web search | Search the web for current information | All |
+
+        | Research agent | Multi-step web research with synthesis | All |
+
+        | Case-law lookup | Search case law databases | User-scoped only |
+
+        | Playbook review | Run playbook checks against attached files (requires `playbook_ids`) | All |
+
+        | Document editing | Apply redline edits to an attached DOCX. All proposed revisions are auto-accepted; the edited file is returned via `result.documents`. The original file is preserved. | User-scoped only |
+
+        | Document generation | Generate a new DOCX from a prompt. The generated file is returned via `result.documents`. | User-scoped only |
+
+        | Slide generation | Generate a new PowerPoint deck (PPTX) from a prompt. The generated file is returned via `result.documents`. | User-scoped only |
+
+        | Email drafting | Draft a structured email from a prompt. The draft is returned via `result.emails` (`to`, `subject`, `body`, …). | All |
+
+        | Diagrams | Generate a diagram from a prompt. The diagram is returned via `result.diagrams` as validated Mermaid source (`mermaid`) you can render with any Mermaid-compatible renderer. | All |
+
+
+        The following tools are **not available** via API in beta (the response is plain text with no channel for rich outputs):
+
+
+        | Tool | Reason unavailable |
+
+        |---|---|
+
+        | Interactive clarification | Requires a back-and-forth channel with the caller |
+
+
+        <Note>
+
+        This is an inference endpoint and is [rate limited](/api-reference/concepts/rate-limits): during the free beta, roughly 1 request/minute per organization (burst of 3). Exceeding the limit returns `429` with a `Retry-After` header.
+
+        </Note>'
+      operationId: createChatCompletion
+      tags:
+      - Chat
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: 'Optional long-poll wait time in seconds. Use `0` for fire-and-forget behavior. If both `wait` and `Prefer: wait=...` are supplied, they must match. Values above 90 are clamped.'
+          example: 0
+        required: false
+        description: 'Optional long-poll wait time in seconds. Use `0` for fire-and-forget behavior. If both `wait` and `Prefer: wait=...` are supplied, they must match. Values above 90 are clamped.'
+        name: wait
+        in: query
+      - schema:
+          type: string
+          description: Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.
+          example: wait=0
+        required: false
+        description: Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.
+        name: Prefer
+        in: header
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatCompletionRequest'
+      responses:
+        '200':
+          description: Job completed within the effective wait window
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatCompletionResponse'
+        '202':
+          description: Job accepted but not yet complete, including fire-and-forget requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatCompletionResponse'
+        '400':
+          description: Invalid request body or invalid/conflicting wait controls
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key or playbook review not enabled for this account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: One or more `file_ids`, one or more `playbook_ids`, or the `chat_id` were not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: The `chat_id` refers to a non-API chat, or a turn is already in progress for that chat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /jobs/{id}:
+    get:
+      summary: Get async job status
+      description: 'Poll an async API job created by endpoints like `POST /chat/completions`.
+
+
+        Use the `job_id` returned by a `202 Accepted` response to check whether the job is still pending or has reached a terminal state.'
+      operationId: getAsyncJob
+      tags:
+      - Chat
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The async job ID
+        required: true
+        description: The async job ID
+        name: id
+        in: path
+      - schema:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: 'Optional long-poll wait time in seconds. Use `0` for fire-and-forget behavior. If both `wait` and `Prefer: wait=...` are supplied, they must match. Values above 90 are clamped.'
+          example: 0
+        required: false
+        description: 'Optional long-poll wait time in seconds. Use `0` for fire-and-forget behavior. If both `wait` and `Prefer: wait=...` are supplied, they must match. Values above 90 are clamped.'
+        name: wait
+        in: query
+      - schema:
+          type: string
+          description: Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.
+          example: wait=0
+        required: false
+        description: Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.
+        name: Prefer
+        in: header
+      responses:
+        '200':
+          description: Job found and currently in a terminal state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatCompletionResponse'
+        '202':
+          description: Job found but not yet complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatCompletionResponse'
+        '400':
+          description: Invalid job ID, wait value, or conflicting wait controls
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /chat/{id}/materialize:
+    post:
+      summary: Materialize an API chat
+      description: 'Surface an API-created chat into chat history and return a shareable deep link.
+
+
+        Chats created through `POST /chat/completions` stay out of chat history (both the GC AI web app and [chat search](/api-reference/search-chats)) until you materialize them. Use the `chat_id` from a completed completion response. The endpoint is idempotent. Calling it again on an already-materialized chat returns the same link without side effects.
+
+
+        **Authorization:** User-scoped keys can only materialize chats they created. Organization-scoped keys can only materialize chats created by other organization-scoped keys.
+
+
+        See [Chat Visibility](/api-reference/concepts/chat-visibility) for how this works.'
+      operationId: materializeChat
+      tags:
+      - Chat
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The chat ID
+        required: true
+        description: The chat ID
+        name: id
+        in: path
+      responses:
+        '200':
+          description: Chat materialized (or already materialized)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaterializeChatResponse'
+        '400':
+          description: Invalid chat ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Token cannot materialize this chat (wrong ownership scope)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Chat not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Chat is not an API-created chat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /chat/search:
+    get:
+      summary: Search chats
+      description: 'Hybrid search across the caller''s chat history that merges two lanes: a case-insensitive title-substring match and a semantic (vector) match over each chat''s AI-generated summary. Title matches are returned first (a strong signal the user remembers the chat name), followed by semantic matches in relevance order, de-duplicated and capped at `limit`.
+
+
+        **Authorization:** User-scoped keys (`u:gcai_...`) search the chats that user can access. Organization-scoped keys search every chat shared with the entire organization, regardless of who or what created it. Chats that remain private to an individual user are never returned to an org-scoped key.
+
+
+        API-created chats appear here only once they''ve been [materialized](/api-reference/concepts/chat-visibility); unmaterialized chats are not in anyone''s history and won''t match.'
+      operationId: searchChats
+      tags:
+      - Chat
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Search query (required, 1-500 chars). Natural language is fine.
+          example: force majeure carve-out
+        required: true
+        description: Search query (required, 1-500 chars). Natural language is fine.
+        name: q
+        in: query
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 20
+          description: Max chats to return (default 20, max 50)
+        required: false
+        description: Max chats to return (default 20, max 50)
+        name: limit
+        in: query
+      responses:
+        '200':
+          description: Chats matching the query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatSearchResponse'
+        '400':
+          description: Missing or invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    ApiDiagram:
+      type: object
+      properties:
+        title:
+          type: string
+          description: A short descriptive title for the diagram.
+        diagram_type:
+          type: string
+          description: The semantic type of diagram, e.g. orgChart, dealStructure, workflow, timeline, sequence, entityRelationship, or general.
+        mermaid:
+          type: string
+          description: The diagram source as validated Mermaid syntax. Render it with any Mermaid-compatible renderer.
+      required:
+      - title
+      - diagram_type
+      - mermaid
+    ChatSearchResult:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique chat identifier
+        title:
+          type: string
+          nullable: true
+          description: Chat title, or null if untitled
+        summary:
+          type: string
+          nullable: true
+          description: AI-generated summary of the chat, if any
+        updated_at:
+          type: string
+          description: ISO 8601 last-update timestamp
+      required:
+      - id
+      - title
+      - summary
+      - updated_at
+    ChatCompletionRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: The user's message or prompt
+          example: What are the key terms to look for in a software license agreement?
+        file_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Optional uploaded file IDs to attach as context for this completion. Upload files first via `POST /files`.
+          example:
+          - 123e4567-e89b-12d3-a456-426614174000
+        playbook_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 20
+          description: 'Optional playbook IDs to ground the completion in (up to 20). The model uses each playbook''s checks and guidance to structure its review of the attached files. Discover playbooks via `GET /playbooks`.
+
+
+            Org-scoped keys can use org-visible and official playbooks.'
+          example:
+          - f9e8d7c6-b5a4-3210-fedc-ba0987654321
+        playbook_id:
+          type: string
+          description: Deprecated and no longer accepted. Use `playbook_ids` (an array) instead. Requests that include this field are rejected with a 400 so the playbook is never silently dropped.
+          deprecated: true
+        skill_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: 'Optional skill IDs to run on the first turn. Each skill''s instructions are injected as context for this completion. Discover skills via `GET /skills`.
+
+
+            Only valid when starting a new chat — omit them when continuing with `chat_id`.'
+          example:
+          - b2c3d4e5-f6a7-4890-bcde-f12345678901
+        chat_id:
+          type: string
+          format: uuid
+          description: 'Optional chat ID to continue an existing conversation, from the `chat_id` of a prior completion. Omit to start a new chat.
+
+
+            Conversation state is held server-side, so send only your new `message` (plus any new `file_ids`) — do **not** re-send prior turns or previously returned documents/emails/diagrams. Only one turn may be in flight per chat at a time. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).'
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+      required:
+      - message
+    ChatSearchResponse:
+      type: object
+      properties:
+        chats:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatSearchResult'
+          description: Chats matching the query. Title-substring matches first, then semantic (vector) matches in relevance order, de-duplicated and capped at `limit`.
+      required:
+      - chats
+    MaterializeChatResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The chat ID
+        title:
+          type: string
+          nullable: true
+          description: The chat title, if generated
+        chat_url:
+          type: string
+          format: uri
+          description: Deep link to open the chat in the GC AI web UI
+        materialized_at:
+          type: string
+          format: date-time
+          description: When the chat was materialized
+      required:
+      - id
+      - title
+      - chat_url
+      - materialized_at
+    ApiEmail:
+      type: object
+      properties:
+        to:
+          type: string
+          description: Recipient email address(es), comma-separated. May be an empty string when the prompt named no recipient — fill it in before sending.
+        cc:
+          type: string
+          description: CC recipient email address(es), comma-separated.
+        bcc:
+          type: string
+          description: BCC recipient email address(es), comma-separated.
+        subject:
+          type: string
+          description: Email subject line. Always present — inferred from context when the prompt did not specify one.
+        body:
+          type: string
+          description: Email body in markdown.
+        plaintext_body:
+          type: string
+          description: Email body with markdown stripped, for plain-text clients.
+      required:
+      - to
+      - subject
+      - body
+      - plaintext_body
+    ChatCompletionResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+          format: uuid
+          description: Async job identifier
+        kind:
+          type: string
+          enum:
+          - chat/completions
+          description: Stable job kind for this endpoint
+        status:
+          type: string
+          enum:
+          - pending
+          - running
+          - succeeded
+          - failed
+          - canceled
+          description: Current job status
+        result:
+          $ref: '#/components/schemas/ChatCompletionResult'
+        error:
+          type: object
+          nullable: true
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+          required:
+          - code
+          - message
+          description: Failure payload when the job has failed
+        created_at:
+          type: string
+          description: ISO 8601 creation timestamp
+        completed_at:
+          type: string
+          nullable: true
+          description: ISO 8601 completion timestamp, or null when not terminal
+      required:
+      - job_id
+      - kind
+      - status
+      - result
+      - error
+      - created_at
+      - completed_at
+    ChatCompletionResult:
+      type: object
+      nullable: true
+      properties:
+        result:
+          type: string
+          description: The AI-generated response text
+          example: 'When reviewing a software license agreement, key terms to examine include:
+
+
+            1. **License Grant** - Understand the scope of rights granted...'
+        chat_id:
+          type: string
+          format: uuid
+          description: The chat ID. API chats stay out of chat history until you materialize them. Pass this ID to `POST /chat/{id}/materialize` to surface the chat. See [Chat Visibility](/api-reference/concepts/chat-visibility).
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiDocument'
+          description: Documents produced during this completion — either edits of an attached file (the document editing tool) or newly generated files (the document or slide generation tools). Present only when at least one document was produced. Each entry exposes a new `file_id` and a signed download URL; edits also reference the preserved original via `original_file_id`.
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiEmail'
+          description: Email drafts produced during this completion by the email drafting tool. Present only when at least one email was drafted. Each entry is a structured draft (`to`, `subject`, `body`, …) ready to send via your own mail client or provider.
+        diagrams:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiDiagram'
+          description: Diagrams produced during this completion by the diagram tool. Present only when at least one diagram was produced. Each entry exposes validated Mermaid source (`mermaid`) you can render with any Mermaid-compatible renderer.
+      required:
+      - result
+      - chat_id
+      description: Completion payload when the job has succeeded
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties:
+            nullable: true
+          description: Validation error details (for 400 errors)
+      required:
+      - error
+    ApiDocument:
+      type: object
+      properties:
+        file_id:
+          type: string
+          format: uuid
+          description: The new uploaded file ID for the produced document. Use it with `POST /chat/completions` `file_ids` to apply further edits to this version. Download via `signed_url` for the finished file.
+        original_file_id:
+          type: string
+          format: uuid
+          description: The `file_id` the changes were applied to (edits only). The original file is preserved unchanged. Omitted for newly generated documents.
+        filename:
+          type: string
+          description: Filename of the produced document (edits are prefixed with `edited_`).
+        original_filename:
+          type: string
+          description: Filename of the source file the changes were applied to (edits only). Omitted for newly generated documents.
+        signed_url:
+          type: string
+          format: uri
+          description: Time-limited download URL for the produced document. Valid for 7 days from job completion. Download promptly — the URL is not re-minted, so re-fetching the job after expiry returns the same expired URL.
+      required:
+      - file_id
+      - filename
+      - signed_url
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'API key for authentication. Format: `gcai_xxxxxxxxx`
+
+
+        Create API keys in the GC AI app under Settings → API.'

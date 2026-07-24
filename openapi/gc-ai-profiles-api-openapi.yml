@@ -1,0 +1,887 @@
+openapi: 3.0.3
+info:
+  title: GC AI External Chat Profiles API
+  version: 1.0.0
+  description: 'The GC AI External API allows programmatic access to GC AI''s chat capabilities. It''s designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.
+
+
+    ## Authentication
+
+
+    All API requests must include an API key in the `Authorization` header:
+
+
+    ```
+
+    Authorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+    ```
+
+
+    API keys can be created in the GC AI app under **Settings → API**.
+
+
+    ## Multi-turn Conversations
+
+
+    Conversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).
+
+
+    ## Current Limitations
+
+
+    The following is not yet available via API:
+
+
+    - **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta
+
+
+    ## Usage
+
+
+    Usage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.
+
+
+    ## Support
+
+
+    For API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.'
+  contact:
+    email: support@gc.ai
+servers:
+- url: https://app.gc.ai/api/external/v1
+  description: Production server
+tags:
+- name: Profiles
+  description: Personal and company profile endpoints
+paths:
+  /me:
+    get:
+      summary: Identify the caller
+      description: 'Return the identity behind the API key making the request — the organization it belongs to, and, for user-scoped keys, the user it acts as.
+
+
+        Works with **either** a user-scoped key (`u:gcai_...`) or an org-scoped key (`gcai_...`). Org-scoped keys carry no user identity, so `user` is `null` for them. Use this to confirm which credential and account a request resolves to before calling `/me/profile` or `/company-profile`.'
+      operationId: getMe
+      tags:
+      - Profiles
+      security:
+      - ApiKeyAuth: []
+      responses:
+        '200':
+          description: The caller identity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallerIdentityResponse'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /me/profile:
+    get:
+      summary: Get your personal profile
+      description: 'Retrieve the calling user''s personal profile — the chat-context fields the web UI exposes under Settings → Profile. A profile that has never been saved is returned with default values.
+
+
+        Display name and avatar are managed by your identity provider, not this API, so they are not included.
+
+
+        Requires a **user-scoped** key (`u:gcai_...`); org-scoped keys carry no user identity and receive 403.'
+      operationId: getMyProfile
+      tags:
+      - Profiles
+      security:
+      - ApiKeyAuth: []
+      responses:
+        '200':
+          description: The personal profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalProfileResponse'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Key is not user-scoped, or the API key is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update your personal profile
+      description: 'Partially update the calling user''s personal profile. Omitted fields are left unchanged; nullable fields accept `null` to clear them. The profile is created on first write.
+
+
+        Display name and avatar are managed by your identity provider, not this API.
+
+
+        Requires a **user-scoped** key (`u:gcai_...`); org-scoped keys receive 403.'
+      operationId: updateMyProfile
+      tags:
+      - Profiles
+      security:
+      - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePersonalProfileRequest'
+      responses:
+        '200':
+          description: The updated personal profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalProfileResponse'
+        '400':
+          description: No fields provided, or invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Key is not user-scoped, or the API key is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /company-profile:
+    get:
+      summary: Get the company profile
+      description: 'Retrieve the organization''s company profile — the company context (industry, jurisdiction, regulations, risk posture) the AI uses to ground answers.
+
+
+        Readable with either a user-scoped or org-scoped key. With a user-scoped key, the user''s active (default) company is returned when one is set; otherwise the organization''s sole company is returned. An organization with multiple companies and no applicable default returns 409.'
+      operationId: getCompanyProfile
+      tags:
+      - Profiles
+      security:
+      - ApiKeyAuth: []
+      responses:
+        '200':
+          description: The company profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyProfileResponse'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No company profile exists for this organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: The organization has more than one company profile, so the singular `/company-profile` resource cannot disambiguate. Manage multiple companies in the web UI.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update the company profile
+      description: 'Partially update the organization''s company profile. Omitted fields are left unchanged; nullable fields accept `null` to clear them.
+
+
+        Requires an **org-scoped** key (`gcai_...`) — company context is organization-level configuration, so user-scoped keys receive 403. Creating the first company profile is done in the web UI.'
+      operationId: updateCompanyProfile
+      tags:
+      - Profiles
+      security:
+      - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCompanyProfileRequest'
+      responses:
+        '200':
+          description: The updated company profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyProfileResponse'
+        '400':
+          description: No fields provided, or invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Key is not org-scoped, or the API key is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No company profile exists to update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: The organization has more than one company profile, so the singular `/company-profile` resource cannot disambiguate. Manage multiple companies in the web UI.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    CallerIdentityResponse:
+      type: object
+      properties:
+        token_type:
+          type: string
+          enum:
+          - user
+          - organization
+          description: Scope of the API key making the request. `user` for personal keys (`u:gcai_...`), `organization` for org keys (`gcai_...`).
+        api_key_id:
+          type: string
+          description: Identifier of the API key used to authenticate the request
+        organization:
+          $ref: '#/components/schemas/CallerOrganization'
+        user:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+              description: Calling user identifier
+            email:
+              type: string
+              nullable: true
+              description: Calling user email, or null if unset
+          required:
+          - id
+          - email
+          description: The authenticated user, or null for org-scoped keys (which carry no user identity).
+      required:
+      - token_type
+      - api_key_id
+      - organization
+      - user
+    UpdateCompanyProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Company name (cannot be cleared)
+        dba_name:
+          type: string
+          nullable: true
+          description: Doing-business-as name. Send null to clear.
+        industry:
+          type: string
+          nullable: true
+          description: Industry sector. Send null to clear.
+        size:
+          type: string
+          nullable: true
+          description: Company size band. Send null to clear.
+        location:
+          type: string
+          nullable: true
+          description: Primary office location. Send null to clear.
+        incorporation_country:
+          type: string
+          nullable: true
+          description: Country of incorporation. Send null to clear.
+        incorporation_state:
+          type: string
+          nullable: true
+          description: State/province of incorporation. Send null to clear.
+        description:
+          type: string
+          nullable: true
+          description: Short company description. Send null to clear.
+        revenue:
+          type: string
+          nullable: true
+          description: Annual revenue band. Send null to clear.
+        legal_matters:
+          type: string
+          nullable: true
+          description: Typical legal matters. Send null to clear.
+        regulations:
+          type: string
+          nullable: true
+          description: Key regulations. Send null to clear.
+        risk_tolerance:
+          type: string
+          nullable: true
+          description: Risk tolerance level. Send null to clear.
+        additional_info:
+          type: string
+          nullable: true
+          description: Free-form additional context. Send null to clear.
+        customer_types:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Types of customers served. Send null or [] to clear.
+    CallerOrganization:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Organization the key belongs to
+        name:
+          type: string
+          nullable: true
+          description: Organization display name, or null if unset
+      required:
+      - id
+      - name
+    CompanyProfileResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique company profile identifier
+        name:
+          type: string
+          description: Company name
+        dba_name:
+          type: string
+          nullable: true
+          description: Doing-business-as name, or null
+        industry:
+          type: string
+          nullable: true
+          description: Industry sector, or null
+        size:
+          type: string
+          nullable: true
+          description: Company size band (e.g. "51-200"), or null
+        location:
+          type: string
+          nullable: true
+          description: Primary office location, or null
+        incorporation_country:
+          type: string
+          nullable: true
+          description: Country of incorporation, or null
+        incorporation_state:
+          type: string
+          nullable: true
+          description: State/province of incorporation, or null
+        description:
+          type: string
+          nullable: true
+          description: Short company description, or null
+        revenue:
+          type: string
+          nullable: true
+          description: Annual revenue band, or null
+        legal_matters:
+          type: string
+          nullable: true
+          description: Typical legal matters the company handles, or null
+        regulations:
+          type: string
+          nullable: true
+          description: Key regulations the company must comply with, or null
+        risk_tolerance:
+          type: string
+          nullable: true
+          description: Risk tolerance level (e.g. "Low"), or null
+        additional_info:
+          type: string
+          nullable: true
+          description: Free-form additional context for the AI, or null
+        customer_types:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Types of customers the company serves, or null
+        created_at:
+          type: string
+          nullable: true
+          description: ISO 8601 creation timestamp
+        updated_at:
+          type: string
+          nullable: true
+          description: ISO 8601 last-update timestamp
+      required:
+      - id
+      - name
+      - dba_name
+      - industry
+      - size
+      - location
+      - incorporation_country
+      - incorporation_state
+      - description
+      - revenue
+      - legal_matters
+      - regulations
+      - risk_tolerance
+      - additional_info
+      - customer_types
+      - created_at
+      - updated_at
+    PersonalProfileResponse:
+      type: object
+      properties:
+        preferred_name:
+          type: string
+          nullable: true
+          description: Preferred name to use in chats, or null if unset
+        use_name_in_chats:
+          type: boolean
+          description: Whether the AI should address the user by name
+        role_title:
+          type: string
+          nullable: true
+          description: Job title or role (e.g. "General Counsel"), or null
+        jurisdiction_focus:
+          type: string
+          nullable: true
+          description: Primary jurisdiction the user practices in, or null
+        practice_areas:
+          type: array
+          items:
+            type: string
+          description: Practice areas the user focuses on (may be empty)
+        custom_instructions:
+          type: string
+          nullable: true
+          description: Custom instructions injected into every chat, or null
+        privilege_marking_enabled:
+          type: boolean
+          description: Whether AI responses include an attorney-client privilege disclaimer
+        privilege_marking_text:
+          type: string
+          nullable: true
+          description: The privilege disclaimer text, or null if unset
+        enter_to_submit:
+          type: boolean
+          description: Whether the chat composer submits on Enter instead of Cmd/Ctrl+Enter
+        document_author_name:
+          type: string
+          nullable: true
+          description: Name stamped on tracked changes when AI edits are applied, or null
+        enabled:
+          type: boolean
+          description: Whether the personal profile is active and applied to chats
+        created_at:
+          type: string
+          nullable: true
+          description: ISO 8601 creation timestamp, or null if never saved
+        updated_at:
+          type: string
+          nullable: true
+          description: ISO 8601 last-update timestamp, or null if never saved
+      required:
+      - preferred_name
+      - use_name_in_chats
+      - role_title
+      - jurisdiction_focus
+      - practice_areas
+      - custom_instructions
+      - privilege_marking_enabled
+      - privilege_marking_text
+      - enter_to_submit
+      - document_author_name
+      - enabled
+      - created_at
+      - updated_at
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties:
+            nullable: true
+          description: Validation error details (for 400 errors)
+      required:
+      - error
+    UpdatePersonalProfileRequest:
+      type: object
+      properties:
+        preferred_name:
+          type: string
+          nullable: true
+          maxLength: 100
+          description: Preferred name to use in chats. Send null to clear.
+        use_name_in_chats:
+          type: boolean
+          description: Whether the AI should address the user by name
+        role_title:
+          type: string
+          nullable: true
+          maxLength: 200
+          description: Job title or role. Send null to clear.
+        jurisdiction_focus:
+          type: string
+          nullable: true
+          maxLength: 255
+          description: Primary jurisdiction. Send null to clear.
+        practice_areas:
+          type: array
+          nullable: true
+          items:
+            type: string
+            maxLength: 100
+          maxItems: 20
+          description: Practice areas (max 20). Send null or [] to clear.
+        custom_instructions:
+          type: string
+          nullable: true
+          maxLength: 4000
+          description: Custom instructions for every chat. Send null to clear.
+        privilege_marking_enabled:
+          type: boolean
+          description: Whether AI responses include an attorney-client privilege disclaimer
+        privilege_marking_text:
+          type: string
+          nullable: true
+          maxLength: 200
+          description: Privilege disclaimer text. Send null to clear.
+        enter_to_submit:
+          type: boolean
+          description: Whether the chat composer submits on Enter instead of Cmd/Ctrl+Enter
+        document_author_name:
+          type: string
+          nullable: true
+          maxLength: 100
+          description: Name stamped on AI tracked changes. Send null to clear.
+        enabled:
+          type: boolean
+          description: Whether the personal profile is active
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'API key for authentication. Format: `gcai_xxxxxxxxx`
+
+
+        Create API keys in the GC AI app under Settings → API.'

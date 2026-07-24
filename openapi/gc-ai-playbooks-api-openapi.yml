@@ -1,0 +1,2025 @@
+openapi: 3.0.3
+info:
+  title: GC AI External Chat Playbooks API
+  version: 1.0.0
+  description: 'The GC AI External API allows programmatic access to GC AI''s chat capabilities. It''s designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.
+
+
+    ## Authentication
+
+
+    All API requests must include an API key in the `Authorization` header:
+
+
+    ```
+
+    Authorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+    ```
+
+
+    API keys can be created in the GC AI app under **Settings → API**.
+
+
+    ## Multi-turn Conversations
+
+
+    Conversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).
+
+
+    ## Current Limitations
+
+
+    The following is not yet available via API:
+
+
+    - **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta
+
+
+    ## Usage
+
+
+    Usage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.
+
+
+    ## Support
+
+
+    For API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.'
+  contact:
+    email: support@gc.ai
+servers:
+- url: https://app.gc.ai/api/external/v1
+  description: Production server
+tags:
+- name: Playbooks
+  description: Playbook review endpoints
+paths:
+  /playbooks:
+    get:
+      summary: List playbooks
+      description: 'List playbooks accessible to the caller.
+
+
+        With a user-scoped key, returns playbooks the user created, org-visible playbooks, shared playbooks, and official playbooks. With an org-scoped key, returns org-visible and official playbooks.'
+      operationId: listPlaybooks
+      tags:
+      - Playbooks
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 500
+          default: 100
+          description: Max items to return (default 100, max 500)
+        required: false
+        description: Max items to return (default 100, max 500)
+        name: limit
+        in: query
+      - schema:
+          type: integer
+          nullable: true
+          minimum: 0
+          default: 0
+          description: Number of items to skip (default 0)
+        required: false
+        description: Number of items to skip (default 0)
+        name: offset
+        in: query
+      responses:
+        '200':
+          description: List of playbooks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaybookListResponse'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a playbook
+      description: 'Create a new, empty playbook. Add checks to it with the check endpoints, then run it against files.
+
+
+        With a user-scoped key, the caller is recorded as the creator and the playbook is private to them. With an org-scoped key, the playbook is org-visible (any member of the organization can read and manage it) and has no individual creator.'
+      operationId: createPlaybook
+      tags:
+      - Playbooks
+      security:
+      - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePlaybookRequest'
+      responses:
+        '201':
+          description: Playbook created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Playbook'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /playbooks/{id}:
+    get:
+      summary: Get a playbook
+      description: 'Retrieve a single playbook by ID, including its `guide` text.
+
+
+        User-scoped keys can read playbooks they created, playbooks shared with them, org-visible playbooks, and official playbooks. Org-scoped keys can read org-visible and official playbooks, but not private ones.'
+      operationId: getPlaybook
+      tags:
+      - Playbooks
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: Playbook ID from `GET /playbooks`.
+        required: true
+        description: Playbook ID from `GET /playbooks`.
+        name: id
+        in: path
+      responses:
+        '200':
+          description: Playbook details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Playbook'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Playbook not found or not accessible to the caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update a playbook
+      description: 'Update a playbook''s title, description, or guide. At least one field is required.
+
+
+        User-scoped keys require write access to the playbook. Org-scoped keys can update org-visible (non-private) playbooks.'
+      operationId: updatePlaybook
+      tags:
+      - Playbooks
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The playbook ID
+        required: true
+        description: The playbook ID
+        name: id
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePlaybookRequest'
+      responses:
+        '200':
+          description: Updated playbook
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Playbook'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Playbook not found or not writable by the caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a playbook
+      description: 'Soft-delete a playbook by ID. The playbook is marked as deleted and will no longer appear in `GET /playbooks` results.
+
+
+        User-scoped keys require admin access to the playbook. Org-scoped keys can delete org-visible (non-private) playbooks.'
+      operationId: deletePlaybook
+      tags:
+      - Playbooks
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The playbook ID to delete
+        required: true
+        description: The playbook ID to delete
+        name: id
+        in: path
+      responses:
+        '200':
+          description: Playbook successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletePlaybookResponse'
+        '400':
+          description: Invalid playbook ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Playbook not found or not accessible to the caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /playbooks/{id}/duplicate:
+    post:
+      summary: Duplicate a playbook
+      description: 'Create a copy of a playbook, including its checks and positions. The copy is private to the caller.
+
+
+        Requires a user-scoped key — the caller is recorded as the new playbook''s creator and must be able to read the source. Org-scoped keys cannot duplicate playbooks.'
+      operationId: duplicatePlaybook
+      tags:
+      - Playbooks
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: The playbook ID
+        required: true
+        description: The playbook ID
+        name: id
+        in: path
+      responses:
+        '201':
+          description: Duplicated playbook
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Playbook'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Duplicating playbooks requires a user-scoped key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Source playbook not found or not accessible to the caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /playbooks/{id}/run:
+    post:
+      summary: Run a playbook against uploaded files
+      description: 'Run a playbook against one or more uploaded files and receive structured check results.
+
+
+        <Note>
+
+        This endpoint is asynchronous: it returns a job envelope, and the result is filled in once the job completes. See [Asynchronous Requests](/api-reference/concepts/async-jobs) for how waiting, polling, and the envelope work.
+
+        </Note>
+
+
+        Files referenced by `file_ids` must be accessible to the caller and in `ready` status. The playbook must be in `completed` status. Org-scoped keys can run org-visible playbooks against non-access-controlled files.
+
+
+        <Note>
+
+        This is an inference endpoint and is [rate limited](/api-reference/concepts/rate-limits): during the free beta, roughly 1 request/minute per organization (burst of 3). Exceeding the limit returns `429` with a `Retry-After` header.
+
+        </Note>'
+      operationId: runPlaybook
+      tags:
+      - Playbooks
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: Playbook ID from `GET /playbooks`.
+        required: true
+        description: Playbook ID from `GET /playbooks`.
+        name: id
+        in: path
+      - schema:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: 'Optional long-poll wait time in seconds. Use `0` for fire-and-forget behavior. If both `wait` and `Prefer: wait=...` are supplied, they must match. Values above 90 are clamped.'
+          example: 0
+        required: false
+        description: 'Optional long-poll wait time in seconds. Use `0` for fire-and-forget behavior. If both `wait` and `Prefer: wait=...` are supplied, they must match. Values above 90 are clamped.'
+        name: wait
+        in: query
+      - schema:
+          type: string
+          description: Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.
+          example: wait=0
+        required: false
+        description: Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.
+        name: Prefer
+        in: header
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunPlaybookRequest'
+      responses:
+        '200':
+          description: Job completed within the effective wait window
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunPlaybookResponse'
+        '202':
+          description: Job accepted but not yet complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunPlaybookResponse'
+        '400':
+          description: Invalid request body, playbook not ready, or files still extracting
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Playbook not found or file IDs not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: One or more files have a permanent extraction failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /playbooks/{id}/checks:
+    get:
+      summary: List a playbook's checks
+      description: 'List the checks in a playbook, in their configured order.
+
+
+        Readable by any caller who can read the playbook.'
+      operationId: listPlaybookChecks
+      tags:
+      - Playbooks
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: Playbook ID from `GET /playbooks`.
+        required: true
+        description: Playbook ID from `GET /playbooks`.
+        name: id
+        in: path
+      responses:
+        '200':
+          description: List of checks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaybookCheckListResponse'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Playbook not found or not accessible to the caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Add a check to a playbook
+      description: 'Create a check and append it to the playbook.
+
+
+        Requires write access to the playbook. With a user-scoped key the caller is recorded as the check’s creator; with an org-scoped key the check has no individual creator and is org-owned.'
+      operationId: createPlaybookCheck
+      tags:
+      - Playbooks
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: Playbook ID from `GET /playbooks`.
+        required: true
+        description: Playbook ID from `GET /playbooks`.
+        name: id
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePlaybookCheckRequest'
+      responses:
+        '201':
+          description: Check created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaybookCheck'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Playbook not found or not writable by the caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /playbooks/{id}/checks/{checkId}:
+    get:
+      summary: Get a check
+      description: 'Retrieve a single check in a playbook by ID.
+
+
+        Readable by any caller who can read the playbook.'
+      operationId: getPlaybookCheck
+      tags:
+      - Playbooks
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: Playbook ID from `GET /playbooks`.
+        required: true
+        description: Playbook ID from `GET /playbooks`.
+        name: id
+        in: path
+      - schema:
+          type: string
+          format: uuid
+          description: Check ID from `GET /playbooks/{id}/checks`.
+        required: true
+        description: Check ID from `GET /playbooks/{id}/checks`.
+        name: checkId
+        in: path
+      responses:
+        '200':
+          description: Check details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaybookCheck'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Playbook or check not found, or not accessible
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update a check
+      description: 'Update a check''s title, description, importance, or positions. At least one field is required. When `positions` is supplied it replaces the check''s positions entirely.
+
+
+        Requires a user-scoped key with write access to the playbook. Org-scoped keys cannot update checks.'
+      operationId: updatePlaybookCheck
+      tags:
+      - Playbooks
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: Playbook ID from `GET /playbooks`.
+        required: true
+        description: Playbook ID from `GET /playbooks`.
+        name: id
+        in: path
+      - schema:
+          type: string
+          format: uuid
+          description: Check ID from `GET /playbooks/{id}/checks`.
+        required: true
+        description: Check ID from `GET /playbooks/{id}/checks`.
+        name: checkId
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePlaybookCheckRequest'
+      responses:
+        '200':
+          description: Updated check
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaybookCheck'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Updating checks requires a user-scoped key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Playbook or check not found, or not writable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Cannot replace positions on a check whose positions carry clause language or other settings the API can't yet round-trip; omit `positions` to update other fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Remove a check from a playbook
+      description: 'Remove a check from the playbook.
+
+
+        Requires a user-scoped key with write access to the playbook. Org-scoped keys cannot remove checks.'
+      operationId: deletePlaybookCheck
+      tags:
+      - Playbooks
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: Playbook ID from `GET /playbooks`.
+        required: true
+        description: Playbook ID from `GET /playbooks`.
+        name: id
+        in: path
+      - schema:
+          type: string
+          format: uuid
+          description: Check ID from `GET /playbooks/{id}/checks`.
+        required: true
+        description: Check ID from `GET /playbooks/{id}/checks`.
+        name: checkId
+        in: path
+      responses:
+        '200':
+          description: Check removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletePlaybookCheckResponse'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Removing checks requires a user-scoped key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Playbook or check not found, or not writable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /playbooks/{id}/checks/reorder:
+    post:
+      summary: Reorder a playbook's checks
+      description: 'Set the order of the playbook''s checks. Provide the check IDs in the desired order.
+
+
+        Requires a user-scoped key with write access to the playbook. Org-scoped keys cannot reorder checks.'
+      operationId: reorderPlaybookChecks
+      tags:
+      - Playbooks
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          format: uuid
+          description: Playbook ID from `GET /playbooks`.
+        required: true
+        description: Playbook ID from `GET /playbooks`.
+        name: id
+        in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReorderPlaybookChecksRequest'
+      responses:
+        '200':
+          description: Checks reordered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReorderPlaybookChecksResponse'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Reordering checks requires a user-scoped key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Playbook not found or not writable by the caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    PlaybookListResponse:
+      type: object
+      properties:
+        playbooks:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaybookSummary'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      required:
+      - playbooks
+      - pagination
+    Playbook:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique playbook identifier
+        title:
+          type: string
+          description: Playbook title
+        description:
+          type: string
+          nullable: true
+          description: Playbook description, or null if unset
+        guide:
+          type: string
+          nullable: true
+          description: Free-text guidance applied across the whole playbook when it runs, or null if unset.
+        is_official:
+          type: boolean
+          description: Whether this is an official GC AI playbook
+        status:
+          type: string
+          enum:
+          - draft
+          - processing
+          - completed
+          - failed
+          description: Playbook processing status
+        created_at:
+          type: string
+          nullable: true
+          description: ISO 8601 creation timestamp
+        updated_at:
+          type: string
+          nullable: true
+          description: ISO 8601 last-update timestamp
+      required:
+      - id
+      - title
+      - description
+      - guide
+      - is_official
+      - status
+      - created_at
+      - updated_at
+    ReorderPlaybookChecksRequest:
+      type: object
+      properties:
+        check_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+          description: All check IDs of the playbook in the desired order. Checks omitted from the list keep their existing order relative to one another.
+      required:
+      - check_ids
+    DeletePlaybookResponse:
+      type: object
+      properties:
+        deleted:
+          type: boolean
+          description: Always `true` on success
+      required:
+      - deleted
+    PlaybookCheckResult:
+      type: object
+      properties:
+        checkId:
+          type: string
+          format: uuid
+        checkTitle:
+          type: string
+        evaluationResult:
+          type: string
+          description: Evaluation outcome. One of `Pass`, `Flag`, `Fallback`, or `Error`.
+        documentPosition:
+          type: number
+          nullable: true
+          description: Position in the document where the matched language was found, or null if not anchored.
+      required:
+      - checkId
+      - checkTitle
+      - evaluationResult
+      - documentPosition
+      additionalProperties:
+        nullable: true
+      description: Per-check evaluation result. Additional fields (e.g. `analysis`, `revisions`) may appear depending on the check type.
+    CreatePlaybookCheckRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: Check title (required, non-empty).
+          example: Limitation of liability
+        description:
+          type: string
+          nullable: true
+          description: Optional internal description.
+        importance:
+          type: string
+          nullable: true
+          enum:
+          - low
+          - medium
+          - high
+          - null
+          description: Optional priority within the playbook.
+        positions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaybookCheckPositionInput'
+          minItems: 1
+          description: 'The check''s positions: exactly one `standard` position plus any number of `fallback` positions.'
+      required:
+      - title
+      - positions
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties:
+            nullable: true
+          description: Validation error details (for 400 errors)
+      required:
+      - error
+    UpdatePlaybookRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: New title (non-empty).
+        description:
+          type: string
+          nullable: true
+          description: New description, or null to clear.
+        guide:
+          type: string
+          nullable: true
+          description: New guide text, or null to clear.
+    PlaybookSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique playbook identifier
+        title:
+          type: string
+          description: Playbook title
+        description:
+          type: string
+          nullable: true
+          description: Playbook description, or null if unset
+        is_official:
+          type: boolean
+          description: Whether this is an official GC AI playbook
+        status:
+          type: string
+          enum:
+          - draft
+          - processing
+          - completed
+          - failed
+          description: Playbook processing status
+        created_at:
+          type: string
+          nullable: true
+          description: ISO 8601 creation timestamp
+      required:
+      - id
+      - title
+      - description
+      - is_official
+      - status
+      - created_at
+    RunPlaybookRequest:
+      type: object
+      properties:
+        file_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+          description: IDs of uploaded files to review. Files must be in `ready` status. At least one file is required.
+        review_mode:
+          type: string
+          enum:
+          - first-party
+          - third-party
+          default: third-party
+          description: Whose perspective the review takes. `third-party` reviews a counterparty document (default); `first-party` reviews your own.
+        representing_party:
+          type: string
+          default: our company
+          description: 'Name of the party the review represents (default: "our company").'
+        check_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+          description: Optional subset of check IDs to evaluate. Omit to run every check in the playbook.
+      required:
+      - file_ids
+    RunPlaybookResult:
+      type: object
+      nullable: true
+      properties:
+        playbookTitle:
+          type: string
+        totalChecks:
+          type: number
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaybookCheckResult'
+        summary:
+          type: object
+          properties:
+            flags:
+              type: number
+            fallbacks:
+              type: number
+            passes:
+              type: number
+            errors:
+              type: number
+          required:
+          - flags
+          - fallbacks
+          - passes
+          - errors
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiDocument'
+          description: Redlined documents produced from the review's suggested revisions, applied as tracked changes. Present only when a single DOCX file was reviewed under a user-scoped key and at least one revision applied. The original file is preserved; each entry exposes a new `file_id` and a signed download URL.
+      required:
+      - playbookTitle
+      - totalChecks
+      - results
+      - summary
+      description: Playbook review payload when the job has succeeded
+    PlaybookCheckPositionInput:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - standard
+          - fallback
+          description: Use `standard` for the primary stance and `fallback` for an alternative the reviewer may accept.
+        guidance:
+          type: string
+          minLength: 1
+          description: The review stance for this position — what to require, accept, or flag.
+          example: Require a mutual liability cap at 12 months of fees.
+      required:
+      - type
+      - guidance
+    CreatePlaybookRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: Playbook title (required, non-empty).
+          example: Vendor NDA review
+        description:
+          type: string
+          nullable: true
+          description: Optional human-facing description.
+        guide:
+          type: string
+          nullable: true
+          description: Optional free-text guidance applied across the whole playbook when it runs.
+      required:
+      - title
+    PlaybookCheckListResponse:
+      type: object
+      properties:
+        checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaybookCheck'
+      required:
+      - checks
+    DeletePlaybookCheckResponse:
+      type: object
+      properties:
+        deleted:
+          type: boolean
+          description: Always `true` on success
+      required:
+      - deleted
+    UpdatePlaybookCheckRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: New title (non-empty).
+        description:
+          type: string
+          nullable: true
+          description: New description, or null to clear.
+        importance:
+          type: string
+          nullable: true
+          enum:
+          - low
+          - medium
+          - high
+          - null
+          description: New priority, or null to clear.
+        positions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaybookCheckPositionInput'
+          minItems: 1
+          description: Replacement set of positions (full desired state). Omit to leave positions unchanged.
+    ApiDocument:
+      type: object
+      properties:
+        file_id:
+          type: string
+          format: uuid
+          description: The new uploaded file ID for the produced document. Use it with `POST /chat/completions` `file_ids` to apply further edits to this version. Download via `signed_url` for the finished file.
+        original_file_id:
+          type: string
+          format: uuid
+          description: The `file_id` the changes were applied to (edits only). The original file is preserved unchanged. Omitted for newly generated documents.
+        filename:
+          type: string
+          description: Filename of the produced document (edits are prefixed with `edited_`).
+        original_filename:
+          type: string
+          description: Filename of the source file the changes were applied to (edits only). Omitted for newly generated documents.
+        signed_url:
+          type: string
+          format: uri
+          description: Time-limited download URL for the produced document. Valid for 7 days from job completion. Download promptly — the URL is not re-minted, so re-fetching the job after expiry returns the same expired URL.
+      required:
+      - file_id
+      - filename
+      - signed_url
+    PlaybookCheck:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique check identifier
+        title:
+          type: string
+          description: Check title
+        description:
+          type: string
+          nullable: true
+          description: Optional internal description, or null if unset
+        importance:
+          type: string
+          nullable: true
+          enum:
+          - low
+          - medium
+          - high
+          - null
+          description: Priority of this check within the playbook, or null if unset
+        positions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaybookCheckPosition'
+          description: 'The check''s positions: one standard stance plus any fallbacks.'
+        created_at:
+          type: string
+          nullable: true
+          description: ISO 8601 creation timestamp
+        updated_at:
+          type: string
+          nullable: true
+          description: ISO 8601 last-update timestamp
+      required:
+      - id
+      - title
+      - description
+      - importance
+      - positions
+      - created_at
+      - updated_at
+    PlaybookCheckPosition:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - standard
+          - fallback
+          description: The primary stance (`standard`) or an alternative fallback the reviewer may accept (`fallback`). Each check has exactly one standard position.
+        guidance:
+          type: string
+          nullable: true
+          description: The review stance for this position — what to require, accept, or flag. May be null for positions authored in the web app without guidance.
+      required:
+      - type
+      - guidance
+    Pagination:
+      type: object
+      properties:
+        limit:
+          type: number
+          description: Page size
+        offset:
+          type: number
+          description: Current offset
+        has_more:
+          type: boolean
+          description: Whether more results exist
+      required:
+      - limit
+      - offset
+      - has_more
+    RunPlaybookResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+          format: uuid
+          description: Async job identifier
+        kind:
+          type: string
+          enum:
+          - playbooks/run
+          description: Stable job kind for this endpoint
+        status:
+          type: string
+          enum:
+          - pending
+          - running
+          - succeeded
+          - failed
+          - canceled
+          description: Current job status
+        result:
+          $ref: '#/components/schemas/RunPlaybookResult'
+        error:
+          type: object
+          nullable: true
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+          required:
+          - code
+          - message
+          description: Failure payload when the job has failed
+        created_at:
+          type: string
+          description: ISO 8601 creation timestamp
+        completed_at:
+          type: string
+          nullable: true
+          description: ISO 8601 completion timestamp, or null when not terminal
+      required:
+      - job_id
+      - kind
+      - status
+      - result
+      - error
+      - created_at
+      - completed_at
+    ReorderPlaybookChecksResponse:
+      type: object
+      properties:
+        reordered:
+          type: boolean
+          description: Always `true` on success
+      required:
+      - reordered
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'API key for authentication. Format: `gcai_xxxxxxxxx`
+
+
+        Create API keys in the GC AI app under Settings → API.'

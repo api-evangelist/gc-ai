@@ -1,0 +1,485 @@
+openapi: 3.0.3
+info:
+  title: GC AI External Chat Usage API
+  version: 1.0.0
+  description: 'The GC AI External API allows programmatic access to GC AI''s chat capabilities. It''s designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.
+
+
+    ## Authentication
+
+
+    All API requests must include an API key in the `Authorization` header:
+
+
+    ```
+
+    Authorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+    ```
+
+
+    API keys can be created in the GC AI app under **Settings → API**.
+
+
+    ## Multi-turn Conversations
+
+
+    Conversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).
+
+
+    ## Current Limitations
+
+
+    The following is not yet available via API:
+
+
+    - **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta
+
+
+    ## Usage
+
+
+    Usage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.
+
+
+    ## Support
+
+
+    For API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.'
+  contact:
+    email: support@gc.ai
+servers:
+- url: https://app.gc.ai/api/external/v1
+  description: Production server
+tags:
+- name: Usage
+  description: Usage and credit/billing reporting endpoints
+paths:
+  /credit-usage:
+    get:
+      summary: Get credit usage
+      description: 'Billing view of the organization''s credit consumption, broken down by billable operation and by day, with rate-card pricing.
+
+
+        Requires an org-scoped API key — credit usage is an organization-level concern. User-scoped keys receive a 403.
+
+
+        If rate-card pricing can''t be resolved for every observed operation, `pricing_available` is `false` and all credit fields are null; raw request counts are still returned.'
+      operationId: getCreditUsage
+      tags:
+      - Usage
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+          description: Inclusive range start (`YYYY-MM-DD`).
+          example: 2026-06-01
+        required: true
+        description: Inclusive range start (`YYYY-MM-DD`).
+        name: start_date
+        in: query
+      - schema:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+          description: Inclusive range end (`YYYY-MM-DD`).
+          example: 2026-06-30
+        required: true
+        description: Inclusive range end (`YYYY-MM-DD`).
+        name: end_date
+        in: query
+      - schema:
+          type: string
+          default: UTC
+          description: IANA timezone for day boundaries (default `UTC`), e.g. `America/New_York`.
+        required: false
+        description: IANA timezone for day boundaries (default `UTC`), e.g. `America/New_York`.
+        name: timezone
+        in: query
+      responses:
+        '200':
+          description: Credit usage for the requested range
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditUsageResponse'
+        '400':
+          description: Invalid date range or timezone (bad calendar date, end before start, unknown timezone, or range over 366 days)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Credit usage requires an org-scoped API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /usage:
+    get:
+      summary: Get usage summary
+      description: 'Organization-wide product-usage summary by channel: `web` (web app), `word` (Word add-in), and `api`.
+
+
+        Requires an org-scoped API key — usage is reported org-wide, so a user-scoped key receives a 403. For credit/billing totals, use `GET /v1/credit-usage`.
+
+
+        Note: web/word counts are sourced from product analytics; day boundaries for those channels are approximate (UTC).'
+      operationId: getUsage
+      tags:
+      - Usage
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - schema:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+          description: Inclusive range start (`YYYY-MM-DD`).
+          example: 2026-06-01
+        required: true
+        description: Inclusive range start (`YYYY-MM-DD`).
+        name: start_date
+        in: query
+      - schema:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+          description: Inclusive range end (`YYYY-MM-DD`).
+          example: 2026-06-30
+        required: true
+        description: Inclusive range end (`YYYY-MM-DD`).
+        name: end_date
+        in: query
+      - schema:
+          type: string
+          default: UTC
+          description: IANA timezone for the api channel day boundaries (default `UTC`).
+        required: false
+        description: IANA timezone for the api channel day boundaries (default `UTC`).
+        name: timezone
+        in: query
+      responses:
+        '200':
+          description: Usage summary for the requested range
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsageSummaryResponse'
+        '400':
+          description: Invalid date range or timezone (bad calendar date, end before start, unknown timezone, or range over 366 days)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or malformed API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Usage requires an org-scoped API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a rate-limit block.
+                example: '60'
+              required: true
+              description: Seconds to wait before retrying after a rate-limit block.
+            RateLimit-Limit:
+              schema:
+                type: string
+                description: Request quota for the applicable window.
+                example: '3'
+              required: true
+              description: Request quota for the applicable window.
+            RateLimit-Remaining:
+              schema:
+                type: string
+                description: Requests remaining in the current window.
+                example: '0'
+              required: true
+              description: Requests remaining in the current window.
+            RateLimit-Reset:
+              schema:
+                type: string
+                description: Seconds until the quota resets.
+                example: '60'
+              required: true
+              description: Seconds until the quota resets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service temporarily unavailable
+          headers:
+            Retry-After:
+              schema:
+                type: string
+                description: Seconds to wait before retrying after a transient service outage.
+                example: '5'
+              required: true
+              description: Seconds to wait before retrying after a transient service outage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    CreditUsageDay:
+      type: object
+      properties:
+        date:
+          type: string
+          description: Calendar day (`YYYY-MM-DD`) in the requested timezone.
+          example: 2026-06-01
+        usage:
+          type: object
+          additionalProperties:
+            type: number
+          description: Billable units consumed that day, keyed by billable operation. Operations with no usage are omitted.
+      required:
+      - date
+      - usage
+    CreditUsageLine:
+      type: object
+      properties:
+        api:
+          type: string
+          description: The billable operation, e.g. `chat:completions` or `playbook:run`.
+          example: chat:completions
+        requests:
+          type: number
+          description: Total billable units consumed for this line over the range.
+        unit:
+          type: string
+          nullable: true
+          description: Display label for one billable unit (e.g. `request`). Null when pricing is unavailable.
+        credits_per_unit:
+          type: number
+          nullable: true
+          description: Credits charged per unit, from the current rate card. Null when pricing is unavailable.
+        credits:
+          type: number
+          nullable: true
+          description: Total credits for this line (`requests × credits_per_unit`). Null when pricing is unavailable.
+      required:
+      - api
+      - requests
+      - unit
+      - credits_per_unit
+      - credits
+    ApiUsage:
+      type: object
+      properties:
+        requests:
+          type: number
+          description: Total billable API requests across all operations.
+        by_operation:
+          type: object
+          additionalProperties:
+            type: number
+          description: Billable API requests keyed by operation (e.g. `chat:completions`, `playbook:run`).
+      required:
+      - requests
+      - by_operation
+      description: API activity.
+    WebUsage:
+      type: object
+      properties:
+        messages:
+          type: number
+          description: Web-app chat messages sent.
+        web_pages_scraped:
+          type: number
+          description: Web pages read by GC AI to compose answers.
+        files_uploaded:
+          type: number
+          description: Files uploaded.
+      required:
+      - messages
+      - web_pages_scraped
+      - files_uploaded
+      description: Web-app activity.
+    WordUsage:
+      type: object
+      properties:
+        messages:
+          type: number
+          description: Word add-in messages sent.
+        redlines_applied:
+          type: number
+          description: Redlines applied from the Word add-in.
+        drafts_applied:
+          type: number
+          description: Drafts applied from the Word add-in.
+      required:
+      - messages
+      - redlines_applied
+      - drafts_applied
+      description: Word add-in activity.
+    CreditUsageResponse:
+      type: object
+      properties:
+        start_date:
+          type: string
+          description: Inclusive range start.
+        end_date:
+          type: string
+          description: Inclusive range end.
+        timezone:
+          type: string
+          description: IANA timezone used for day boundaries.
+        pricing_available:
+          type: boolean
+          description: Whether rate-card pricing could be resolved for every observed operation. When false, all credit fields are null and only raw request counts are returned.
+        total_credits:
+          type: number
+          nullable: true
+          description: Total credits across all operations over the range. Null when pricing is unavailable.
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditUsageLine'
+          description: Per-operation usage and credit totals over the range.
+        daily:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditUsageDay'
+          description: Daily usage buckets across the full range (days with no usage have an empty `usage` object).
+      required:
+      - start_date
+      - end_date
+      - timezone
+      - pricing_available
+      - total_credits
+      - lines
+      - daily
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties:
+            nullable: true
+          description: Validation error details (for 400 errors)
+      required:
+      - error
+    UsageSummaryResponse:
+      type: object
+      properties:
+        start_date:
+          type: string
+          description: Inclusive range start.
+        end_date:
+          type: string
+          description: Inclusive range end.
+        timezone:
+          type: string
+          description: IANA timezone used for day boundaries.
+        web:
+          $ref: '#/components/schemas/WebUsage'
+        word:
+          $ref: '#/components/schemas/WordUsage'
+        api:
+          $ref: '#/components/schemas/ApiUsage'
+      required:
+      - start_date
+      - end_date
+      - timezone
+      - web
+      - word
+      - api
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'API key for authentication. Format: `gcai_xxxxxxxxx`
+
+
+        Create API keys in the GC AI app under Settings → API.'
