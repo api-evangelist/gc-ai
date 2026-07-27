@@ -1,0 +1,202 @@
+generated: '2026-07-19'
+method: searched
+status: published
+source: https://app.gc.ai/.well-known/oauth-protected-resource
+notes: >-
+  GC AI runs a hosted, OAuth-protected MCP server. The MCP endpoint returns 401
+  without a bearer token; authorization is via the OAuth 2.1 authorization
+  server advertised at /.well-known/oauth-authorization-server (authorization_code
+  + refresh_token, PKCE S256, dynamic client registration). The tools[] list
+  below is a candidate surface derived from the External API operations — the
+  live tool names exposed by the server were not enumerable without credentials.
+server:
+  name: gc-ai
+  transport: http
+  url: https://app.gc.ai/api/mcp
+  sse_url: https://app.gc.ai/api/mcp/sse
+  auth:
+    type: oauth2
+    protected_resource_metadata: https://app.gc.ai/.well-known/oauth-protected-resource
+    authorization_server_metadata: https://app.gc.ai/.well-known/oauth-authorization-server
+    issuer: https://auth.gc.ai
+    authorization_endpoint: https://auth.gc.ai/oauth2/authorize
+    token_endpoint: https://app.gc.ai/api/mcp/oauth/token
+    registration_endpoint: https://app.gc.ai/api/mcp/oauth/register
+    grant_types: [authorization_code, refresh_token]
+    pkce: S256
+tools_source: derived from openapi/gc-ai-openapi-original.yml operations
+tools:
+  - name: createChatCompletion
+    description: "Create chat completion"
+    source_operation: openapi/gc-ai-openapi-original.yml#createChatCompletion
+  - name: getAsyncJob
+    description: "Get async job status"
+    source_operation: openapi/gc-ai-openapi-original.yml#getAsyncJob
+  - name: materializeChat
+    description: "Materialize an API chat"
+    source_operation: openapi/gc-ai-openapi-original.yml#materializeChat
+  - name: searchChats
+    description: "Search chats"
+    source_operation: openapi/gc-ai-openapi-original.yml#searchChats
+  - name: uploadFile
+    description: "Upload a file"
+    source_operation: openapi/gc-ai-openapi-original.yml#uploadFile
+  - name: searchFiles
+    description: "Search files"
+    source_operation: openapi/gc-ai-openapi-original.yml#searchFiles
+  - name: getFileStatus
+    description: "Get file status"
+    source_operation: openapi/gc-ai-openapi-original.yml#getFileStatus
+  - name: updateFile
+    description: "Move a file"
+    source_operation: openapi/gc-ai-openapi-original.yml#updateFile
+  - name: initiateUpload
+    description: "Initiate a chunked upload"
+    source_operation: openapi/gc-ai-openapi-original.yml#initiateUpload
+  - name: uploadPart
+    description: "Upload a file part"
+    source_operation: openapi/gc-ai-openapi-original.yml#uploadPart
+  - name: completeUpload
+    description: "Complete a chunked upload"
+    source_operation: openapi/gc-ai-openapi-original.yml#completeUpload
+  - name: abortUpload
+    description: "Abort a chunked upload"
+    source_operation: openapi/gc-ai-openapi-original.yml#abortUpload
+  - name: listFolders
+    description: "List folders"
+    source_operation: openapi/gc-ai-openapi-original.yml#listFolders
+  - name: createFolder
+    description: "Create a folder"
+    source_operation: openapi/gc-ai-openapi-original.yml#createFolder
+  - name: getFolder
+    description: "Get a folder"
+    source_operation: openapi/gc-ai-openapi-original.yml#getFolder
+  - name: updateFolder
+    description: "Update a folder"
+    source_operation: openapi/gc-ai-openapi-original.yml#updateFolder
+  - name: deleteFolder
+    description: "Delete a folder"
+    source_operation: openapi/gc-ai-openapi-original.yml#deleteFolder
+  - name: listFolderChildren
+    description: "List a folder's children"
+    source_operation: openapi/gc-ai-openapi-original.yml#listFolderChildren
+  - name: listProjects
+    description: "List projects"
+    source_operation: openapi/gc-ai-openapi-original.yml#listProjects
+  - name: createProject
+    description: "Create a project"
+    source_operation: openapi/gc-ai-openapi-original.yml#createProject
+  - name: getProject
+    description: "Get a project"
+    source_operation: openapi/gc-ai-openapi-original.yml#getProject
+  - name: updateProject
+    description: "Update a project"
+    source_operation: openapi/gc-ai-openapi-original.yml#updateProject
+  - name: deleteProject
+    description: "Delete a project"
+    source_operation: openapi/gc-ai-openapi-original.yml#deleteProject
+  - name: attachFileToProject
+    description: "Attach a file to a project"
+    source_operation: openapi/gc-ai-openapi-original.yml#attachFileToProject
+  - name: listProjectFiles
+    description: "List files on a project"
+    source_operation: openapi/gc-ai-openapi-original.yml#listProjectFiles
+  - name: detachFileFromProject
+    description: "Detach a file from a project"
+    source_operation: openapi/gc-ai-openapi-original.yml#detachFileFromProject
+  - name: listProjectFolders
+    description: "List folders linked to a project"
+    source_operation: openapi/gc-ai-openapi-original.yml#listProjectFolders
+  - name: attachFolderToProject
+    description: "Attach a folder to a project"
+    source_operation: openapi/gc-ai-openapi-original.yml#attachFolderToProject
+  - name: detachFolderFromProject
+    description: "Detach a folder from a project"
+    source_operation: openapi/gc-ai-openapi-original.yml#detachFolderFromProject
+  - name: starProject
+    description: "Star a project"
+    source_operation: openapi/gc-ai-openapi-original.yml#starProject
+  - name: unstarProject
+    description: "Unstar a project"
+    source_operation: openapi/gc-ai-openapi-original.yml#unstarProject
+  - name: listProjectChats
+    description: "List chats in a project"
+    source_operation: openapi/gc-ai-openapi-original.yml#listProjectChats
+  - name: listPlaybooks
+    description: "List playbooks"
+    source_operation: openapi/gc-ai-openapi-original.yml#listPlaybooks
+  - name: createPlaybook
+    description: "Create a playbook"
+    source_operation: openapi/gc-ai-openapi-original.yml#createPlaybook
+  - name: getPlaybook
+    description: "Get a playbook"
+    source_operation: openapi/gc-ai-openapi-original.yml#getPlaybook
+  - name: updatePlaybook
+    description: "Update a playbook"
+    source_operation: openapi/gc-ai-openapi-original.yml#updatePlaybook
+  - name: deletePlaybook
+    description: "Delete a playbook"
+    source_operation: openapi/gc-ai-openapi-original.yml#deletePlaybook
+  - name: duplicatePlaybook
+    description: "Duplicate a playbook"
+    source_operation: openapi/gc-ai-openapi-original.yml#duplicatePlaybook
+  - name: runPlaybook
+    description: "Run a playbook against uploaded files"
+    source_operation: openapi/gc-ai-openapi-original.yml#runPlaybook
+  - name: getMe
+    description: "Identify the caller"
+    source_operation: openapi/gc-ai-openapi-original.yml#getMe
+  - name: getMyProfile
+    description: "Get your personal profile"
+    source_operation: openapi/gc-ai-openapi-original.yml#getMyProfile
+  - name: updateMyProfile
+    description: "Update your personal profile"
+    source_operation: openapi/gc-ai-openapi-original.yml#updateMyProfile
+  - name: getCompanyProfile
+    description: "Get the company profile"
+    source_operation: openapi/gc-ai-openapi-original.yml#getCompanyProfile
+  - name: updateCompanyProfile
+    description: "Update the company profile"
+    source_operation: openapi/gc-ai-openapi-original.yml#updateCompanyProfile
+  - name: listSkills
+    description: "List skills"
+    source_operation: openapi/gc-ai-openapi-original.yml#listSkills
+  - name: createSkill
+    description: "Create a skill"
+    source_operation: openapi/gc-ai-openapi-original.yml#createSkill
+  - name: getSkill
+    description: "Get a skill"
+    source_operation: openapi/gc-ai-openapi-original.yml#getSkill
+  - name: updateSkill
+    description: "Update a skill"
+    source_operation: openapi/gc-ai-openapi-original.yml#updateSkill
+  - name: deleteSkill
+    description: "Delete a skill"
+    source_operation: openapi/gc-ai-openapi-original.yml#deleteSkill
+  - name: listPlaybookChecks
+    description: "List a playbook's checks"
+    source_operation: openapi/gc-ai-openapi-original.yml#listPlaybookChecks
+  - name: createPlaybookCheck
+    description: "Add a check to a playbook"
+    source_operation: openapi/gc-ai-openapi-original.yml#createPlaybookCheck
+  - name: getPlaybookCheck
+    description: "Get a check"
+    source_operation: openapi/gc-ai-openapi-original.yml#getPlaybookCheck
+  - name: updatePlaybookCheck
+    description: "Update a check"
+    source_operation: openapi/gc-ai-openapi-original.yml#updatePlaybookCheck
+  - name: deletePlaybookCheck
+    description: "Remove a check from a playbook"
+    source_operation: openapi/gc-ai-openapi-original.yml#deletePlaybookCheck
+  - name: reorderPlaybookChecks
+    description: "Reorder a playbook's checks"
+    source_operation: openapi/gc-ai-openapi-original.yml#reorderPlaybookChecks
+  - name: ping
+    description: "Health check"
+    source_operation: openapi/gc-ai-openapi-original.yml#ping
+  - name: getCreditUsage
+    description: "Get credit usage"
+    source_operation: openapi/gc-ai-openapi-original.yml#getCreditUsage
+  - name: getUsage
+    description: "Get usage summary"
+    source_operation: openapi/gc-ai-openapi-original.yml#getUsage

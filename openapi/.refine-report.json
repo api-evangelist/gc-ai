@@ -1,0 +1,30 @@
+{
+  "provider": "gc-ai",
+  "sources": [
+    "gc-ai-chat-api-openapi.yml",
+    "gc-ai-files-api-openapi.yml",
+    "gc-ai-folders-api-openapi.yml",
+    "gc-ai-playbooks-api-openapi.yml",
+    "gc-ai-profiles-api-openapi.yml",
+    "gc-ai-projects-api-openapi.yml",
+    "gc-ai-skills-api-openapi.yml",
+    "gc-ai-usage-api-openapi.yml",
+    "gc-ai-utility-api-openapi.yml"
+  ],
+  "outputs": [
+    "gc-ai-chat-api-openapi.yml",
+    "gc-ai-files-api-openapi.yml",
+    "gc-ai-folders-api-openapi.yml",
+    "gc-ai-playbooks-api-openapi.yml",
+    "gc-ai-profiles-api-openapi.yml",
+    "gc-ai-projects-api-openapi.yml",
+    "gc-ai-skills-api-openapi.yml",
+    "gc-ai-usage-api-openapi.yml",
+    "gc-ai-utility-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}

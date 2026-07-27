@@ -1,0 +1,66 @@
+generated: '2026-07-19'
+method: derived
+source: openapi/gc-ai-openapi-original.yml
+docs: https://docs.gc.ai/api-reference/introduction
+format: custom-json
+envelope:
+  media_type: application/json
+  required: [error]
+  fields:
+    error: Human-readable error message.
+    code: >-
+      Machine-readable error code present on some errors. Branch on this rather
+      than the human-readable error string.
+    message: Additional error details.
+    details: Validation error details (object), present on 400 errors.
+machine_codes:
+  - code: RATE_LIMITED
+    meaning: Rate limit exceeded for the window.
+    action: Honor Retry-After and back off; use async jobs for batches.
+  - code: INSUFFICIENT_CREDITS
+    meaning: Organization has no remaining credits for the billable operation.
+    action: Add credits / check plan under Settings.
+  - code: TRIAL_NOT_STARTED
+    meaning: The organization trial has not been started.
+    action: Start the trial or contact an account representative.
+  - code: BILLING_NOT_CONFIGURED
+    meaning: Billing has not been configured for the organization.
+    action: Configure billing before calling billable endpoints.
+problems:
+  - status: 400
+    title: Bad request
+    description: Invalid request body, invalid parameters, or conflicting wait controls.
+    schema: Error
+  - status: 401
+    title: Unauthorized
+    description: Missing or malformed API key.
+    schema: Error
+  - status: 403
+    title: Forbidden
+    description: Invalid API key, or the requested feature is not enabled for the account.
+    schema: Error
+  - status: 404
+    title: Not found
+    description: A referenced resource (file, folder, project, playbook, chat, skill) does not exist.
+    schema: Error
+  - status: 409
+    title: Conflict
+    description: State conflict (e.g. chat_id refers to a non-API chat, or a turn is already in progress).
+    schema: Error
+  - status: 422
+    title: Unprocessable entity
+    description: Semantic validation failure (e.g. an org-scoped key used on a user-scoped endpoint).
+    schema: Error
+  - status: 429
+    title: Too Many Requests
+    description: Rate limit exceeded. See rate-limits/gc-ai-rate-limits.yml.
+    schema: Error
+    code: RATE_LIMITED
+  - status: 500
+    title: Internal server error
+    description: Unexpected server error.
+    schema: Error
+  - status: 503
+    title: Service unavailable
+    description: Service temporarily unavailable.
+    schema: Error

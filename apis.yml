@@ -1,28 +1,248 @@
 aid: gc-ai
-name: Gc Ai
-description: 'Gc Ai is a company surfaced as a portfolio company of northzone, scale-venture-partners
-  and added to the API Evangelist network as a stub for enrichment. Sector: enterprise; ai. This profile
-  is a lead awaiting the enrichment pipeline.'
+name: GC AI
+description: >-
+  GC AI is the AI platform for in-house legal teams, built by three-time General
+  Counsel Cecilia Ziniti. It helps corporate counsel draft and review contracts,
+  run reusable review Playbooks, conduct grounded legal research across 13M+ US
+  court opinions, and work directly inside Microsoft Word. The GC AI External API
+  (v1) gives programmatic access to chat completions, files, folders, projects,
+  playbooks, and skills for workflow automation (Zapier, Make, n8n, or custom
+  apps), and GC AI also operates an OAuth-protected Model Context Protocol (MCP)
+  server. The platform is SOC 2 Type II, SOC 3, and GDPR compliant, with zero
+  data-retention agreements with its model providers.
 url: https://raw.githubusercontent.com/api-evangelist/gc-ai/refs/heads/main/apis.yml
+accessModel:
+  pricing: unknown
+  onboarding: self-serve
+  trial: false
+  try_now: false
+  public: false
+  label: Self-serve signup
+  confidence: medium
+  source:
+  - authentication
+  generated: '2026-07-22'
+  method: derived
+image: https://framerusercontent.com/images/Zth3qSTP7QF72InJJ60jCoqi190.png
 x-type: company
 x-source: vc-portfolio
 x-backed-by:
 - northzone
 - scale-venture-partners
-x-tier: stub
+x-tier: enriched
 x-tier-reason: portfolio-lead
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-19'
 tags:
 - Company
-- Enterprise; Ai
-apis: []
+- Legal
+- Legal AI
+- Contracts
+- In-House Counsel
+- Artificial Intelligence
+- Document Review
+- Enterprise
+- MCP
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+apis:
+- aid: gc-ai:gc-ai-chat-api
+  name: GC AI Chat API
+  description: AI chat completion endpoints
+  humanURL: https://docs.gc.ai/api-reference/introduction
+  baseURL: https://app.gc.ai/api/external/v1
+  tags:
+  - Chat
+  properties:
+  - type: OpenAPI
+    url: openapi/gc-ai-chat-api-openapi.yml
+  - type: Documentation
+    url: https://docs.gc.ai/api-reference/introduction
+  - type: APIReference
+    url: https://docs.gc.ai/api-reference/introduction
+- aid: gc-ai:gc-ai-files-api
+  name: GC AI Files API
+  description: File upload and management endpoints
+  humanURL: https://docs.gc.ai/api-reference/introduction
+  baseURL: https://app.gc.ai/api/external/v1
+  tags:
+  - Files
+  properties:
+  - type: OpenAPI
+    url: openapi/gc-ai-files-api-openapi.yml
+  - type: Documentation
+    url: https://docs.gc.ai/api-reference/introduction
+  - type: APIReference
+    url: https://docs.gc.ai/api-reference/introduction
+- aid: gc-ai:gc-ai-folders-api
+  name: GC AI Folders API
+  description: Folder management endpoints
+  humanURL: https://docs.gc.ai/api-reference/introduction
+  baseURL: https://app.gc.ai/api/external/v1
+  tags:
+  - Folders
+  properties:
+  - type: OpenAPI
+    url: openapi/gc-ai-folders-api-openapi.yml
+  - type: Documentation
+    url: https://docs.gc.ai/api-reference/introduction
+  - type: APIReference
+    url: https://docs.gc.ai/api-reference/introduction
+- aid: gc-ai:gc-ai-playbooks-api
+  name: GC AI Playbooks API
+  description: Playbook review endpoints
+  humanURL: https://docs.gc.ai/api-reference/introduction
+  baseURL: https://app.gc.ai/api/external/v1
+  tags:
+  - Playbooks
+  properties:
+  - type: OpenAPI
+    url: openapi/gc-ai-playbooks-api-openapi.yml
+  - type: Documentation
+    url: https://docs.gc.ai/api-reference/introduction
+  - type: APIReference
+    url: https://docs.gc.ai/api-reference/introduction
+- aid: gc-ai:gc-ai-profiles-api
+  name: GC AI Profiles API
+  description: Personal and company profile endpoints
+  humanURL: https://docs.gc.ai/api-reference/introduction
+  baseURL: https://app.gc.ai/api/external/v1
+  tags:
+  - Profiles
+  properties:
+  - type: OpenAPI
+    url: openapi/gc-ai-profiles-api-openapi.yml
+  - type: Documentation
+    url: https://docs.gc.ai/api-reference/introduction
+  - type: APIReference
+    url: https://docs.gc.ai/api-reference/introduction
+- aid: gc-ai:gc-ai-projects-api
+  name: GC AI Projects API
+  description: Project management endpoints
+  humanURL: https://docs.gc.ai/api-reference/introduction
+  baseURL: https://app.gc.ai/api/external/v1
+  tags:
+  - Projects
+  properties:
+  - type: OpenAPI
+    url: openapi/gc-ai-projects-api-openapi.yml
+  - type: Documentation
+    url: https://docs.gc.ai/api-reference/introduction
+  - type: APIReference
+    url: https://docs.gc.ai/api-reference/introduction
+- aid: gc-ai:gc-ai-skills-api
+  name: GC AI Skills API
+  description: Skill library management endpoints
+  humanURL: https://docs.gc.ai/api-reference/introduction
+  baseURL: https://app.gc.ai/api/external/v1
+  tags:
+  - Skills
+  properties:
+  - type: OpenAPI
+    url: openapi/gc-ai-skills-api-openapi.yml
+  - type: Documentation
+    url: https://docs.gc.ai/api-reference/introduction
+  - type: APIReference
+    url: https://docs.gc.ai/api-reference/introduction
+- aid: gc-ai:gc-ai-usage-api
+  name: GC AI Usage API
+  description: Usage and credit/billing reporting endpoints
+  humanURL: https://docs.gc.ai/api-reference/introduction
+  baseURL: https://app.gc.ai/api/external/v1
+  tags:
+  - Usage
+  properties:
+  - type: OpenAPI
+    url: openapi/gc-ai-usage-api-openapi.yml
+  - type: Documentation
+    url: https://docs.gc.ai/api-reference/introduction
+  - type: APIReference
+    url: https://docs.gc.ai/api-reference/introduction
+- aid: gc-ai:gc-ai-utility-api
+  name: GC AI Utility API
+  description: Health check and connectivity endpoints
+  humanURL: https://docs.gc.ai/api-reference/introduction
+  baseURL: https://app.gc.ai/api/external/v1
+  tags:
+  - Utility
+  properties:
+  - type: OpenAPI
+    url: openapi/gc-ai-utility-api-openapi.yml
+  - type: Documentation
+    url: https://docs.gc.ai/api-reference/introduction
+  - type: APIReference
+    url: https://docs.gc.ai/api-reference/introduction
 common:
+- type: DeveloperPortal
+  url: https://docs.gc.ai/
+- type: Documentation
+  url: https://docs.gc.ai/
+- type: APIReference
+  url: https://docs.gc.ai/api-reference/introduction
+- type: GettingStarted
+  url: https://docs.gc.ai/guides/getting-started/first-steps
+- type: HelpCenter
+  url: https://docs.gc.ai/
+- type: Support
+  url: mailto:support@gc.ai
+- type: Community
+  url: https://gc.ai/slack
+- type: Blog
+  url: https://gc.ai/blog
+- type: Pricing
+  url: https://gc.ai/pricing
+- type: SignUp
+  url: https://app.gc.ai/signup
+- type: TermsOfService
+  url: https://gc.ai/terms
+- type: PrivacyPolicy
+  url: https://gc.ai/privacy
+- type: StatusPage
+  url: https://status.gc.ai
+- type: ChangeLog
+  url: https://docs.gc.ai/changelog
+- type: ChangeLog
+  url: changelog/gc-ai-changelog.yml
+- type: Compliance
+  url: https://trust.gc.ai/
+- type: TrustCenter
+  url: security/gc-ai-trust-center.yml
+- type: DomainSecurity
+  url: security/gc-ai-domain-security.yml
+- type: Authentication
+  url: authentication/gc-ai-authentication.yml
+- type: Conventions
+  url: conventions/gc-ai-conventions.yml
+- type: RateLimits
+  url: rate-limits/gc-ai-rate-limits.yml
+- type: ErrorCatalog
+  url: errors/gc-ai-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/gc-ai-lifecycle.yml
+- type: DataModel
+  url: data-model/gc-ai-data-model.yml
+- type: Conformance
+  url: conformance/gc-ai-conformance.yml
+- type: Overlay
+  url: overlays/gc-ai-openapi-overlay.yaml
+- type: MCPServer
+  url: mcp/gc-ai-mcp.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: WellKnown
+  url: well-known/gc-ai-well-known.yml
+- type: LLMsTxt
+  url: llms/gc-ai-llms.txt
+- type: AgenticAccess
+  url: agentic-access/gc-ai-agentic-access.yml
 - type: Website
   url: https://gc.ai
+x-enrichment:
+  date: '2026-07-19'
+  status: backfilled
+  pass: local-v1
+  note: backfilled from .gitignore signal + verified work evidence

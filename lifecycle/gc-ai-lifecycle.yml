@@ -1,0 +1,20 @@
+generated: '2026-07-19'
+method: searched
+source: https://docs.gc.ai/api-reference/introduction
+versioning:
+  scheme: uri-path
+  current: v1
+  base_url: https://app.gc.ai/api/external/v1
+  docs: https://docs.gc.ai/api-reference/introduction
+status_page: https://status.gc.ai
+changelog: https://docs.gc.ai/changelog
+maturity: beta
+notes: >-
+  The External API is in beta (private beta as of mid-2026). Access requires an
+  account representative. Versioning is via the /v1 path segment. A public
+  status page is published at status.gc.ai. No formal deprecation/sunset policy
+  (RFC 8594) is published at this time.
+deprecation:
+  policy_url: null
+  sunset_header: false
+deprecated_operations: []

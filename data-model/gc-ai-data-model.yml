@@ -1,0 +1,80 @@
+generated: '2026-07-19'
+method: derived
+source: openapi/gc-ai-openapi-original.yml
+notes: >-
+  Entity-relationship graph derived from OpenAPI schema id-reference fields and
+  path structure. GC AI organizes legal work into Projects (matters) that group
+  Files, Folders, and Chats; Playbooks (with ordered Checks) run against Files;
+  Skills are reusable instruction sets. Long-running work is tracked as Jobs.
+entities:
+  - name: Project
+    description: A matter (deal, vendor, program) that groups files, folders, and chats.
+    operations: [createProject, getProject, listProjects, updateProject, deleteProject]
+  - name: File
+    description: An uploaded document, processed for extraction, summarization, and embeddings.
+    operations: [uploadFile, getFileStatus, updateFile, searchFiles]
+  - name: Folder
+    description: A container for organizing files; can be nested and linked to projects.
+    operations: [createFolder, getFolder, listFolders, updateFolder, deleteFolder, listFolderChildren]
+  - name: Chat
+    description: A conversation/completion; API chats stay private until materialized.
+    operations: [createChatCompletion, materializeChat, searchChats, listProjectChats]
+  - name: Playbook
+    description: A set of ordered checks encoding negotiation positions, run against files.
+    operations: [createPlaybook, getPlaybook, listPlaybooks, updatePlaybook, deletePlaybook, duplicatePlaybook, runPlaybook]
+  - name: PlaybookCheck
+    description: A single check belonging to a playbook, in configured order.
+    operations: [createPlaybookCheck, getPlaybookCheck, listPlaybookChecks, updatePlaybookCheck, deletePlaybookCheck, reorderPlaybookChecks]
+  - name: Skill
+    description: A reusable instruction set, optionally with attached files.
+    operations: [createSkill, getSkill, listSkills, updateSkill, deleteSkill]
+  - name: Job
+    description: An asynchronous job for long-running inference; polled to completion.
+    operations: [getAsyncJob]
+  - name: CompanyProfile
+    description: Organization context (industry, jurisdiction, regulations, risk posture) used to ground answers.
+    operations: [getCompanyProfile, updateCompanyProfile]
+  - name: UserProfile
+    description: The calling user's personal chat-context profile.
+    operations: [getMyProfile, updateMyProfile, getMe]
+relationships:
+  - from: File
+    to: Folder
+    type: belongs_to
+    via: folder_id
+  - from: File
+    to: Project
+    type: belongs_to
+    via: project_id
+  - from: Folder
+    to: Folder
+    type: belongs_to
+    via: parent_folder_id
+  - from: Project
+    to: File
+    type: has_many
+    via: attachFileToProject
+  - from: Project
+    to: Folder
+    type: has_many
+    via: attachFolderToProject
+  - from: Project
+    to: Chat
+    type: has_many
+    via: listProjectChats
+  - from: Playbook
+    to: PlaybookCheck
+    type: has_many
+    via: playbook_id
+  - from: Skill
+    to: File
+    type: has_many
+    via: attached files
+  - from: Chat
+    to: Playbook
+    type: belongs_to
+    via: playbook_id
+  - from: Chat
+    to: Job
+    type: belongs_to
+    via: job_id

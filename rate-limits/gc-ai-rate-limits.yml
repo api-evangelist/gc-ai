@@ -1,0 +1,37 @@
+generated: '2026-07-19'
+method: searched
+source: https://docs.gc.ai/api-reference/concepts/rate-limits
+docs: https://docs.gc.ai/api-reference/concepts/rate-limits
+scope: per-organization
+notes: >-
+  Limits apply per organization and per API key; the organization limit is the
+  binding constraint. Throttled requests return 429 with a machine code
+  RATE_LIMITED. Honor Retry-After; use the async job pattern with paced
+  enqueueing for batch workloads.
+throttle:
+  status: 429
+  error_code: RATE_LIMITED
+headers:
+  - name: Retry-After
+    description: Seconds to wait before retrying.
+  - name: RateLimit-Limit
+    description: Quota for the current window.
+  - name: RateLimit-Remaining
+    description: Requests left in the current window.
+  - name: RateLimit-Reset
+    description: Seconds until the quota resets.
+limits:
+  - tier: inference
+    applies_to: [createChatCompletion, runPlaybook]
+    limit_count: 1
+    window: 1 minute
+    burst: 3
+    window_seconds: 180
+    description: >-
+      Chat completions and playbook runs: ~1 request/minute per organization
+      with a burst of 3 over a rolling 180-second window.
+  - tier: standard
+    applies_to: CRUD operations (files, folders, projects, playbooks, skills, profiles)
+    limit_count: 120
+    window: 1 minute
+    description: "Everything else: 120 requests/minute per organization."

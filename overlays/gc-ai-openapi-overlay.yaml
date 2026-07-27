@@ -1,0 +1,26 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for GC AI External API
+  version: 1.0.0
+extends: openapi/gc-ai-openapi-original.yml
+actions:
+  - target: $.info
+    update:
+      x-apievangelist-enriched: '2026-07-19'
+      x-api-maturity: beta
+      x-status-page: https://status.gc.ai
+      x-changelog: https://docs.gc.ai/changelog
+      x-mcp-server: https://app.gc.ai/api/mcp
+  - target: $.info
+    update:
+      x-rate-limits:
+        inference: ~1/min per org, burst 3 over 180s
+        standard: 120/min per org
+        throttle_status: 429
+        throttle_code: RATE_LIMITED
+  - target: $.components.securitySchemes.ApiKeyAuth
+    update:
+      x-key-formats:
+        org_scoped: gcai_...
+        user_scoped: u:gcai_...
+      x-docs: https://docs.gc.ai/api-reference/concepts/api-keys

@@ -1,0 +1,39 @@
+generated: '2026-07-19'
+method: searched
+source: live probes of gc.ai, app.gc.ai, docs.gc.ai
+notes: >-
+  The External API uses static API keys, but GC AI runs an OAuth-protected MCP
+  server at https://app.gc.ai/api/mcp and publishes RFC 8414 + RFC 9728
+  discovery metadata for it. No security.txt or OIDC discovery document was
+  found on any host.
+hosts:
+  - host: https://app.gc.ai
+    documents:
+      - path: /.well-known/oauth-authorization-server
+        status: 200
+        file: gc-ai-oauth-authorization-server.json
+        standard: RFC 8414
+      - path: /.well-known/oauth-protected-resource
+        status: 200
+        file: gc-ai-oauth-protected-resource.json
+        standard: RFC 9728
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/openid-configuration
+        status: 404
+  - host: https://gc.ai
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/ai-plugin.json
+        status: 404
+  - host: https://docs.gc.ai
+    documents:
+      - path: /.well-known/security.txt
+        status: 404

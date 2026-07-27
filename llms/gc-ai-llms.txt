@@ -1,0 +1,179 @@
+# GC AI
+
+## Docs
+
+- [Features](https://docs.gc.ai/about/features.md): Key features and capabilities of GC AI
+- [GC AI for Word](https://docs.gc.ai/about/gcai-for-word.md): Overview and key features of GC AI for Word
+- [Global Capabilities](https://docs.gc.ai/about/global.md): GC AI&apos;s worldwide legal support and jurisdictional coverage
+- [Overview](https://docs.gc.ai/about/overview.md): Introduction to GC AI - Your AI copilot for in-house legal work
+- [Playbooks](https://docs.gc.ai/about/playbooks.md): AI-powered contract review that standardizes your negotiation positions
+- [Pricing](https://docs.gc.ai/about/pricing.md): GC AI subscription options and pricing plans
+- [Use Cases](https://docs.gc.ai/about/use-cases.md): Ideal use cases and users for GC AI
+- [Abort a Chunked Upload](https://docs.gc.ai/api-reference/abort-upload.md): Discard an in-flight upload session and delete any parts already uploaded. Idempotent: aborting an unknown or already-finalized session still returns success.
+- [Attach a File to a Project](https://docs.gc.ai/api-reference/attach-file-to-project.md): Attach an already-uploaded file to a project. The file remains in its current folder; this only records the project link.
+- [Attach a Folder to a Project](https://docs.gc.ai/api-reference/attach-folder-to-project.md): Link a folder to a project. Once attached, all files in the folder become available as project context. The folder is not moved or copied; only the project link is recorded.
+- [Complete a Chunked Upload](https://docs.gc.ai/api-reference/complete-upload.md): Assemble the uploaded parts into the final file and start processing (text extraction, summarization, embeddings), returning the same file object as `POST /files`. For PDFs and Word documents, extraction runs asynchronously — poll `GET /files/{id}` until `status` is `ready`.
+- [API Keys](https://docs.gc.ai/api-reference/concepts/api-keys.md)
+- [Asynchronous Requests](https://docs.gc.ai/api-reference/concepts/async-jobs.md): Working with long-running requests
+- [Chat Visibility](https://docs.gc.ai/api-reference/concepts/chat-visibility.md): Why API chats stay private until you materialize them
+- [Multi-turn Conversations](https://docs.gc.ai/api-reference/concepts/multi-turn.md): Continue a chat across multiple completions by passing chat_id
+- [Rate Limits](https://docs.gc.ai/api-reference/concepts/rate-limits.md): How the API limits request rate, and how to handle being throttled
+- [Create Chat Completion](https://docs.gc.ai/api-reference/create-chat-completion.md): Send a message to GC AI and receive an AI-generated response.
+- [Create a Folder](https://docs.gc.ai/api-reference/create-folder.md): Create a new folder for organizing files. Folders can be nested by specifying a `parent_folder_id`.
+- [Create a Playbook](https://docs.gc.ai/api-reference/create-playbook.md): Create a new, empty playbook. Add checks to it with the check endpoints, then run it against files.
+- [Add a Check to a Playbook](https://docs.gc.ai/api-reference/create-playbook-check.md): Create a check and append it to the playbook.
+- [Create a Project](https://docs.gc.ai/api-reference/create-project.md): Create a new project to group files, folders, and chats around a single matter (deal, vendor, or program).
+- [Create a Skill](https://docs.gc.ai/api-reference/create-skill.md): Create a new skill in the caller's organization.
+- [Delete a Folder](https://docs.gc.ai/api-reference/delete-folder.md): Delete a folder. By default, only empty folders can be deleted; pass `?recursive=true` to delete a folder along with all of its subfolders and files. System folders cannot be deleted.
+- [Delete a Playbook](https://docs.gc.ai/api-reference/delete-playbook.md): Soft-delete a playbook by ID. The playbook is marked as deleted and will no longer appear in `GET /playbooks` results.
+- [Remove a Check From a Playbook](https://docs.gc.ai/api-reference/delete-playbook-check.md): Remove a check from the playbook.
+- [Delete a Project](https://docs.gc.ai/api-reference/delete-project.md): Delete a project. Files, folders, and chats linked to the project are detached, not deleted — they remain in the organization and can be reattached elsewhere.
+- [Delete a Skill](https://docs.gc.ai/api-reference/delete-skill.md): Delete a skill. Attached files are detached, not deleted — manage file lifecycle via the files API.
+- [Detach a File From a Project](https://docs.gc.ai/api-reference/detach-file-from-project.md): Remove the link between a file and a project. The file itself is not deleted — it stays in the organization and can be reattached later. Idempotent: detaching a file that is not attached is a no-op.
+- [Detach a Folder From a Project](https://docs.gc.ai/api-reference/detach-folder-from-project.md): Remove the link between a folder and a project. The folder itself is not deleted — it stays in the organization. Idempotent: detaching a folder that is not attached is a no-op.
+- [Duplicate a Playbook](https://docs.gc.ai/api-reference/duplicate-playbook.md): Create a copy of a playbook, including its checks and positions. The copy is private to the caller.
+- [Contract Risk Heatmap](https://docs.gc.ai/api-reference/examples/contract-risk-heatmap.md): Upload a contract and get a visual risk analysis with severity levels, clause references, and suggested redlines.
+- [Slack Triage Bot](https://docs.gc.ai/api-reference/examples/slack-triage-bot.md): Automate legal request triage in Slack with a Zapier workflow, no code required.
+- [Triage & Route](https://docs.gc.ai/api-reference/examples/triage-and-route.md): Classify legal requests, pick the right playbook, and run a full review automatically.
+- [Get Async Job Status](https://docs.gc.ai/api-reference/get-async-job.md): Poll an async API job created by endpoints like `POST /chat/completions`.
+- [Get the Company Profile](https://docs.gc.ai/api-reference/get-company-profile.md): Retrieve the organization's company profile — the company context (industry, jurisdiction, regulations, risk posture) the AI uses to ground answers.
+- [Get Credit Usage](https://docs.gc.ai/api-reference/get-credit-usage.md): Billing view of the organization's credit consumption, broken down by billable operation and by day, with rate-card pricing.
+- [Get File Status](https://docs.gc.ai/api-reference/get-file-status.md): Retrieve the current status and metadata of an uploaded file. Use this to poll for extraction completion after uploading a file.
+- [Get a Folder](https://docs.gc.ai/api-reference/get-folder.md): Retrieve a single folder by ID.
+- [Identify the Caller](https://docs.gc.ai/api-reference/get-me.md): Return the identity behind the API key making the request — the organization it belongs to, and, for user-scoped keys, the user it acts as.
+- [Get Your Personal Profile](https://docs.gc.ai/api-reference/get-my-profile.md): Retrieve the calling user's personal profile — the chat-context fields the web UI exposes under Settings → Profile. A profile that has never been saved is returned with default values.
+- [Get a Playbook](https://docs.gc.ai/api-reference/get-playbook.md): Retrieve a single playbook by ID, including its `guide` text.
+- [Get a Check](https://docs.gc.ai/api-reference/get-playbook-check.md): Retrieve a single check in a playbook by ID.
+- [Get a Project](https://docs.gc.ai/api-reference/get-project.md): Retrieve a single project by ID. Returns the caller's access level alongside the project metadata.
+- [Get a Skill](https://docs.gc.ai/api-reference/get-skill.md): Fetch a single skill by ID, including its instructions and attached files.
+- [Get Usage Summary](https://docs.gc.ai/api-reference/get-usage.md): Organization-wide product-usage summary by channel: `web` (web app), `word` (Word add-in), and `api`.
+- [Initiate a Chunked Upload](https://docs.gc.ai/api-reference/initiate-upload.md): Start a multipart upload session for a large file. Validates the file type, size, and destination up front, then returns an `upload_id`. Send the file in parts with `PUT /files/uploads/{upload_id}/parts/{part_number}`, then finalize with `POST /files/uploads/{upload_id}/complete`.
+- [API Introduction](https://docs.gc.ai/api-reference/introduction.md): Programmatic access to GC AI for workflow automation
+- [List a Folder's Children](https://docs.gc.ai/api-reference/list-folder-children.md): List the direct children of a folder. The response items are a discriminated union of subfolders and files: subfolders are returned first (alphabetical), then files (alphabetical).
+- [List Folders](https://docs.gc.ai/api-reference/list-folders.md): List all folders accessible to the authenticated user, returned as a flat list with full paths.
+- [List a Playbook's Checks](https://docs.gc.ai/api-reference/list-playbook-checks.md): List the checks in a playbook, in their configured order.
+- [List Playbooks](https://docs.gc.ai/api-reference/list-playbooks.md): List playbooks accessible to the caller.
+- [List Chats in a Project](https://docs.gc.ai/api-reference/list-project-chats.md): List chats associated with a project. Returns chat metadata only. Per-chat message retrieval is not exposed via the API.
+- [List Files on a Project](https://docs.gc.ai/api-reference/list-project-files.md): List files directly linked to a project. Files reachable only via a linked folder are not included; list those folders separately with `GET /projects/{id}/folders`.
+- [List Folders Linked to a Project](https://docs.gc.ai/api-reference/list-project-folders.md): List folders linked to a project. To enumerate the contents of a folder, call `GET /folders/{id}/children`.
+- [List Projects](https://docs.gc.ai/api-reference/list-projects.md): List projects accessible to the caller, optionally filtered by name.
+- [List Skills](https://docs.gc.ai/api-reference/list-skills.md): List skills accessible to the caller.
+- [Materialize an API Chat](https://docs.gc.ai/api-reference/materialize-chat.md): Surface an API-created chat into chat history and return a shareable deep link.
+- [Health Check](https://docs.gc.ai/api-reference/ping.md): Returns a simple health check response. Useful for verifying API key validity and connectivity.
+- [Reorder a Playbook's Checks](https://docs.gc.ai/api-reference/reorder-playbook-checks.md): Set the order of the playbook's checks. Provide the check IDs in the desired order.
+- [Run a Playbook Against Uploaded Files](https://docs.gc.ai/api-reference/run-playbook.md): Run a playbook against one or more uploaded files and receive structured check results.
+- [Search Chats](https://docs.gc.ai/api-reference/search-chats.md): Hybrid search across the caller's chat history that merges two lanes: a case-insensitive title-substring match and a semantic (vector) match over each chat's AI-generated summary. Title matches are returned first (a strong signal the user remembers the chat name), followed by semantic matches in rel…
+- [Search Files](https://docs.gc.ai/api-reference/search-files.md): Hybrid (vector + keyword) search across accessible files. Results are ranked by relevance and capped at 100.
+- [Star a Project](https://docs.gc.ai/api-reference/star-project.md): Pin a project to the calling user's sidebar. Idempotent. Starring is per-user state (each user has their own starred set), so it requires a user-scoped key (`u:gcai_...`). Org-scoped keys carry no user identity and receive 422.
+- [Unstar a Project](https://docs.gc.ai/api-reference/unstar-project.md): Remove a project from the calling user's sidebar pins. Idempotent. Starring is per-user state (each user has their own starred set), so it requires a user-scoped key (`u:gcai_...`). Org-scoped keys carry no user identity and receive 422.
+- [Update the Company Profile](https://docs.gc.ai/api-reference/update-company-profile.md): Partially update the organization's company profile. Omitted fields are left unchanged; nullable fields accept `null` to clear them.
+- [Move a File](https://docs.gc.ai/api-reference/update-file.md): Move a file to a different folder by updating its `folder_id`. Org-scoped keys can move non-access-controlled files to non-access-controlled destination folders.
+- [Update a Folder](https://docs.gc.ai/api-reference/update-folder.md): Update a folder's name, description, parent, or access-control flag. At least one field must be provided. System folders cannot be modified.
+- [Update Your Personal Profile](https://docs.gc.ai/api-reference/update-my-profile.md): Partially update the calling user's personal profile. Omitted fields are left unchanged; nullable fields accept `null` to clear them. The profile is created on first write.
+- [Update a Playbook](https://docs.gc.ai/api-reference/update-playbook.md): Update a playbook's title, description, or guide. At least one field is required.
+- [Update a Check](https://docs.gc.ai/api-reference/update-playbook-check.md): Update a check's title, description, importance, or positions. At least one field is required. When `positions` is supplied it replaces the check's positions entirely.
+- [Update a Project](https://docs.gc.ai/api-reference/update-project.md): Update a project's name, description, or custom instructions. Only the fields you supply are changed; omitted fields are left untouched. Pass `null` for `description` or `custom_instructions` to clear them.
+- [Update a Skill](https://docs.gc.ai/api-reference/update-skill.md): Partially update a skill's name, instructions, description, or attached files.
+- [Upload a File](https://docs.gc.ai/api-reference/upload-file.md): Upload a file to GC AI for processing and storage. Files are uploaded as multipart form data and automatically processed (text extraction, summarization, and embedding creation).
+- [Upload a File Part](https://docs.gc.ai/api-reference/upload-part.md): Upload one part of a chunked upload. The request body is the raw bytes of the part (`application/octet-stream`). Parts may be uploaded in any order; re-sending the same `part_number` overwrites it, so a failed part is safe to retry.
+- [Apr 18, 2026](https://docs.gc.ai/changelog/april-2026/apr-18-2026.md)
+- [Apr 7, 2026](https://docs.gc.ai/changelog/april-2026/apr-7-2026.md)
+- [Aug 18, 2025](https://docs.gc.ai/changelog/august-2025/aug-18-2025.md)
+- [Aug 25, 2025](https://docs.gc.ai/changelog/august-2025/aug-25-2025.md)
+- [Dec 22, 2025](https://docs.gc.ai/changelog/december-2025/dec-22-2025.md)
+- [Feb 13, 2026](https://docs.gc.ai/changelog/february-2026/feb-13-2026.md)
+- [Feb 27, 2026](https://docs.gc.ai/changelog/february-2026/feb-27-2026.md)
+- [Jan 29, 2026](https://docs.gc.ai/changelog/january-2026/jan-29-2026.md)
+- [Jan 5, 2026](https://docs.gc.ai/changelog/january-2026/jan-5-2026.md)
+- [Jun 1, 2026](https://docs.gc.ai/changelog/june-2026/jun-1-2026.md)
+- [Jun 17, 2026](https://docs.gc.ai/changelog/june-2026/jun-17-2026.md)
+- [Jun 30, 2026](https://docs.gc.ai/changelog/june-2026/jun-30-2026.md)
+- [Mar 16, 2026](https://docs.gc.ai/changelog/march-2026/mar-16-2026.md)
+- [Mar 31, 2026](https://docs.gc.ai/changelog/march-2026/mar-31-2026.md)
+- [Nov 17, 2025](https://docs.gc.ai/changelog/november-2025/nov-17-2025.md)
+- [Nov 3, 2025](https://docs.gc.ai/changelog/november-2025/nov-3-2025.md)
+- [Oct 20, 2025](https://docs.gc.ai/changelog/october-2025/oct-20-2025.md)
+- [Oct 6, 2025](https://docs.gc.ai/changelog/october-2025/oct-6-2025.md)
+- [Sep 15, 2025](https://docs.gc.ai/changelog/september-2025/sep-15-2025.md)
+- [Sep 2, 2025](https://docs.gc.ai/changelog/september-2025/sep-2-2025.md)
+- [Sep 22, 2025](https://docs.gc.ai/changelog/september-2025/sep-22-2025.md)
+- [Sep 29, 2025](https://docs.gc.ai/changelog/september-2025/sep-29-2025.md)
+- [Account FAQ](https://docs.gc.ai/docs/account/account-faq.md): Common questions about signing in, resetting your password, and managing your GC AI account.
+- [Automations](https://docs.gc.ai/docs/automations/overview.md): Schedule recurring GC AI chats with the skills, playbooks, files, and instructions they need to run on their own.
+- [Agentic Chat History Search](https://docs.gc.ai/docs/chat/agentic-chat-history-search.md): Ask GC AI in chat to find past conversations, read relevant threads, and continue with that context in your current conversation.
+- [AI Models](https://docs.gc.ai/docs/chat/ai-models.md): AI Models used by GC AI
+- [US Case Law](https://docs.gc.ai/docs/chat/case-law.md): Search and analyze 13M+ US court opinions directly in chat. Get cited, synthesized answers grounded in primary authority.
+- [Understanding the Context Window in GC AI](https://docs.gc.ai/docs/chat/context-window.md)
+- [Dictation](https://docs.gc.ai/docs/chat/dictation.md): Dictation for prompting in GC AI
+- [Email Drafting](https://docs.gc.ai/docs/chat/email-drafting.md): Draft and send emails directly from your GC AI conversations
+- [How to Download a Chat](https://docs.gc.ai/docs/chat/how-to-download.md): Learn how to download and export your GC AI chat conversations.
+- [How to Rename a Chat](https://docs.gc.ai/docs/chat/how-to-rename-a-chat.md): Learn how to rename your chats in GC AI for better organization and quick recall.
+- [Understanding the GC AI Chat Interface](https://docs.gc.ai/docs/chat/interface-overview.md): Explore the features and capabilities of the main chat interface in GC AI.
+- [Chat Labels](https://docs.gc.ai/docs/chat/labels.md): Organize and filter your chats with color-coded labels
+- [Projects](https://docs.gc.ai/docs/chat/projects.md): Group related chats and files into a shared workspace with AI-powered cross-chat awareness
+- [Research](https://docs.gc.ai/docs/chat/research.md)
+- [Thinking](https://docs.gc.ai/docs/chat/thinking.md): Learn how GC AI uses a structured reasoning process for complex tasks.
+- [Citations](https://docs.gc.ai/docs/files/citations.md): Learn how citations work in Files
+- [How to Delete a File](https://docs.gc.ai/docs/files/delete-file.md)
+- [Supported File Types](https://docs.gc.ai/docs/files/file-types.md): Learn about the file types and limitations supported in GC AI
+- [Google Drive](https://docs.gc.ai/docs/files/google-drive.md): Import files from Google Drive into your GC AI knowledge base
+- [Introduction to Files](https://docs.gc.ai/docs/files/introduction.md): Learn about GC AI Files and how they can help your team
+- [File Organization](https://docs.gc.ai/docs/files/organization.md): Learn how to organize your files and folders in Files
+- [Search Capabilities](https://docs.gc.ai/docs/files/search.md): Learn how to effectively search across your files
+- [Sharing](https://docs.gc.ai/docs/files/sharing.md): Learn how to share files, folders, and chats with your team
+- [How to Ask Questions in GC AI for Word](https://docs.gc.ai/docs/gc-ai-for-word/how-to-ask-questions.md)
+- [How to Install GC AI for Word](https://docs.gc.ai/docs/gc-ai-for-word/how-to-install.md)
+- [Limitations & Coming Soon](https://docs.gc.ai/docs/gc-ai-for-word/limitations.md): Current limitations and upcoming features for GC AI for Word
+- [Manually Installing the Word Add-in via XML Manifest](https://docs.gc.ai/docs/gc-ai-for-word/manually-installing-word-add-in-via-manifest.md)
+- [Microsoft 365 Admin Setup](https://docs.gc.ai/docs/gc-ai-for-word/microsoft-365-admin.md): Instructions for IT admins to deploy GC AI for Word.
+- [Supported Microsoft Plans](https://docs.gc.ai/docs/gc-ai-for-word/supported-microsoft-plans.md): Learn which Microsoft plans are compatible with GC AI for Word
+- [Troubleshooting Guide](https://docs.gc.ai/docs/gc-ai-for-word/troubleshooting-guide.md): Troubleshoot issues that prevent access to GC AI for Word
+- [Company Profiles](https://docs.gc.ai/docs/organizations/company-profiles.md): Managing and sharing Company Profiles in your Organization
+- [Introduction to Organizations](https://docs.gc.ai/docs/organizations/introduction.md): Learn about GC AI Organizations and how they enable team collaboration
+- [Organization Permissions](https://docs.gc.ai/docs/organizations/permissions.md): Understanding permission levels and access control in GC AI Organizations
+- [Content Sharing](https://docs.gc.ai/docs/organizations/sharing.md): Learn how to share content within your GC AI Organization
+- [Team Management](https://docs.gc.ai/docs/organizations/team-management.md): Learn how to manage your team members in GC AI Organizations
+- [Welcome to GC AI](https://docs.gc.ai/get-started/welcome.md): AI for In-House Counsel
+- [File Organization](https://docs.gc.ai/guides/best-practice/file-organization.md): Best practices for organizing and maintaining your files in GC AI
+- [Document Drafting and Editing in Chat](https://docs.gc.ai/guides/chat/document-drafting-and-editing.md): Generate new documents and edit uploaded files directly from the GC AI web chat
+- [How to Create a Project](https://docs.gc.ai/guides/chat/how-to-create-a-project.md): Set up a project to organize chats and files around a matter or initiative
+- [Frequently Asked Questions](https://docs.gc.ai/guides/gcai-for-word/faq.md): Common questions about GC AI for Word
+- [Getting Started with GC AI for Word](https://docs.gc.ai/guides/gcai-for-word/getting-started-with-gc-ai-for-word.md): Learn how to use GC AI for Word to assist with your documents.
+- [Best Prompting Practices](https://docs.gc.ai/guides/getting-started/best-practices.md): Essential best practices for new GC AI users
+- [First Steps with GC AI](https://docs.gc.ai/guides/getting-started/first-steps.md): Getting Started with GC AI: Your First Prompt
+- [Sharing within an Organization](https://docs.gc.ai/guides/getting-started/sharing-within-org.md): Share a skill, chat, or company profile with your team
+- [How to Create a Company Profile](https://docs.gc.ai/guides/organizations/creating-a-profile.md): Learn how to build an effective company profile in GC AI to get tailored advice and document generation.
+- [How to Invite Team Members to Your Organization](https://docs.gc.ai/guides/organizations/how-to-invite-teammates.md)
+- [Analyzing Organization Usage Metrics](https://docs.gc.ai/guides/organizations/organization-usage-metrics.md): Monitor and analyze your organization's GC AI usage with comprehensive analytics and reporting
+- [Creating a Playbook in GC AI](https://docs.gc.ai/guides/playbooks/creating-playbooks.md): Learn how to create playbooks in chat, from GC AI templates, or from your own materials
+- [How to Download Your Playbook](https://docs.gc.ai/guides/playbooks/downloading-playbooks.md): Learn how to download a playbook as a DOCX file from the GC AI web app
+- [Editing & Maintaining Your Playbook](https://docs.gc.ai/guides/playbooks/editing-playbooks.md): Learn how to update and maintain your playbooks over time
+- [Playbooks FAQ](https://docs.gc.ai/guides/playbooks/faq.md): Frequently asked questions about GC AI Playbooks
+- [Running a Playbook Against a Contract](https://docs.gc.ai/guides/playbooks/running-playbooks.md): Learn how to review contracts using Playbooks
+- [Sharing Playbooks Across Your Organization](https://docs.gc.ai/guides/playbooks/sharing-playbooks.md): Learn how to share playbooks with your team
+- [Advanced Prompting Techniques](https://docs.gc.ai/guides/prompting/advanced-techniques.md): Master complex legal AI interactions with advanced strategies and best practices
+- [Creating PowerPoint Slides](https://docs.gc.ai/guides/prompting/creating-powerpoint-slides.md): How to make a downloadable PowerPoint presentation with GC AI. This feature creates slide decks pre-filled with content that you can further customize.
+- [How to Create and Use Skills](https://docs.gc.ai/guides/prompting/creating-skills.md): Build reusable instructions that attach to any conversation in GC AI for consistent, high-quality results on recurring tasks.
+- [Formatting Tips](https://docs.gc.ai/guides/prompting/formatting-tips.md): How to format prompts for better AI responses
+- [Official Skill Library](https://docs.gc.ai/guides/prompting/official-skills.md): A collection of ready-to-use skills for common legal tasks and scenarios
+- [Using Personas and Roles](https://docs.gc.ai/guides/prompting/personas-and-roles.md): Leveraging AI personas for different legal perspectives
+- [Using Easy Prompt](https://docs.gc.ai/guides/prompting/using-easy-prompt.md): How to enhance your GC AI interactions with Easy Prompt
+- [Client Communications](https://docs.gc.ai/guides/usage/client-communications.md): Using GC AI to enhance client and stakeholder communications
+- [Contract Review](https://docs.gc.ai/guides/usage/contract-review.md): How to effectively use GC AI for contract review and analysis
+- [Document Analysis](https://docs.gc.ai/guides/usage/document-analysis.md): Leverage GC AI for comprehensive document analysis
+- [Access Control](https://docs.gc.ai/security/access-control.md): Learn about GC AI access control and authentication features
+- [Data Protection](https://docs.gc.ai/security/data-protection.md): Understanding how GC AI protects and handles your data
+- [Security Overview](https://docs.gc.ai/security/overview.md): Learn about GC AI security architecture
+- [SSO Setup](https://docs.gc.ai/security/sso-setup.md): Set up Single Sign-On for your GC AI organization using SAML or OIDC
+- [Whitelisting Requirements](https://docs.gc.ai/security/whitelisting.md): Network configuration requirements for GC AI products.
+- [Zero Data Retention](https://docs.gc.ai/security/zero-data-retention.md)
+
+## OpenAPI Specs
+
+- [openapi](https://docs.gc.ai/api-reference/openapi.yaml)
+
+## Optional
+
+- [Community](https://gc.ai/slack)
+- [Blog](https://gc.ai/blog)
+- [Classes](https://gc.ai/classes)

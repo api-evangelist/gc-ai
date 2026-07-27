@@ -1,0 +1,46 @@
+generated: '2026-07-19'
+method: derived
+source: openapi/gc-ai-openapi-original.yml
+notes: >-
+  Standards conformance derived from the OpenAPI security schemes, the published
+  /.well-known OAuth metadata (used for the MCP server), and the trust center.
+standards:
+  - id: openapi-3.0
+    conforms: true
+    evidence: openapi/gc-ai-openapi-original.yml is OpenAPI 3.0.3
+  - id: api-key-auth
+    conforms: true
+    evidence: components.securitySchemes.ApiKeyAuth (Authorization header)
+  - id: oauth2
+    conforms: true
+    evidence: /.well-known/oauth-authorization-server (RFC 8414) advertises authorization_code + refresh_token for the MCP server
+  - id: oauth2-pkce
+    conforms: true
+    evidence: code_challenge_methods_supported = [S256]
+  - id: oauth2-dcr
+    conforms: true
+    evidence: registration_endpoint present (RFC 7591 dynamic client registration)
+  - id: rfc8414-authorization-server-metadata
+    conforms: true
+    evidence: /.well-known/oauth-authorization-server returns 200 JSON
+  - id: rfc9728-protected-resource-metadata
+    conforms: true
+    evidence: /.well-known/oauth-protected-resource returns 200 JSON
+  - id: mcp
+    conforms: true
+    evidence: hosted MCP server at https://app.gc.ai/api/mcp (SSE at /api/mcp/sse)
+  - id: rfc9457-problem-details
+    conforms: false
+    evidence: errors use a custom application/json envelope, not application/problem+json
+  - id: rfc6750-bearer-token
+    conforms: true
+    evidence: oauth-protected-resource bearer_methods_supported = [header]
+  - id: soc2
+    conforms: true
+    evidence: SOC 2 Type 1 and Type 2 reports available at https://trust.gc.ai/
+  - id: soc3
+    conforms: true
+    evidence: SOC 3 report available at https://trust.gc.ai/
+  - id: gdpr
+    conforms: true
+    evidence: GDPR compliance stated at https://trust.gc.ai/

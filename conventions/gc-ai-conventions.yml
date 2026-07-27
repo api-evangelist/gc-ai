@@ -1,0 +1,55 @@
+generated: '2026-07-19'
+method: searched
+source: openapi/gc-ai-openapi-original.yml
+docs: https://docs.gc.ai/api-reference/introduction
+summary: >-
+  Cross-cutting request/response semantics for the GC AI External API
+  (https://app.gc.ai/api/external/v1). REST/JSON, API-key auth, offset
+  pagination, an asynchronous job pattern for long-running inference, and a
+  standard-header rate-limit signal.
+authentication:
+  style: api-key
+  header: Authorization
+  formats:
+    org_scoped: gcai_...
+    user_scoped: u:gcai_...
+  docs: https://docs.gc.ai/api-reference/concepts/api-keys
+  ref: authentication/gc-ai-authentication.yml
+pagination:
+  style: offset
+  params: [limit, offset]
+  response_field: has_more
+  schema: Pagination
+  notes: List endpoints accept limit/offset; responses carry a Pagination object with has_more.
+async_jobs:
+  pattern: 202-accepted-then-poll
+  detail: >-
+    Long-running requests (chat completions, playbook runs) may return 202 with
+    a job_id. Poll GET /jobs/{id} until complete. Chat completions also support
+    a bounded wait window that can return 200 inline.
+  poll_operation: getAsyncJob
+  docs: https://docs.gc.ai/api-reference/concepts/async-jobs
+idempotency:
+  key_header: false
+  notes: >-
+    No Idempotency-Key contract is published. Several operations are idempotent
+    by design (abortUpload, detachFileFromProject, detachFolderFromProject,
+    starProject, unstarProject, and re-sending a numbered upload part
+    overwrites it), but there is no client-supplied idempotency key.
+versioning:
+  scheme: uri-path
+  current: v1
+  base_url: https://app.gc.ai/api/external/v1
+error_envelope:
+  media_type: application/json
+  shape: '{ error, code?, message?, details? }'
+  branch_on: code
+  ref: errors/gc-ai-problem-types.yml
+rate_limiting:
+  status: 429
+  code: RATE_LIMITED
+  headers: [Retry-After, RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset]
+  ref: rate-limits/gc-ai-rate-limits.yml
+multi_turn:
+  mechanism: Pass the chat_id returned by a completion on the next request to continue the chat.
+  docs: https://docs.gc.ai/api-reference/concepts/multi-turn

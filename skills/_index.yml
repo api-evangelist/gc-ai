@@ -1,0 +1,16 @@
+generated: '2026-07-19'
+method: generated
+source: openapi/gc-ai-openapi-original.yml
+skills:
+  - file: gc-ai-review-contract-with-playbook.md
+    name: Review a contract with a GC AI Playbook
+    api: openapi/gc-ai-openapi-original.yml
+    operations: [uploadFile, getFileStatus, listPlaybooks, runPlaybook, getAsyncJob]
+  - file: gc-ai-ask-with-document-context.md
+    name: Ask GC AI a question grounded in uploaded documents
+    api: openapi/gc-ai-openapi-original.yml
+    operations: [uploadFile, getFileStatus, createChatCompletion, getAsyncJob, materializeChat]
+  - file: gc-ai-organize-a-matter.md
+    name: Organize a matter as a GC AI Project
+    api: openapi/gc-ai-openapi-original.yml
+    operations: [createProject, uploadFile, attachFileToProject, listProjectFiles, createChatCompletion]

@@ -1,0 +1,21 @@
+generated: '2026-07-19'
+method: searched
+probe: true
+source: https://trust.gc.ai/
+url: https://trust.gc.ai/
+certifications:
+- SOC 2 Type 1
+- SOC 2 Type 2
+- SOC 3
+- GDPR
+compliance_docs:
+- Data Processing Agreement
+- Subprocessors
+evidence:
+- source: https://trust.gc.ai/
+  keywords:
+  - soc 2 type 1
+  - soc 2 type 2
+  - soc 3
+  - trust center
+  - gdpr

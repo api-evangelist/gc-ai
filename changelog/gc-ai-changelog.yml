@@ -1,0 +1,37 @@
+generated: '2026-07-19'
+method: searched
+source: https://docs.gc.ai/changelog
+scheme: dated
+current_version: v1
+entries:
+  - date: '2026-06-30'
+    type: addition
+    highlight: >-
+      US Case Law — search and analyze 13M+ US court opinions directly in chat,
+      with an integrated Opinion Reader for source verification. Default on for
+      Team and Enterprise; add-on for Individual.
+    url: https://docs.gc.ai/changelog/june-2026/jun-30-2026
+  - date: '2026-06-17'
+    type: addition
+    highlight: >-
+      Agentic chat-history search — find past conversations with natural-language
+      descriptions and pull relevant threads into the current chat.
+    url: https://docs.gc.ai/changelog/june-2026/jun-17-2026
+  - date: '2026-06-01'
+    type: addition
+    highlight: >-
+      Automations now support a Local timezone option to keep scheduled runs at
+      the same local time while traveling.
+    url: https://docs.gc.ai/changelog/june-2026/jun-1-2026
+  - date: '2026-03-31'
+    url: https://docs.gc.ai/changelog/march-2026/mar-31-2026
+  - date: '2026-03-16'
+    url: https://docs.gc.ai/changelog/march-2026/mar-16-2026
+  - date: '2026-02-27'
+    url: https://docs.gc.ai/changelog/february-2026/feb-27-2026
+  - date: '2026-02-13'
+    url: https://docs.gc.ai/changelog/february-2026/feb-13-2026
+  - date: '2026-01-29'
+    url: https://docs.gc.ai/changelog/january-2026/jan-29-2026
+  - date: '2026-01-05'
+    url: https://docs.gc.ai/changelog/january-2026/jan-5-2026
