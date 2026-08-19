@@ -1,0 +1,2154 @@
+{
+  "item": [
+    {
+      "id": "d26f6b10-c485-4933-9964-e3bafd468302",
+      "name": "Profiles",
+      "description": {
+        "content": "Personal and company profile endpoints",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "9cbb1440-8183-40f8-a090-12b0b63231a9",
+          "name": "Identify the caller",
+          "request": {
+            "name": "Identify the caller",
+            "description": {
+              "content": "Return the identity behind the API key making the request — the organization it belongs to, and, for user-scoped keys, the user it acts as.\n\nWorks with **either** a user-scoped key (`u:gcai_...`) or an org-scoped key (`gcai_...`). Org-scoped keys carry no user identity, so `user` is `null` for them. Use this to confirm which credential and account a request resolves to before calling `/me/profile` or `/company-profile`.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "me"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "d070a62b-18ad-40da-92e6-94a8e662b625",
+              "name": "The caller identity",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"token_type\": \"organization\",\n  \"api_key_id\": \"string\",\n  \"organization\": {\n    \"id\": \"f2d09717-3d59-5cd1-e766-68181471fea5\",\n    \"name\": \"string\"\n  },\n  \"user\": {\n    \"id\": 757,\n    \"email\": \"string\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "bdfb67ed-91ee-4897-91b4-1862b4d683f6",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e8030125-5b48-45b2-8dcb-001bbb6ed09a",
+              "name": "Invalid API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "73dd48b1-5773-44b7-8997-de6a1455409f",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "6ac6c9ec-7719-45fb-b35d-aa0bd8f29bf9",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d90d2d91-84d8-43a4-9359-b9c3cff449a6",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "676e50d1-8905-4936-b2d1-af0a8d0b967c",
+          "name": "Get your personal profile",
+          "request": {
+            "name": "Get your personal profile",
+            "description": {
+              "content": "Retrieve the calling user's personal profile — the chat-context fields the web UI exposes under Settings → Profile. A profile that has never been saved is returned with default values.\n\nDisplay name and avatar are managed by your identity provider, not this API, so they are not included.\n\nRequires a **user-scoped** key (`u:gcai_...`); org-scoped keys carry no user identity and receive 403.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "me",
+                "profile"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "3febeb3c-dadc-4ffd-86be-b5560b999d40",
+              "name": "The personal profile",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"preferred_name\": \"string\",\n  \"use_name_in_chats\": true,\n  \"role_title\": \"string\",\n  \"jurisdiction_focus\": \"string\",\n  \"practice_areas\": [\n    \"string\",\n    \"string\"\n  ],\n  \"custom_instructions\": \"string\",\n  \"privilege_marking_enabled\": true,\n  \"privilege_marking_text\": \"string\",\n  \"enter_to_submit\": true,\n  \"document_author_name\": \"string\",\n  \"enabled\": true,\n  \"created_at\": \"string\",\n  \"updated_at\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f1f2ba89-b740-41c1-973e-a9f4dc3a2634",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "49f46b2f-ac01-4f28-9147-bfc3c2f3d8bd",
+              "name": "Key is not user-scoped, or the API key is invalid",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d8b54ef2-99e7-4743-807b-707403655290",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b2eaf7ad-c5f7-4fbb-a9e0-8ca0a6ba2ce2",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "74506731-4e0a-4f09-ba9e-4b395d16499c",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "1a23caa9-0cde-401f-99dc-15aee5fd6686",
+          "name": "Update your personal profile",
+          "request": {
+            "name": "Update your personal profile",
+            "description": {
+              "content": "Partially update the calling user's personal profile. Omitted fields are left unchanged; nullable fields accept `null` to clear them. The profile is created on first write.\n\nDisplay name and avatar are managed by your identity provider, not this API.\n\nRequires a **user-scoped** key (`u:gcai_...`); org-scoped keys receive 403.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "me",
+                "profile"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"preferred_name\": \"<string>\",\n  \"use_name_in_chats\": \"<boolean>\",\n  \"role_title\": \"<string>\",\n  \"jurisdiction_focus\": \"<string>\",\n  \"practice_areas\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"custom_instructions\": \"<string>\",\n  \"privilege_marking_enabled\": \"<boolean>\",\n  \"privilege_marking_text\": \"<string>\",\n  \"enter_to_submit\": \"<boolean>\",\n  \"document_author_name\": \"<string>\",\n  \"enabled\": \"<boolean>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "b9094ea4-17aa-4eaa-8d2a-83ad54a81255",
+              "name": "The updated personal profile",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"preferred_name\": \"<string>\",\n  \"use_name_in_chats\": \"<boolean>\",\n  \"role_title\": \"<string>\",\n  \"jurisdiction_focus\": \"<string>\",\n  \"practice_areas\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"custom_instructions\": \"<string>\",\n  \"privilege_marking_enabled\": \"<boolean>\",\n  \"privilege_marking_text\": \"<string>\",\n  \"enter_to_submit\": \"<boolean>\",\n  \"document_author_name\": \"<string>\",\n  \"enabled\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"preferred_name\": \"string\",\n  \"use_name_in_chats\": true,\n  \"role_title\": \"string\",\n  \"jurisdiction_focus\": \"string\",\n  \"practice_areas\": [\n    \"string\",\n    \"string\"\n  ],\n  \"custom_instructions\": \"string\",\n  \"privilege_marking_enabled\": false,\n  \"privilege_marking_text\": \"string\",\n  \"enter_to_submit\": false,\n  \"document_author_name\": \"string\",\n  \"enabled\": false,\n  \"created_at\": \"string\",\n  \"updated_at\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "cc9d4e60-798a-4c4d-8296-bcab09f3ce3b",
+              "name": "No fields provided, or invalid request body",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"preferred_name\": \"<string>\",\n  \"use_name_in_chats\": \"<boolean>\",\n  \"role_title\": \"<string>\",\n  \"jurisdiction_focus\": \"<string>\",\n  \"practice_areas\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"custom_instructions\": \"<string>\",\n  \"privilege_marking_enabled\": \"<boolean>\",\n  \"privilege_marking_text\": \"<string>\",\n  \"enter_to_submit\": \"<boolean>\",\n  \"document_author_name\": \"<string>\",\n  \"enabled\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ba35cb30-0efc-44fd-9e5b-07d9e65df7da",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"preferred_name\": \"<string>\",\n  \"use_name_in_chats\": \"<boolean>\",\n  \"role_title\": \"<string>\",\n  \"jurisdiction_focus\": \"<string>\",\n  \"practice_areas\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"custom_instructions\": \"<string>\",\n  \"privilege_marking_enabled\": \"<boolean>\",\n  \"privilege_marking_text\": \"<string>\",\n  \"enter_to_submit\": \"<boolean>\",\n  \"document_author_name\": \"<string>\",\n  \"enabled\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "09353bf5-3c07-4157-86ed-f757020e8e9f",
+              "name": "Key is not user-scoped, or the API key is invalid",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"preferred_name\": \"<string>\",\n  \"use_name_in_chats\": \"<boolean>\",\n  \"role_title\": \"<string>\",\n  \"jurisdiction_focus\": \"<string>\",\n  \"practice_areas\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"custom_instructions\": \"<string>\",\n  \"privilege_marking_enabled\": \"<boolean>\",\n  \"privilege_marking_text\": \"<string>\",\n  \"enter_to_submit\": \"<boolean>\",\n  \"document_author_name\": \"<string>\",\n  \"enabled\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8bc0de6b-aafa-4850-b74c-658725dfb7b0",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"preferred_name\": \"<string>\",\n  \"use_name_in_chats\": \"<boolean>\",\n  \"role_title\": \"<string>\",\n  \"jurisdiction_focus\": \"<string>\",\n  \"practice_areas\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"custom_instructions\": \"<string>\",\n  \"privilege_marking_enabled\": \"<boolean>\",\n  \"privilege_marking_text\": \"<string>\",\n  \"enter_to_submit\": \"<boolean>\",\n  \"document_author_name\": \"<string>\",\n  \"enabled\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ef6d6b28-ee01-4c21-8672-9d65609fae2a",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"preferred_name\": \"<string>\",\n  \"use_name_in_chats\": \"<boolean>\",\n  \"role_title\": \"<string>\",\n  \"jurisdiction_focus\": \"<string>\",\n  \"practice_areas\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"custom_instructions\": \"<string>\",\n  \"privilege_marking_enabled\": \"<boolean>\",\n  \"privilege_marking_text\": \"<string>\",\n  \"enter_to_submit\": \"<boolean>\",\n  \"document_author_name\": \"<string>\",\n  \"enabled\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "39d26aaa-d5dc-43cc-95a7-eb8b927278ef",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "me",
+                    "profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"preferred_name\": \"<string>\",\n  \"use_name_in_chats\": \"<boolean>\",\n  \"role_title\": \"<string>\",\n  \"jurisdiction_focus\": \"<string>\",\n  \"practice_areas\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"custom_instructions\": \"<string>\",\n  \"privilege_marking_enabled\": \"<boolean>\",\n  \"privilege_marking_text\": \"<string>\",\n  \"enter_to_submit\": \"<boolean>\",\n  \"document_author_name\": \"<string>\",\n  \"enabled\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "48a1795e-fb34-4c03-aed0-63261974c88b",
+          "name": "Get the company profile",
+          "request": {
+            "name": "Get the company profile",
+            "description": {
+              "content": "Retrieve the organization's company profile — the company context (industry, jurisdiction, regulations, risk posture) the AI uses to ground answers.\n\nReadable with either a user-scoped or org-scoped key. With a user-scoped key, the user's active (default) company is returned when one is set; otherwise the organization's sole company is returned. An organization with multiple companies and no applicable default returns 409.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "company-profile"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "1fd12a06-922d-479e-8f67-751668f0eec9",
+              "name": "The company profile",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"ccccc149-2c13-b36d-dfcc-6b4c420fc1f6\",\n  \"name\": \"string\",\n  \"dba_name\": \"string\",\n  \"industry\": \"string\",\n  \"size\": \"string\",\n  \"location\": \"string\",\n  \"incorporation_country\": \"string\",\n  \"incorporation_state\": \"string\",\n  \"description\": \"string\",\n  \"revenue\": \"string\",\n  \"legal_matters\": \"string\",\n  \"regulations\": \"string\",\n  \"risk_tolerance\": \"string\",\n  \"additional_info\": \"string\",\n  \"customer_types\": [\n    \"string\",\n    \"string\"\n  ],\n  \"created_at\": \"string\",\n  \"updated_at\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8cd76d51-9eca-427d-adc1-8b0ba8e64521",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7cb5a631-4fd1-4878-aa8f-85c9fe3e3202",
+              "name": "Invalid API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ba0e8d1e-b9eb-4358-aa51-d3a311c88cb8",
+              "name": "No company profile exists for this organization",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "53a96d66-5b48-48f6-a04c-bce2666efb5b",
+              "name": "The organization has more than one company profile, so the singular `/company-profile` resource cannot disambiguate. Manage multiple companies in the web UI.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "5a5dce2c-f7be-4078-bcac-b073b4e85573",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "55350c15-3661-41f7-8380-97b8115ed7ab",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "cf44c2ba-7d3a-4a8d-9cd9-9a201c8855c0",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ae78b0e0-20c9-4b5d-963f-737f100b29f3",
+          "name": "Update the company profile",
+          "request": {
+            "name": "Update the company profile",
+            "description": {
+              "content": "Partially update the organization's company profile. Omitted fields are left unchanged; nullable fields accept `null` to clear them.\n\nRequires an **org-scoped** key (`gcai_...`) — company context is organization-level configuration, so user-scoped keys receive 403. Creating the first company profile is done in the web UI.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "company-profile"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"<string>\",\n  \"dba_name\": \"<string>\",\n  \"industry\": \"<string>\",\n  \"size\": \"<string>\",\n  \"location\": \"<string>\",\n  \"incorporation_country\": \"<string>\",\n  \"incorporation_state\": \"<string>\",\n  \"description\": \"<string>\",\n  \"revenue\": \"<string>\",\n  \"legal_matters\": \"<string>\",\n  \"regulations\": \"<string>\",\n  \"risk_tolerance\": \"<string>\",\n  \"additional_info\": \"<string>\",\n  \"customer_types\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "e1b7bcd2-bd1e-445a-b734-647604e35711",
+              "name": "The updated company profile",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"dba_name\": \"<string>\",\n  \"industry\": \"<string>\",\n  \"size\": \"<string>\",\n  \"location\": \"<string>\",\n  \"incorporation_country\": \"<string>\",\n  \"incorporation_state\": \"<string>\",\n  \"description\": \"<string>\",\n  \"revenue\": \"<string>\",\n  \"legal_matters\": \"<string>\",\n  \"regulations\": \"<string>\",\n  \"risk_tolerance\": \"<string>\",\n  \"additional_info\": \"<string>\",\n  \"customer_types\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"d620f271-8d47-e943-25f1-bb59d2b45a3d\",\n  \"name\": \"string\",\n  \"dba_name\": \"string\",\n  \"industry\": \"string\",\n  \"size\": \"string\",\n  \"location\": \"string\",\n  \"incorporation_country\": \"string\",\n  \"incorporation_state\": \"string\",\n  \"description\": \"string\",\n  \"revenue\": \"string\",\n  \"legal_matters\": \"string\",\n  \"regulations\": \"string\",\n  \"risk_tolerance\": \"string\",\n  \"additional_info\": \"string\",\n  \"customer_types\": [\n    \"string\",\n    \"string\"\n  ],\n  \"created_at\": \"string\",\n  \"updated_at\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d6f91b99-e74e-4a4c-936c-854d5b6e2c59",
+              "name": "No fields provided, or invalid request body",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"dba_name\": \"<string>\",\n  \"industry\": \"<string>\",\n  \"size\": \"<string>\",\n  \"location\": \"<string>\",\n  \"incorporation_country\": \"<string>\",\n  \"incorporation_state\": \"<string>\",\n  \"description\": \"<string>\",\n  \"revenue\": \"<string>\",\n  \"legal_matters\": \"<string>\",\n  \"regulations\": \"<string>\",\n  \"risk_tolerance\": \"<string>\",\n  \"additional_info\": \"<string>\",\n  \"customer_types\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "2a904b1c-e974-4f15-aeb4-2f5193a7fb7f",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"dba_name\": \"<string>\",\n  \"industry\": \"<string>\",\n  \"size\": \"<string>\",\n  \"location\": \"<string>\",\n  \"incorporation_country\": \"<string>\",\n  \"incorporation_state\": \"<string>\",\n  \"description\": \"<string>\",\n  \"revenue\": \"<string>\",\n  \"legal_matters\": \"<string>\",\n  \"regulations\": \"<string>\",\n  \"risk_tolerance\": \"<string>\",\n  \"additional_info\": \"<string>\",\n  \"customer_types\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "5106bc0e-ea83-4253-8dbf-7e74695cf7a5",
+              "name": "Key is not org-scoped, or the API key is invalid",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"dba_name\": \"<string>\",\n  \"industry\": \"<string>\",\n  \"size\": \"<string>\",\n  \"location\": \"<string>\",\n  \"incorporation_country\": \"<string>\",\n  \"incorporation_state\": \"<string>\",\n  \"description\": \"<string>\",\n  \"revenue\": \"<string>\",\n  \"legal_matters\": \"<string>\",\n  \"regulations\": \"<string>\",\n  \"risk_tolerance\": \"<string>\",\n  \"additional_info\": \"<string>\",\n  \"customer_types\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "426e59b1-d1b5-4aa1-9f40-7ef3e7e8b079",
+              "name": "No company profile exists to update",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"dba_name\": \"<string>\",\n  \"industry\": \"<string>\",\n  \"size\": \"<string>\",\n  \"location\": \"<string>\",\n  \"incorporation_country\": \"<string>\",\n  \"incorporation_state\": \"<string>\",\n  \"description\": \"<string>\",\n  \"revenue\": \"<string>\",\n  \"legal_matters\": \"<string>\",\n  \"regulations\": \"<string>\",\n  \"risk_tolerance\": \"<string>\",\n  \"additional_info\": \"<string>\",\n  \"customer_types\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "eac28211-65e4-4be2-bc52-58c147f37109",
+              "name": "The organization has more than one company profile, so the singular `/company-profile` resource cannot disambiguate. Manage multiple companies in the web UI.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"dba_name\": \"<string>\",\n  \"industry\": \"<string>\",\n  \"size\": \"<string>\",\n  \"location\": \"<string>\",\n  \"incorporation_country\": \"<string>\",\n  \"incorporation_state\": \"<string>\",\n  \"description\": \"<string>\",\n  \"revenue\": \"<string>\",\n  \"legal_matters\": \"<string>\",\n  \"regulations\": \"<string>\",\n  \"risk_tolerance\": \"<string>\",\n  \"additional_info\": \"<string>\",\n  \"customer_types\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a624cbef-ede2-41af-a801-d97e516ead21",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"dba_name\": \"<string>\",\n  \"industry\": \"<string>\",\n  \"size\": \"<string>\",\n  \"location\": \"<string>\",\n  \"incorporation_country\": \"<string>\",\n  \"incorporation_state\": \"<string>\",\n  \"description\": \"<string>\",\n  \"revenue\": \"<string>\",\n  \"legal_matters\": \"<string>\",\n  \"regulations\": \"<string>\",\n  \"risk_tolerance\": \"<string>\",\n  \"additional_info\": \"<string>\",\n  \"customer_types\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "563953e8-7e0e-4305-bdc1-19c5d161d45b",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"dba_name\": \"<string>\",\n  \"industry\": \"<string>\",\n  \"size\": \"<string>\",\n  \"location\": \"<string>\",\n  \"incorporation_country\": \"<string>\",\n  \"incorporation_state\": \"<string>\",\n  \"description\": \"<string>\",\n  \"revenue\": \"<string>\",\n  \"legal_matters\": \"<string>\",\n  \"regulations\": \"<string>\",\n  \"risk_tolerance\": \"<string>\",\n  \"additional_info\": \"<string>\",\n  \"customer_types\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f8322b7e-c9cf-46b5-b982-11e696962ce7",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "company-profile"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"dba_name\": \"<string>\",\n  \"industry\": \"<string>\",\n  \"size\": \"<string>\",\n  \"location\": \"<string>\",\n  \"incorporation_country\": \"<string>\",\n  \"incorporation_state\": \"<string>\",\n  \"description\": \"<string>\",\n  \"revenue\": \"<string>\",\n  \"legal_matters\": \"<string>\",\n  \"regulations\": \"<string>\",\n  \"risk_tolerance\": \"<string>\",\n  \"additional_info\": \"<string>\",\n  \"customer_types\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://app.gc.ai/api/external/v1",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "af84aa08-27c4-4e89-a89c-d32c73656878",
+    "name": "GC AI External Chat Profiles API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "The GC AI External API allows programmatic access to GC AI's chat capabilities. It's designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.\n\n## Authentication\n\nAll API requests must include an API key in the `Authorization` header:\n\n```\nAuthorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n```\n\nAPI keys can be created in the GC AI app under **Settings → API**.\n\n## Multi-turn Conversations\n\nConversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).\n\n## Current Limitations\n\nThe following is not yet available via API:\n\n- **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta\n\n## Usage\n\nUsage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.\n\n## Support\n\nFor API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.\n\nContact Support:\n Email: support@gc.ai",
+      "type": "text/plain"
+    }
+  }
+}

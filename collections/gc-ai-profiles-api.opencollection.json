@@ -1,0 +1,111 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GC AI External Chat Profiles API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Profiles",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Identify the caller",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/me",
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Return the identity behind the API key making the request — the organization it belongs to, and, for user-scoped keys, the user it acts as.\n\nWorks with **either** a user-scoped key (`u:gcai_...`) or an org-scoped key (`gcai_...`). Org-scoped keys carry no user identity, so `user` is `null` for them. Use this to confirm which credential and account a request resolves to before calling `/me/profile` or `/company-profile`."
+        },
+        {
+          "info": {
+            "name": "Get your personal profile",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/me/profile",
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve the calling user's personal profile — the chat-context fields the web UI exposes under Settings → Profile. A profile that has never been saved is returned with default values.\n\nDisplay name and avatar are managed by your identity provider, not this API, so they are not included.\n\nRequires a **user-scoped** key (`u:gcai_...`); org-scoped keys carry no user identity and receive 403."
+        },
+        {
+          "info": {
+            "name": "Update your personal profile",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://app.gc.ai/api/external/v1/me/profile",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Partially update the calling user's personal profile. Omitted fields are left unchanged; nullable fields accept `null` to clear them. The profile is created on first write.\n\nDisplay name and avatar are managed by your identity provider, not this API.\n\nRequires a **user-scoped** key (`u:gcai_...`); org-scoped keys receive 403."
+        },
+        {
+          "info": {
+            "name": "Get the company profile",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/company-profile",
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve the organization's company profile — the company context (industry, jurisdiction, regulations, risk posture) the AI uses to ground answers.\n\nReadable with either a user-scoped or org-scoped key. With a user-scoped key, the user's active (default) company is returned when one is set; otherwise the organization's sole company is returned. An organization with multiple companies and no applicable default returns 409."
+        },
+        {
+          "info": {
+            "name": "Update the company profile",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://app.gc.ai/api/external/v1/company-profile",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Partially update the organization's company profile. Omitted fields are left unchanged; nullable fields accept `null` to clear them.\n\nRequires an **org-scoped** key (`gcai_...`) — company context is organization-level configuration, so user-scoped keys receive 403. Creating the first company profile is done in the web UI."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

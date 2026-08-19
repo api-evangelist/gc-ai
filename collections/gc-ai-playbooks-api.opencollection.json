@@ -1,0 +1,395 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GC AI External Chat Playbooks API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Playbooks",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List playbooks",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/playbooks",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Max items to return (default 100, max 500)"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "Number of items to skip (default 0)"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "List playbooks accessible to the caller.\n\nWith a user-scoped key, returns playbooks the user created, org-visible playbooks, shared playbooks, and official playbooks. With an org-scoped key, returns org-visible and official playbooks."
+        },
+        {
+          "info": {
+            "name": "Create a playbook",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://app.gc.ai/api/external/v1/playbooks",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Create a new, empty playbook. Add checks to it with the check endpoints, then run it against files.\n\nWith a user-scoped key, the caller is recorded as the creator and the playbook is private to them. With an org-scoped key, the playbook is org-visible (any member of the organization can read and manage it) and has no individual creator."
+        },
+        {
+          "info": {
+            "name": "Get a playbook",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/playbooks/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Playbook ID from `GET /playbooks`."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve a single playbook by ID, including its `guide` text.\n\nUser-scoped keys can read playbooks they created, playbooks shared with them, org-visible playbooks, and official playbooks. Org-scoped keys can read org-visible and official playbooks, but not private ones."
+        },
+        {
+          "info": {
+            "name": "Update a playbook",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://app.gc.ai/api/external/v1/playbooks/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The playbook ID"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Update a playbook's title, description, or guide. At least one field is required.\n\nUser-scoped keys require write access to the playbook. Org-scoped keys can update org-visible (non-private) playbooks."
+        },
+        {
+          "info": {
+            "name": "Delete a playbook",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://app.gc.ai/api/external/v1/playbooks/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The playbook ID to delete"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Soft-delete a playbook by ID. The playbook is marked as deleted and will no longer appear in `GET /playbooks` results.\n\nUser-scoped keys require admin access to the playbook. Org-scoped keys can delete org-visible (non-private) playbooks."
+        },
+        {
+          "info": {
+            "name": "Duplicate a playbook",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://app.gc.ai/api/external/v1/playbooks/:id/duplicate",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The playbook ID"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Create a copy of a playbook, including its checks and positions. The copy is private to the caller.\n\nRequires a user-scoped key — the caller is recorded as the new playbook's creator and must be able to read the source. Org-scoped keys cannot duplicate playbooks."
+        },
+        {
+          "info": {
+            "name": "Run a playbook against uploaded files",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://app.gc.ai/api/external/v1/playbooks/:id/run",
+            "headers": [
+              {
+                "name": "Prefer",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Playbook ID from `GET /playbooks`."
+              },
+              {
+                "name": "wait",
+                "value": "",
+                "type": "query",
+                "description": "Optional long-poll wait time in seconds. Use `0` for fire-and-forget behavior. If both `wait` and `Prefer: wait=...` are supplied, they must match. Values above 90 are clamped."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Run a playbook against one or more uploaded files and receive structured check results.\n\n<Note>\nThis endpoint is asynchronous: it returns a job envelope, and the result is filled in once the job completes. See [Asynchronous Requests](/api-reference/concepts/async-jobs) for how waiting, polling, and the envelope work.\n</Note>\n\nFiles referenced by `file_ids` must be accessible to the caller and in `ready` status. The playbook must be in `completed` status. Org-scoped keys can run org-visible playb"
+        },
+        {
+          "info": {
+            "name": "List a playbook's checks",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/playbooks/:id/checks",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Playbook ID from `GET /playbooks`."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "List the checks in a playbook, in their configured order.\n\nReadable by any caller who can read the playbook."
+        },
+        {
+          "info": {
+            "name": "Add a check to a playbook",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://app.gc.ai/api/external/v1/playbooks/:id/checks",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Playbook ID from `GET /playbooks`."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Create a check and append it to the playbook.\n\nRequires write access to the playbook. With a user-scoped key the caller is recorded as the check’s creator; with an org-scoped key the check has no individual creator and is org-owned."
+        },
+        {
+          "info": {
+            "name": "Get a check",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/playbooks/:id/checks/:checkId",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Playbook ID from `GET /playbooks`."
+              },
+              {
+                "name": "checkId",
+                "value": "",
+                "type": "path",
+                "description": "Check ID from `GET /playbooks/{id}/checks`."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve a single check in a playbook by ID.\n\nReadable by any caller who can read the playbook."
+        },
+        {
+          "info": {
+            "name": "Update a check",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://app.gc.ai/api/external/v1/playbooks/:id/checks/:checkId",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Playbook ID from `GET /playbooks`."
+              },
+              {
+                "name": "checkId",
+                "value": "",
+                "type": "path",
+                "description": "Check ID from `GET /playbooks/{id}/checks`."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Update a check's title, description, importance, or positions. At least one field is required. When `positions` is supplied it replaces the check's positions entirely.\n\nRequires a user-scoped key with write access to the playbook. Org-scoped keys cannot update checks."
+        },
+        {
+          "info": {
+            "name": "Remove a check from a playbook",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://app.gc.ai/api/external/v1/playbooks/:id/checks/:checkId",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Playbook ID from `GET /playbooks`."
+              },
+              {
+                "name": "checkId",
+                "value": "",
+                "type": "path",
+                "description": "Check ID from `GET /playbooks/{id}/checks`."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Remove a check from the playbook.\n\nRequires a user-scoped key with write access to the playbook. Org-scoped keys cannot remove checks."
+        },
+        {
+          "info": {
+            "name": "Reorder a playbook's checks",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://app.gc.ai/api/external/v1/playbooks/:id/checks/reorder",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Playbook ID from `GET /playbooks`."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Set the order of the playbook's checks. Provide the check IDs in the desired order.\n\nRequires a user-scoped key with write access to the playbook. Org-scoped keys cannot reorder checks."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

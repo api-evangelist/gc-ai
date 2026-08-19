@@ -1,0 +1,146 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GC AI External Chat API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Chat",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create chat completion",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://app.gc.ai/api/external/v1/chat/completions",
+            "headers": [
+              {
+                "name": "Prefer",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "wait",
+                "value": "",
+                "type": "query",
+                "description": "Optional long-poll wait time in seconds. Use `0` for fire-and-forget behavior. If both `wait` and `Prefer: wait=...` are supplied, they must match. Values above 90 are clamped."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Send a message to GC AI and receive an AI-generated response.\n\n<Note>\nThis endpoint is asynchronous: it returns a job envelope, and the result is filled in once the job completes. See [Asynchronous Requests](/api-reference/concepts/async-jobs) for how waiting, polling, and the envelope work.\n</Note>\n\n## Multi-turn conversations\n\nEvery response includes a `chat_id`. Pass it back as `chat_id` on a later request to continue that conversation. Conversation state — prior messages, tool calls, and any"
+        },
+        {
+          "info": {
+            "name": "Get async job status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/jobs/:id",
+            "headers": [
+              {
+                "name": "Prefer",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The async job ID"
+              },
+              {
+                "name": "wait",
+                "value": "",
+                "type": "query",
+                "description": "Optional long-poll wait time in seconds. Use `0` for fire-and-forget behavior. If both `wait` and `Prefer: wait=...` are supplied, they must match. Values above 90 are clamped."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Poll an async API job created by endpoints like `POST /chat/completions`.\n\nUse the `job_id` returned by a `202 Accepted` response to check whether the job is still pending or has reached a terminal state."
+        },
+        {
+          "info": {
+            "name": "Materialize an API chat",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://app.gc.ai/api/external/v1/chat/:id/materialize",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The chat ID"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Surface an API-created chat into chat history and return a shareable deep link.\n\nChats created through `POST /chat/completions` stay out of chat history (both the GC AI web app and [chat search](/api-reference/search-chats)) until you materialize them. Use the `chat_id` from a completed completion response. The endpoint is idempotent. Calling it again on an already-materialized chat returns the same link without side effects.\n\n**Authorization:** User-scoped keys can only materialize chats they c"
+        },
+        {
+          "info": {
+            "name": "Search chats",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/chat/search",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search query (required, 1-500 chars). Natural language is fine."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Max chats to return (default 20, max 50)"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Hybrid search across the caller's chat history that merges two lanes: a case-insensitive title-substring match and a semantic (vector) match over each chat's AI-generated summary. Title matches are returned first (a strong signal the user remembers the chat name), followed by semantic matches in relevance order, de-duplicated and capped at `limit`.\n\n**Authorization:** User-scoped keys (`u:gcai_...`) search the chats that user can access. Organization-scoped keys search every chat shared with the"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

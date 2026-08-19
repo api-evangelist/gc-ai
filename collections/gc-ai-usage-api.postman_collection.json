@@ -1,0 +1,1016 @@
+{
+  "item": [
+    {
+      "id": "248d31be-52bd-4f06-998b-466bf11f125b",
+      "name": "Usage",
+      "description": {
+        "content": "Usage and credit/billing reporting endpoints",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "51b997f6-95ed-4d5e-a5f7-685ca8695aa1",
+          "name": "Get credit usage",
+          "request": {
+            "name": "Get credit usage",
+            "description": {
+              "content": "Billing view of the organization's credit consumption, broken down by billable operation and by day, with rate-card pricing.\n\nRequires an org-scoped API key — credit usage is an organization-level concern. User-scoped keys receive a 403.\n\nIf rate-card pricing can't be resolved for every observed operation, `pricing_available` is `false` and all credit fields are null; raw request counts are still returned.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "credit-usage"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "start_date",
+                  "value": "<string>",
+                  "description": "(Required) Inclusive range start (`YYYY-MM-DD`)."
+                },
+                {
+                  "disabled": false,
+                  "key": "end_date",
+                  "value": "<string>",
+                  "description": "(Required) Inclusive range end (`YYYY-MM-DD`)."
+                },
+                {
+                  "disabled": false,
+                  "key": "timezone",
+                  "value": "UTC",
+                  "description": "IANA timezone for day boundaries (default `UTC`), e.g. `America/New_York`."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "40f4f8fd-1a20-4b04-8d8d-8fd3a4dbb6b5",
+              "name": "Credit usage for the requested range",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "credit-usage"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "start_date",
+                      "value": "2026-06-01"
+                    },
+                    {
+                      "key": "end_date",
+                      "value": "2026-06-30"
+                    },
+                    {
+                      "key": "timezone",
+                      "value": "UTC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"start_date\": \"string\",\n  \"end_date\": \"string\",\n  \"timezone\": \"string\",\n  \"pricing_available\": false,\n  \"total_credits\": 9875.157763239005,\n  \"lines\": [\n    {\n      \"api\": \"chat:completions\",\n      \"requests\": 9350.102492976363,\n      \"unit\": \"string\",\n      \"credits_per_unit\": 1950.0069689112354,\n      \"credits\": 2300.349089944528\n    },\n    {\n      \"api\": \"chat:completions\",\n      \"requests\": 7916.954275758768,\n      \"unit\": \"string\",\n      \"credits_per_unit\": 5591.001449842897,\n      \"credits\": 4112.760184892551\n    }\n  ],\n  \"daily\": [\n    {\n      \"date\": \"2026-06-01\",\n      \"usage\": {\n        \"key_0\": 3684.4807384533183\n      }\n    },\n    {\n      \"date\": \"2026-06-01\",\n      \"usage\": {\n        \"key_0\": 850.2324360938784\n      }\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d643d3de-c9f5-4935-94ec-0ed062ee11fe",
+              "name": "Invalid date range or timezone (bad calendar date, end before start, unknown timezone, or range over 366 days)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "credit-usage"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "start_date",
+                      "value": "2026-06-01"
+                    },
+                    {
+                      "key": "end_date",
+                      "value": "2026-06-30"
+                    },
+                    {
+                      "key": "timezone",
+                      "value": "UTC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {},\n    \"key_3\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3a194257-0880-432e-aeea-c45987672c6d",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "credit-usage"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "start_date",
+                      "value": "2026-06-01"
+                    },
+                    {
+                      "key": "end_date",
+                      "value": "2026-06-30"
+                    },
+                    {
+                      "key": "timezone",
+                      "value": "UTC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {},\n    \"key_3\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "bfeb70cd-77d9-48b7-a598-4dd03f087905",
+              "name": "Credit usage requires an org-scoped API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "credit-usage"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "start_date",
+                      "value": "2026-06-01"
+                    },
+                    {
+                      "key": "end_date",
+                      "value": "2026-06-30"
+                    },
+                    {
+                      "key": "timezone",
+                      "value": "UTC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {},\n    \"key_3\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "784d9c18-d1d8-4680-b806-2ca61c0ae2ce",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "credit-usage"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "start_date",
+                      "value": "2026-06-01"
+                    },
+                    {
+                      "key": "end_date",
+                      "value": "2026-06-30"
+                    },
+                    {
+                      "key": "timezone",
+                      "value": "UTC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {},\n    \"key_3\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a381ebc3-719f-4382-aec0-ae5ac3f6eb21",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "credit-usage"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "start_date",
+                      "value": "2026-06-01"
+                    },
+                    {
+                      "key": "end_date",
+                      "value": "2026-06-30"
+                    },
+                    {
+                      "key": "timezone",
+                      "value": "UTC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {},\n    \"key_3\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "167492ab-db92-425e-bf0c-f88e951019ec",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "credit-usage"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "start_date",
+                      "value": "2026-06-01"
+                    },
+                    {
+                      "key": "end_date",
+                      "value": "2026-06-30"
+                    },
+                    {
+                      "key": "timezone",
+                      "value": "UTC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {},\n    \"key_3\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "e8abe061-d24f-4684-94bc-5b4d29c29c4a",
+          "name": "Get usage summary",
+          "request": {
+            "name": "Get usage summary",
+            "description": {
+              "content": "Organization-wide product-usage summary by channel: `web` (web app), `word` (Word add-in), and `api`.\n\nRequires an org-scoped API key — usage is reported org-wide, so a user-scoped key receives a 403. For credit/billing totals, use `GET /v1/credit-usage`.\n\nNote: web/word counts are sourced from product analytics; day boundaries for those channels are approximate (UTC).",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "usage"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "start_date",
+                  "value": "<string>",
+                  "description": "(Required) Inclusive range start (`YYYY-MM-DD`)."
+                },
+                {
+                  "disabled": false,
+                  "key": "end_date",
+                  "value": "<string>",
+                  "description": "(Required) Inclusive range end (`YYYY-MM-DD`)."
+                },
+                {
+                  "disabled": false,
+                  "key": "timezone",
+                  "value": "UTC",
+                  "description": "IANA timezone for the api channel day boundaries (default `UTC`)."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "d1eba427-4095-4f97-920e-20b6c0d9909e",
+              "name": "Usage summary for the requested range",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "usage"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "start_date",
+                      "value": "2026-06-01"
+                    },
+                    {
+                      "key": "end_date",
+                      "value": "2026-06-30"
+                    },
+                    {
+                      "key": "timezone",
+                      "value": "UTC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"start_date\": \"string\",\n  \"end_date\": \"string\",\n  \"timezone\": \"string\",\n  \"web\": {\n    \"messages\": 4163.475665654154,\n    \"web_pages_scraped\": 5706.290888101404,\n    \"files_uploaded\": 4462.43643059327\n  },\n  \"word\": {\n    \"messages\": 7965.871711920207,\n    \"redlines_applied\": 7348.990479239088,\n    \"drafts_applied\": 5964.459202153148\n  },\n  \"api\": {\n    \"requests\": 6593.680892221875,\n    \"by_operation\": {\n      \"key_0\": 7484.868815814145,\n      \"key_1\": 7692.324131110289,\n      \"key_2\": 2419.777535152009\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b1e3c7da-ca9b-4f82-a048-1f931b2dc8d2",
+              "name": "Invalid date range or timezone (bad calendar date, end before start, unknown timezone, or range over 366 days)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "usage"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "start_date",
+                      "value": "2026-06-01"
+                    },
+                    {
+                      "key": "end_date",
+                      "value": "2026-06-30"
+                    },
+                    {
+                      "key": "timezone",
+                      "value": "UTC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {},\n    \"key_3\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4d8e1357-eb73-4254-af4b-2e5933568341",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "usage"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "start_date",
+                      "value": "2026-06-01"
+                    },
+                    {
+                      "key": "end_date",
+                      "value": "2026-06-30"
+                    },
+                    {
+                      "key": "timezone",
+                      "value": "UTC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {},\n    \"key_3\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f1642e74-42b9-49f9-9003-c1fd96c87f44",
+              "name": "Usage requires an org-scoped API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "usage"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "start_date",
+                      "value": "2026-06-01"
+                    },
+                    {
+                      "key": "end_date",
+                      "value": "2026-06-30"
+                    },
+                    {
+                      "key": "timezone",
+                      "value": "UTC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {},\n    \"key_3\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "28c9482d-5773-4be3-bfdc-3af644b54629",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "usage"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "start_date",
+                      "value": "2026-06-01"
+                    },
+                    {
+                      "key": "end_date",
+                      "value": "2026-06-30"
+                    },
+                    {
+                      "key": "timezone",
+                      "value": "UTC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {},\n    \"key_3\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "54107b57-38b9-4b59-9815-522b4722aab3",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "usage"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "start_date",
+                      "value": "2026-06-01"
+                    },
+                    {
+                      "key": "end_date",
+                      "value": "2026-06-30"
+                    },
+                    {
+                      "key": "timezone",
+                      "value": "UTC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {},\n    \"key_3\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d46d8d2e-d96e-42e2-b2be-7f3eb2fe897f",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "usage"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "start_date",
+                      "value": "2026-06-01"
+                    },
+                    {
+                      "key": "end_date",
+                      "value": "2026-06-30"
+                    },
+                    {
+                      "key": "timezone",
+                      "value": "UTC"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {},\n    \"key_3\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://app.gc.ai/api/external/v1",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "bb98bf20-d582-450c-84c0-7fc4599ee42e",
+    "name": "GC AI External Chat Usage API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "The GC AI External API allows programmatic access to GC AI's chat capabilities. It's designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.\n\n## Authentication\n\nAll API requests must include an API key in the `Authorization` header:\n\n```\nAuthorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n```\n\nAPI keys can be created in the GC AI app under **Settings → API**.\n\n## Multi-turn Conversations\n\nConversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).\n\n## Current Limitations\n\nThe following is not yet available via API:\n\n- **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta\n\n## Usage\n\nUsage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.\n\n## Support\n\nFor API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.\n\nContact Support:\n Email: support@gc.ai",
+      "type": "text/plain"
+    }
+  }
+}

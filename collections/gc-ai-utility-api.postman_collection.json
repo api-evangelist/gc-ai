@@ -1,0 +1,371 @@
+{
+  "item": [
+    {
+      "id": "0d4bd241-20ca-445f-b081-a2c5c51c5d54",
+      "name": "Utility",
+      "description": {
+        "content": "Health check and connectivity endpoints",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "8e276255-5367-4917-9615-7ec4e15cf70e",
+          "name": "Health check",
+          "request": {
+            "name": "Health check",
+            "description": {
+              "content": "Returns a simple health check response. Useful for verifying API key validity and connectivity.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "ping"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "d0f91f88-5ebd-4b95-9b47-bfff3d5a9e81",
+              "name": "API is reachable and key is valid",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "ping"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"pong\",\n  \"timestamp\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ee0fd2a2-1d91-4c80-b209-8cc3ff60b04c",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "ping"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7f9fc390-97fe-4836-a763-8c5f37d93704",
+              "name": "Invalid API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "ping"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "467ec44d-829a-4c46-b10d-fb813e6cb889",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "ping"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "30c14684-cd31-4c79-8666-812febfa3a8f",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "ping"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "06cc4e00-1fc9-474c-b5c2-cdbfaedd1094",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "ping"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://app.gc.ai/api/external/v1",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "06656604-740a-4723-b3bd-e3115c190b45",
+    "name": "GC AI External Chat Utility API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "The GC AI External API allows programmatic access to GC AI's chat capabilities. It's designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.\n\n## Authentication\n\nAll API requests must include an API key in the `Authorization` header:\n\n```\nAuthorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n```\n\nAPI keys can be created in the GC AI app under **Settings → API**.\n\n## Multi-turn Conversations\n\nConversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).\n\n## Current Limitations\n\nThe following is not yet available via API:\n\n- **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta\n\n## Usage\n\nUsage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.\n\n## Support\n\nFor API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.\n\nContact Support:\n Email: support@gc.ai",
+      "type": "text/plain"
+    }
+  }
+}

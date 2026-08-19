@@ -1,0 +1,155 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GC AI External Chat Skills API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Skills",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List skills",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/skills",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Max items to return (default 100, max 500)"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "Number of items to skip (default 0)"
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Optional case-insensitive search over skill name and description"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "List skills accessible to the caller.\n\nWith a user-scoped key, returns skills the user created, org-visible skills, skills explicitly shared with the user, and official skills. With an org-scoped key, returns org-visible skills and official skills."
+        },
+        {
+          "info": {
+            "name": "Create a skill",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://app.gc.ai/api/external/v1/skills",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Create a new skill in the caller's organization.\n\nUser-scoped keys own the skill and default it to `private`; org-scoped keys create `organization`-visible skills. Official skills cannot be created via the API."
+        },
+        {
+          "info": {
+            "name": "Get a skill",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/skills/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Skill ID from `GET /skills`."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Fetch a single skill by ID, including its instructions and attached files.\n\nReturns `404` if the skill does not exist or is not accessible to the caller. Official skills are readable by any caller; user skills follow the same visibility rules as `GET /skills`."
+        },
+        {
+          "info": {
+            "name": "Update a skill",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://app.gc.ai/api/external/v1/skills/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Skill ID from `GET /skills`."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Partially update a skill's name, instructions, description, or attached files.\n\nRequires write access to the skill. Official skills cannot be edited via the API. Visibility is not editable here — manage skill sharing in the GC AI app."
+        },
+        {
+          "info": {
+            "name": "Delete a skill",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://app.gc.ai/api/external/v1/skills/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The skill ID to delete"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Delete a skill. Attached files are detached, not deleted — manage file lifecycle via the files API.\n\nUser-scoped keys require write access to the skill; org-scoped keys can delete org-visible (non-private) skills. Official skills cannot be deleted via the API."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

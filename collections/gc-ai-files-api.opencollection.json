@@ -1,0 +1,230 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GC AI External Chat Files API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Files",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Search files",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/files",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search query (required)"
+              },
+              {
+                "name": "scope",
+                "value": "",
+                "type": "query",
+                "description": "Optional scope filter. When omitted, searches all files the user can read."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Hybrid (vector + keyword) search across accessible files. Results are ranked by relevance and capped at 100.\n\nUser-scoped keys search all files the user can read. Org-scoped keys search all non-access-controlled files in the organization.\n\nPass `scope` (user-scoped keys only) to constrain the search to one of the three top-level meta-collections shown in the GC AI UI:\n- `my-files`: files in the user's personal \"My Files\" tree\n- `shared-with-me`: files explicitly shared with the user (and files i"
+        },
+        {
+          "info": {
+            "name": "Upload a file",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://app.gc.ai/api/external/v1/files",
+            "body": {
+              "type": "multipart-form",
+              "data": []
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Upload a file to GC AI for processing and storage. Files are uploaded as multipart form data and automatically processed (text extraction, summarization, and embedding creation).\n\nWith a user-scoped key, files default to the user's \"My Files\" folder. With an org-scoped key, files default to the \"Organization Files\" folder and the `my-files` scope is not available.\n\nFor PDFs and Word documents, extraction runs asynchronously. Poll `GET /files/{id}` until `status` is `ready`."
+        },
+        {
+          "info": {
+            "name": "Get file status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/files/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The file ID"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve the current status and metadata of an uploaded file. Use this to poll for extraction completion after uploading a file."
+        },
+        {
+          "info": {
+            "name": "Move a file",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://app.gc.ai/api/external/v1/files/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The file ID"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Move a file to a different folder by updating its `folder_id`. Org-scoped keys can move non-access-controlled files to non-access-controlled destination folders."
+        },
+        {
+          "info": {
+            "name": "Initiate a chunked upload",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://app.gc.ai/api/external/v1/files/uploads",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Start a multipart upload session for a large file. Validates the file type, size, and destination up front, then returns an `upload_id`. Send the file in parts with `PUT /files/uploads/{upload_id}/parts/{part_number}`, then finalize with `POST /files/uploads/{upload_id}/complete`.\n\nUse this instead of `POST /files` when a single request is impractical (large files, or clients with per-request payload limits). The destination options (`folder_id` / `project_id` / `scope`) behave exactly as on `PO"
+        },
+        {
+          "info": {
+            "name": "Upload a file part",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://app.gc.ai/api/external/v1/files/uploads/:upload_id/parts/:part_number",
+            "params": [
+              {
+                "name": "upload_id",
+                "value": "",
+                "type": "path",
+                "description": "The upload session ID from initiate."
+              },
+              {
+                "name": "part_number",
+                "value": "",
+                "type": "path",
+                "description": "Part index, from 1 to 32."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Upload one part of a chunked upload. The request body is the raw bytes of the part (`application/octet-stream`). Parts may be uploaded in any order; re-sending the same `part_number` overwrites it, so a failed part is safe to retry."
+        },
+        {
+          "info": {
+            "name": "Complete a chunked upload",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://app.gc.ai/api/external/v1/files/uploads/:upload_id/complete",
+            "params": [
+              {
+                "name": "upload_id",
+                "value": "",
+                "type": "path",
+                "description": "The upload session ID from initiate."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Assemble the uploaded parts into the final file and start processing (text extraction, summarization, embeddings), returning the same file object as `POST /files`. For PDFs and Word documents, extraction runs asynchronously — poll `GET /files/{id}` until `status` is `ready`."
+        },
+        {
+          "info": {
+            "name": "Abort a chunked upload",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://app.gc.ai/api/external/v1/files/uploads/:upload_id",
+            "params": [
+              {
+                "name": "upload_id",
+                "value": "",
+                "type": "path",
+                "description": "The upload session ID from initiate."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Discard an in-flight upload session and delete any parts already uploaded. Idempotent: aborting an unknown or already-finalized session still returns success."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,0 +1,4444 @@
+{
+  "item": [
+    {
+      "id": "87d131f8-f26c-4c68-8483-b651d485d1ab",
+      "name": "Files",
+      "description": {
+        "content": "File upload and management endpoints",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "9104d65a-59ac-4f36-bcb3-e045e2be304c",
+          "name": "Upload a file",
+          "request": {
+            "name": "Upload a file",
+            "description": {
+              "content": "Upload a file to GC AI for processing and storage. Files are uploaded as multipart form data and automatically processed (text extraction, summarization, and embedding creation).\n\nWith a user-scoped key, files default to the user's \"My Files\" folder. With an org-scoped key, files default to the \"Organization Files\" folder and the `my-files` scope is not available.\n\nFor PDFs and Word documents, extraction runs asynchronously. Poll `GET /files/{id}` until `status` is `ready`.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "files"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "(Required) The file to upload"
+                },
+                {
+                  "key": "folder_id",
+                  "value": "<uuid>",
+                  "type": "text",
+                  "description": "Target folder ID. Defaults to the user's \"My Files\" folder. Mutually exclusive with `project_id` and `scope`."
+                },
+                {
+                  "key": "project_id",
+                  "value": "<uuid>",
+                  "type": "text",
+                  "description": "Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`."
+                },
+                {
+                  "key": "scope",
+                  "value": "<string>",
+                  "type": "text",
+                  "description": "Upload to the root of a meta-collection (\"my-files\" or \"organization\"). Mutually exclusive with `folder_id` and `project_id`. `shared-with-me` is not valid for upload. (This can only be one of my-files,organization)"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "2f51c2ae-6e2d-4ccd-94e4-9cfe36ec9ab4",
+              "name": "File uploaded successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "(Required) The file to upload",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Target folder ID. Defaults to the user's \"My Files\" folder. Mutually exclusive with `project_id` and `scope`.",
+                        "type": "text/plain"
+                      },
+                      "key": "folder_id",
+                      "value": "<uuid>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.",
+                        "type": "text/plain"
+                      },
+                      "key": "project_id",
+                      "value": "<uuid>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Upload to the root of a meta-collection (\"my-files\" or \"organization\"). Mutually exclusive with `folder_id` and `project_id`. `shared-with-me` is not valid for upload. (This can only be one of my-files,organization)",
+                        "type": "text/plain"
+                      },
+                      "key": "scope",
+                      "value": "my-files",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"76cef65e-3bd5-ebf4-eeb0-e84a58680436\",\n  \"name\": \"string\",\n  \"size\": 3537.8376860100257,\n  \"content_type\": \"application/pdf\",\n  \"status\": \"ready\",\n  \"created_at\": \"string\",\n  \"folder_id\": \"bc60c4cc-5f8e-f233-32a8-522118964791\",\n  \"extraction_error\": \"string\",\n  \"project_id\": \"b5ed84b4-7e61-8d5b-1745-25d2ad390a95\",\n  \"warning\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "cd3ccfb9-3728-4766-ba09-e5254caec378",
+              "name": "Invalid request (unsupported file type, empty content, etc.)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "(Required) The file to upload",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Target folder ID. Defaults to the user's \"My Files\" folder. Mutually exclusive with `project_id` and `scope`.",
+                        "type": "text/plain"
+                      },
+                      "key": "folder_id",
+                      "value": "<uuid>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.",
+                        "type": "text/plain"
+                      },
+                      "key": "project_id",
+                      "value": "<uuid>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Upload to the root of a meta-collection (\"my-files\" or \"organization\"). Mutually exclusive with `folder_id` and `project_id`. `shared-with-me` is not valid for upload. (This can only be one of my-files,organization)",
+                        "type": "text/plain"
+                      },
+                      "key": "scope",
+                      "value": "my-files",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0aa2d2b7-90f0-4760-b4ab-0f47f2de9a9b",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "(Required) The file to upload",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Target folder ID. Defaults to the user's \"My Files\" folder. Mutually exclusive with `project_id` and `scope`.",
+                        "type": "text/plain"
+                      },
+                      "key": "folder_id",
+                      "value": "<uuid>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.",
+                        "type": "text/plain"
+                      },
+                      "key": "project_id",
+                      "value": "<uuid>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Upload to the root of a meta-collection (\"my-files\" or \"organization\"). Mutually exclusive with `folder_id` and `project_id`. `shared-with-me` is not valid for upload. (This can only be one of my-files,organization)",
+                        "type": "text/plain"
+                      },
+                      "key": "scope",
+                      "value": "my-files",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f6858f9e-7787-4668-9757-53d07e02a6a2",
+              "name": "Insufficient project access",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "(Required) The file to upload",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Target folder ID. Defaults to the user's \"My Files\" folder. Mutually exclusive with `project_id` and `scope`.",
+                        "type": "text/plain"
+                      },
+                      "key": "folder_id",
+                      "value": "<uuid>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.",
+                        "type": "text/plain"
+                      },
+                      "key": "project_id",
+                      "value": "<uuid>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Upload to the root of a meta-collection (\"my-files\" or \"organization\"). Mutually exclusive with `folder_id` and `project_id`. `shared-with-me` is not valid for upload. (This can only be one of my-files,organization)",
+                        "type": "text/plain"
+                      },
+                      "key": "scope",
+                      "value": "my-files",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "1d05e9da-b367-484c-bc7c-dde1835d73c7",
+              "name": "Project not found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "(Required) The file to upload",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Target folder ID. Defaults to the user's \"My Files\" folder. Mutually exclusive with `project_id` and `scope`.",
+                        "type": "text/plain"
+                      },
+                      "key": "folder_id",
+                      "value": "<uuid>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.",
+                        "type": "text/plain"
+                      },
+                      "key": "project_id",
+                      "value": "<uuid>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Upload to the root of a meta-collection (\"my-files\" or \"organization\"). Mutually exclusive with `folder_id` and `project_id`. `shared-with-me` is not valid for upload. (This can only be one of my-files,organization)",
+                        "type": "text/plain"
+                      },
+                      "key": "scope",
+                      "value": "my-files",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "fd2da02b-c79f-4cb3-bfed-0cfd99a3cf28",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "(Required) The file to upload",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Target folder ID. Defaults to the user's \"My Files\" folder. Mutually exclusive with `project_id` and `scope`.",
+                        "type": "text/plain"
+                      },
+                      "key": "folder_id",
+                      "value": "<uuid>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.",
+                        "type": "text/plain"
+                      },
+                      "key": "project_id",
+                      "value": "<uuid>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Upload to the root of a meta-collection (\"my-files\" or \"organization\"). Mutually exclusive with `folder_id` and `project_id`. `shared-with-me` is not valid for upload. (This can only be one of my-files,organization)",
+                        "type": "text/plain"
+                      },
+                      "key": "scope",
+                      "value": "my-files",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c58c803c-db0d-44c0-8661-a203c0d66973",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "(Required) The file to upload",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Target folder ID. Defaults to the user's \"My Files\" folder. Mutually exclusive with `project_id` and `scope`.",
+                        "type": "text/plain"
+                      },
+                      "key": "folder_id",
+                      "value": "<uuid>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.",
+                        "type": "text/plain"
+                      },
+                      "key": "project_id",
+                      "value": "<uuid>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Upload to the root of a meta-collection (\"my-files\" or \"organization\"). Mutually exclusive with `folder_id` and `project_id`. `shared-with-me` is not valid for upload. (This can only be one of my-files,organization)",
+                        "type": "text/plain"
+                      },
+                      "key": "scope",
+                      "value": "my-files",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "2d20f308-acd9-49fc-bf09-36f44cedb5dd",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "(Required) The file to upload",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Target folder ID. Defaults to the user's \"My Files\" folder. Mutually exclusive with `project_id` and `scope`.",
+                        "type": "text/plain"
+                      },
+                      "key": "folder_id",
+                      "value": "<uuid>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.",
+                        "type": "text/plain"
+                      },
+                      "key": "project_id",
+                      "value": "<uuid>",
+                      "type": "text"
+                    },
+                    {
+                      "description": {
+                        "content": "Upload to the root of a meta-collection (\"my-files\" or \"organization\"). Mutually exclusive with `folder_id` and `project_id`. `shared-with-me` is not valid for upload. (This can only be one of my-files,organization)",
+                        "type": "text/plain"
+                      },
+                      "key": "scope",
+                      "value": "my-files",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "543717ab-f679-4aee-80b1-575e733067da",
+          "name": "Search files",
+          "request": {
+            "name": "Search files",
+            "description": {
+              "content": "Hybrid (vector + keyword) search across accessible files. Results are ranked by relevance and capped at 100.\n\nUser-scoped keys search all files the user can read. Org-scoped keys search all non-access-controlled files in the organization.\n\nPass `scope` (user-scoped keys only) to constrain the search to one of the three top-level meta-collections shown in the GC AI UI:\n- `my-files`: files in the user's personal \"My Files\" tree\n- `shared-with-me`: files explicitly shared with the user (and files inside shared folders)\n- `organization`: files in the organization's \"Organization Files\" tree",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "files"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "q",
+                  "value": "<string>",
+                  "description": "(Required) Search query (required)"
+                },
+                {
+                  "disabled": false,
+                  "key": "scope",
+                  "value": "<string>",
+                  "description": "Optional scope filter. When omitted, searches all files the user can read."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "532b1a11-e1cf-4734-b146-40b08730b95c",
+              "name": "Files matching the query, ranked by relevance",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "force majeure"
+                    },
+                    {
+                      "key": "scope",
+                      "value": "my-files"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"files\": [\n    {\n      \"id\": \"269ed664-641d-001c-0d69-366939dd03bc\",\n      \"name\": \"string\",\n      \"size\": 6318.196603592042,\n      \"content_type\": \"string\",\n      \"status\": \"failed\",\n      \"folder_id\": \"7a601ab4-3c6e-03ab-f6ca-969cfb08666e\",\n      \"created_at\": \"string\"\n    },\n    {\n      \"id\": \"d61fdcfe-1ce4-7722-9109-5883d406fe39\",\n      \"name\": \"string\",\n      \"size\": 909.5923403185647,\n      \"content_type\": \"string\",\n      \"status\": \"extracting\",\n      \"folder_id\": \"435c30ce-4e8b-a792-476f-44a30e318454\",\n      \"created_at\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "842d003b-a18e-4fe6-8ef6-081e0c1645cd",
+              "name": "Missing or invalid query parameters, or scope used with an org-scoped key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "force majeure"
+                    },
+                    {
+                      "key": "scope",
+                      "value": "my-files"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "cbbaaa8d-4c41-4cd6-9bdd-df2b248aff8c",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "force majeure"
+                    },
+                    {
+                      "key": "scope",
+                      "value": "my-files"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "28da3f95-37a8-4cd6-b41b-e9532e6ca8f3",
+              "name": "Invalid API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "force majeure"
+                    },
+                    {
+                      "key": "scope",
+                      "value": "my-files"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "75c50c8c-a177-4836-97bf-f709b0af955c",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "force majeure"
+                    },
+                    {
+                      "key": "scope",
+                      "value": "my-files"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "991cb171-ea23-46e8-9d3f-5bbabdd75bf6",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "force majeure"
+                    },
+                    {
+                      "key": "scope",
+                      "value": "my-files"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3a3e81ea-efd8-43ac-a4b7-a56afb7f466a",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "force majeure"
+                    },
+                    {
+                      "key": "scope",
+                      "value": "my-files"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2480e7a5-4328-42a7-8e3c-b532e4ac4ef6",
+          "name": "Get file status",
+          "request": {
+            "name": "Get file status",
+            "description": {
+              "content": "Retrieve the current status and metadata of an uploaded file. Use this to poll for extraction completion after uploading a file.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "files",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "id",
+                  "description": "(Required) The file ID"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "f3955daa-5043-41dc-ad2e-fd3ddb7ff074",
+              "name": "File metadata and status",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The file ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"76cef65e-3bd5-ebf4-eeb0-e84a58680436\",\n  \"name\": \"string\",\n  \"size\": 3537.8376860100257,\n  \"content_type\": \"application/pdf\",\n  \"status\": \"ready\",\n  \"created_at\": \"string\",\n  \"folder_id\": \"bc60c4cc-5f8e-f233-32a8-522118964791\",\n  \"extraction_error\": \"string\",\n  \"project_id\": \"b5ed84b4-7e61-8d5b-1745-25d2ad390a95\",\n  \"warning\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3fbe9f97-fa33-4922-9140-8b63d8289393",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The file ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "cd8b23a4-a320-4a22-8893-fc0dde5a6bff",
+              "name": "Invalid API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The file ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "5121eebf-3dc2-46ff-8fde-4ad999507ae6",
+              "name": "File not found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The file ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "2ea48722-b98b-4ba4-a8f6-fc51df7211c6",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The file ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "91173fe8-9f91-4319-aa67-6a4e546ea73a",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The file ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a80761a4-3870-4038-87e4-4bc39b7fc4e8",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The file ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9cb5f770-8fb3-44a6-a278-a87e0687c51e",
+          "name": "Move a file",
+          "request": {
+            "name": "Move a file",
+            "description": {
+              "content": "Move a file to a different folder by updating its `folder_id`. Org-scoped keys can move non-access-controlled files to non-access-controlled destination folders.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "files",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "id",
+                  "description": "(Required) The file ID"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"folder_id\": \"<uuid>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "be19dd8f-d4b2-4eb8-a212-e78a8eebf55d",
+              "name": "File moved successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The file ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"folder_id\": \"<uuid>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"76cef65e-3bd5-ebf4-eeb0-e84a58680436\",\n  \"name\": \"string\",\n  \"size\": 3537.8376860100257,\n  \"content_type\": \"application/pdf\",\n  \"status\": \"ready\",\n  \"created_at\": \"string\",\n  \"folder_id\": \"bc60c4cc-5f8e-f233-32a8-522118964791\",\n  \"extraction_error\": \"string\",\n  \"project_id\": \"b5ed84b4-7e61-8d5b-1745-25d2ad390a95\",\n  \"warning\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d5589c5a-ccf9-4ac1-bc80-af757f47ad64",
+              "name": "Invalid request body",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The file ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"folder_id\": \"<uuid>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c380fa9b-9a5b-47ac-8eab-50672f596938",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The file ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"folder_id\": \"<uuid>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "af2004ef-ce0c-4786-b33e-bfd9739da6b7",
+              "name": "Destination folder access denied",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The file ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"folder_id\": \"<uuid>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "829a8b0a-da45-4273-a7a8-7ed577333f6b",
+              "name": "File not found or access denied",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The file ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"folder_id\": \"<uuid>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "2eb8bab9-734e-4b3f-afc1-22341f666f63",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The file ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"folder_id\": \"<uuid>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "34c27d42-0edf-4bfc-96eb-7d7c56db3c7e",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The file ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"folder_id\": \"<uuid>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "482bf67c-2768-430f-8d83-0fbeabc16b5a",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The file ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"folder_id\": \"<uuid>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "afec8dfe-2686-4e56-b301-3f14c018b060",
+          "name": "Initiate a chunked upload",
+          "request": {
+            "name": "Initiate a chunked upload",
+            "description": {
+              "content": "Start a multipart upload session for a large file. Validates the file type, size, and destination up front, then returns an `upload_id`. Send the file in parts with `PUT /files/uploads/{upload_id}/parts/{part_number}`, then finalize with `POST /files/uploads/{upload_id}/complete`.\n\nUse this instead of `POST /files` when a single request is impractical (large files, or clients with per-request payload limits). The destination options (`folder_id` / `project_id` / `scope`) behave exactly as on `POST /files`.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "files",
+                "uploads"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"file_name\": \"<string>\",\n  \"size\": \"<integer>\",\n  \"content_type\": \"<string>\",\n  \"folder_id\": \"<uuid>\",\n  \"project_id\": \"<uuid>\",\n  \"scope\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "3d21cb27-2c7c-44e8-b791-728142c3d1f0",
+              "name": "Upload session created",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"file_name\": \"msa-2026.pdf\",\n  \"size\": 12582912,\n  \"content_type\": \"application/pdf\",\n  \"folder_id\": \"<uuid>\",\n  \"project_id\": \"<uuid>\",\n  \"scope\": \"my-files\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"upload_id\": \"d3cdb918-6b97-af84-fcca-bdc430b2e545\",\n  \"part_size\": 4671.082292247277,\n  \"max_parts\": 456.29638354289017,\n  \"expires_at\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4eba3038-494d-4cba-a192-58c225091301",
+              "name": "Invalid request (unsupported file type, size over the limit, conflicting destination options)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"file_name\": \"msa-2026.pdf\",\n  \"size\": 12582912,\n  \"content_type\": \"application/pdf\",\n  \"folder_id\": \"<uuid>\",\n  \"project_id\": \"<uuid>\",\n  \"scope\": \"my-files\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4c1b0c3e-71dc-4948-9795-c90fc2d6596c",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"file_name\": \"msa-2026.pdf\",\n  \"size\": 12582912,\n  \"content_type\": \"application/pdf\",\n  \"folder_id\": \"<uuid>\",\n  \"project_id\": \"<uuid>\",\n  \"scope\": \"my-files\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "271f9510-12cd-4893-a737-3ec4f033cc80",
+              "name": "Insufficient project access",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"file_name\": \"msa-2026.pdf\",\n  \"size\": 12582912,\n  \"content_type\": \"application/pdf\",\n  \"folder_id\": \"<uuid>\",\n  \"project_id\": \"<uuid>\",\n  \"scope\": \"my-files\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0d014752-6af2-4019-855f-24df5b45e75d",
+              "name": "Folder or project not found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"file_name\": \"msa-2026.pdf\",\n  \"size\": 12582912,\n  \"content_type\": \"application/pdf\",\n  \"folder_id\": \"<uuid>\",\n  \"project_id\": \"<uuid>\",\n  \"scope\": \"my-files\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b955ce00-b0be-4554-b6dc-709fd9d4d64c",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"file_name\": \"msa-2026.pdf\",\n  \"size\": 12582912,\n  \"content_type\": \"application/pdf\",\n  \"folder_id\": \"<uuid>\",\n  \"project_id\": \"<uuid>\",\n  \"scope\": \"my-files\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8bfee4a3-c694-4c1f-85d8-c4fbea523e31",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"file_name\": \"msa-2026.pdf\",\n  \"size\": 12582912,\n  \"content_type\": \"application/pdf\",\n  \"folder_id\": \"<uuid>\",\n  \"project_id\": \"<uuid>\",\n  \"scope\": \"my-files\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a749e29f-8626-431e-b4c6-0b578fd9459b",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"file_name\": \"msa-2026.pdf\",\n  \"size\": 12582912,\n  \"content_type\": \"application/pdf\",\n  \"folder_id\": \"<uuid>\",\n  \"project_id\": \"<uuid>\",\n  \"scope\": \"my-files\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "c445d641-30b8-41d3-8113-9886a2c8f741",
+          "name": "Upload a file part",
+          "request": {
+            "name": "Upload a file part",
+            "description": {
+              "content": "Upload one part of a chunked upload. The request body is the raw bytes of the part (`application/octet-stream`). Parts may be uploaded in any order; re-sending the same `part_number` overwrites it, so a failed part is safe to retry.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "files",
+                "uploads",
+                ":upload_id",
+                "parts",
+                ":part_number"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "upload_id",
+                  "description": "(Required) The upload session ID from initiate."
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<integer>",
+                  "key": "part_number",
+                  "description": "(Required) Part index, from 1 to 32."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/octet-stream"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "file"
+            }
+          },
+          "response": [
+            {
+              "id": "ceb781b9-833e-41f9-95e1-63c66e2093fd",
+              "name": "Part stored",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id",
+                    "parts",
+                    ":part_number"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "part_number",
+                      "description": "(Required) Part index, from 1 to 32."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "file"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"upload_id\": \"fa406272-9ce4-4047-2a66-ce2c85821003\",\n  \"part_number\": 9629.226276077416,\n  \"size\": 654.0576378193807\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7f01be74-f7ce-4f85-9b4e-7c197653dd62",
+              "name": "Empty part body or part number out of range",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id",
+                    "parts",
+                    ":part_number"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "part_number",
+                      "description": "(Required) Part index, from 1 to 32."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "file"
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "decd2b0a-1eb4-4b99-a1a1-fde04d6aeb47",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id",
+                    "parts",
+                    ":part_number"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "part_number",
+                      "description": "(Required) Part index, from 1 to 32."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "file"
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c9dec5c4-e9ad-4062-a2f2-7240fc965e7a",
+              "name": "Invalid API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id",
+                    "parts",
+                    ":part_number"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "part_number",
+                      "description": "(Required) Part index, from 1 to 32."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "file"
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c6620fbd-0acb-4be1-a867-550915a2a1b1",
+              "name": "Upload session not found or expired",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id",
+                    "parts",
+                    ":part_number"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "part_number",
+                      "description": "(Required) Part index, from 1 to 32."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "file"
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c22270eb-1b68-4bdf-b406-adaa4be5e95a",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id",
+                    "parts",
+                    ":part_number"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "part_number",
+                      "description": "(Required) Part index, from 1 to 32."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "file"
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3430ee8f-4c18-4789-bb6f-af4d666bc20c",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id",
+                    "parts",
+                    ":part_number"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "part_number",
+                      "description": "(Required) Part index, from 1 to 32."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "file"
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "62bb8e50-9730-4452-b6ce-d5ce49a41390",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id",
+                    "parts",
+                    ":part_number"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<integer>",
+                      "key": "part_number",
+                      "description": "(Required) Part index, from 1 to 32."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "file"
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "a0107600-ea90-40d3-afa0-c4e2bff9b2cc",
+          "name": "Complete a chunked upload",
+          "request": {
+            "name": "Complete a chunked upload",
+            "description": {
+              "content": "Assemble the uploaded parts into the final file and start processing (text extraction, summarization, embeddings), returning the same file object as `POST /files`. For PDFs and Word documents, extraction runs asynchronously — poll `GET /files/{id}` until `status` is `ready`.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "files",
+                "uploads",
+                ":upload_id",
+                "complete"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "upload_id",
+                  "description": "(Required) The upload session ID from initiate."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"part_count\": \"<integer>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "5750461c-10db-4871-b830-841025eab4e3",
+              "name": "File assembled and processing",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id",
+                    "complete"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"part_count\": 3\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"76cef65e-3bd5-ebf4-eeb0-e84a58680436\",\n  \"name\": \"string\",\n  \"size\": 3537.8376860100257,\n  \"content_type\": \"application/pdf\",\n  \"status\": \"ready\",\n  \"created_at\": \"string\",\n  \"folder_id\": \"bc60c4cc-5f8e-f233-32a8-522118964791\",\n  \"extraction_error\": \"string\",\n  \"project_id\": \"b5ed84b4-7e61-8d5b-1745-25d2ad390a95\",\n  \"warning\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "49c6957f-e417-4319-a5d2-59f3282cf3a4",
+              "name": "Missing parts, or the assembled file is empty or over the size limit",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id",
+                    "complete"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"part_count\": 3\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8e09056d-38b7-482f-9ac7-a37bdf67c1ed",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id",
+                    "complete"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"part_count\": 3\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e8ef0c1b-f822-4178-aac3-f8ee32dc3d04",
+              "name": "Insufficient project access",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id",
+                    "complete"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"part_count\": 3\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "96be3b20-be22-4168-ab3d-fb1de8faaaf4",
+              "name": "Upload session not found or expired",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id",
+                    "complete"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"part_count\": 3\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "65180099-4069-466a-a064-e1ff9dce62dd",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id",
+                    "complete"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"part_count\": 3\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "79b11998-5852-4911-9ac7-5f7d32766d05",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id",
+                    "complete"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"part_count\": 3\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8b503b4e-2abc-495c-a778-fe1fd419983c",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id",
+                    "complete"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"part_count\": 3\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ca5f2a37-7d60-454d-a268-fe96bad6f16b",
+          "name": "Abort a chunked upload",
+          "request": {
+            "name": "Abort a chunked upload",
+            "description": {
+              "content": "Discard an in-flight upload session and delete any parts already uploaded. Idempotent: aborting an unknown or already-finalized session still returns success.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "files",
+                "uploads",
+                ":upload_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "upload_id",
+                  "description": "(Required) The upload session ID from initiate."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "DELETE",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "b617121a-8d1d-430a-bac5-7e7e036bcecf",
+              "name": "Session aborted",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"upload_id\": \"10e85675-717b-20ba-1bf0-4e7d7a6fcb7e\",\n  \"aborted\": true\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "bbbacf65-bec5-4c13-961c-faf2f24f7ea2",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d3a6d4fc-6cf8-4e1d-85ad-dcd8c0b9af84",
+              "name": "Invalid API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "9a24bbee-1256-4b0c-9221-0505de2ec783",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8c7cf46e-0278-4ebc-bad8-b5febcb2c21f",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d605fc94-9751-49b3-8f4d-869c9a87b8c9",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "files",
+                    "uploads",
+                    ":upload_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "upload_id",
+                      "description": "(Required) The upload session ID from initiate."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {},\n    \"key_1\": {},\n    \"key_2\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://app.gc.ai/api/external/v1",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "b4f1b1e7-eaf1-4d45-89cc-35f955ead0f1",
+    "name": "GC AI External Chat Files API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "The GC AI External API allows programmatic access to GC AI's chat capabilities. It's designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.\n\n## Authentication\n\nAll API requests must include an API key in the `Authorization` header:\n\n```\nAuthorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n```\n\nAPI keys can be created in the GC AI app under **Settings → API**.\n\n## Multi-turn Conversations\n\nConversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).\n\n## Current Limitations\n\nThe following is not yet available via API:\n\n- **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta\n\n## Usage\n\nUsage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.\n\n## Support\n\nFor API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.\n\nContact Support:\n Email: support@gc.ai",
+      "type": "text/plain"
+    }
+  }
+}

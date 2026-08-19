@@ -1,0 +1,92 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GC AI External Chat Usage API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Usage",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get credit usage",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/credit-usage",
+            "params": [
+              {
+                "name": "start_date",
+                "value": "",
+                "type": "query",
+                "description": "Inclusive range start (`YYYY-MM-DD`)."
+              },
+              {
+                "name": "end_date",
+                "value": "",
+                "type": "query",
+                "description": "Inclusive range end (`YYYY-MM-DD`)."
+              },
+              {
+                "name": "timezone",
+                "value": "",
+                "type": "query",
+                "description": "IANA timezone for day boundaries (default `UTC`), e.g. `America/New_York`."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Billing view of the organization's credit consumption, broken down by billable operation and by day, with rate-card pricing.\n\nRequires an org-scoped API key — credit usage is an organization-level concern. User-scoped keys receive a 403.\n\nIf rate-card pricing can't be resolved for every observed operation, `pricing_available` is `false` and all credit fields are null; raw request counts are still returned."
+        },
+        {
+          "info": {
+            "name": "Get usage summary",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/usage",
+            "params": [
+              {
+                "name": "start_date",
+                "value": "",
+                "type": "query",
+                "description": "Inclusive range start (`YYYY-MM-DD`)."
+              },
+              {
+                "name": "end_date",
+                "value": "",
+                "type": "query",
+                "description": "Inclusive range end (`YYYY-MM-DD`)."
+              },
+              {
+                "name": "timezone",
+                "value": "",
+                "type": "query",
+                "description": "IANA timezone for the api channel day boundaries (default `UTC`)."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Organization-wide product-usage summary by channel: `web` (web app), `word` (Word add-in), and `api`.\n\nRequires an org-scoped API key — usage is reported org-wide, so a user-scoped key receives a 403. For credit/billing totals, use `GET /v1/credit-usage`.\n\nNote: web/word counts are sourced from product analytics; day boundaries for those channels are approximate (UTC)."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

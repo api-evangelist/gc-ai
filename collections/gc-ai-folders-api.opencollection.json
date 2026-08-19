@@ -1,0 +1,192 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GC AI External Chat Folders API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Folders",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List folders",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/folders",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Max items to return (default 100, max 500)"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "Number of items to skip (default 0)"
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Case-insensitive substring search on folder name or description. System-owned collection types (my-files, org-files, etc.) are excluded from results. Composes with `scope`."
+              },
+              {
+                "name": "scope",
+                "value": "",
+                "type": "query",
+                "description": "Filter folders to a single meta-collection. Requires a user-scoped API key."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "List all folders accessible to the authenticated user, returned as a flat list with full paths.\n\nPass `scope` to filter to one of the three top-level meta-collections shown in the GC AI UI:\n- `my-files`: folders rooted in the user's personal \"My Files\" tree\n- `shared-with-me`: folders explicitly shared with the user by other users\n- `organization`: folders rooted in the organization's \"Organization Files\" tree\n\nFiltering by `scope` requires a user-scoped API key (`u:gcai_...`)."
+        },
+        {
+          "info": {
+            "name": "Create a folder",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://app.gc.ai/api/external/v1/folders",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Create a new folder for organizing files. Folders can be nested by specifying a `parent_folder_id`.\n\nOrg-scoped keys can create folders under non-access-controlled parents. The `scope` parameter requires a user-scoped key."
+        },
+        {
+          "info": {
+            "name": "Get a folder",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/folders/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The folder ID"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve a single folder by ID."
+        },
+        {
+          "info": {
+            "name": "Update a folder",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://app.gc.ai/api/external/v1/folders/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The folder ID"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Update a folder's name, description, parent, or access-control flag. At least one field must be provided. System folders cannot be modified.\n\nOrg-scoped keys can update non-access-controlled folders."
+        },
+        {
+          "info": {
+            "name": "Delete a folder",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://app.gc.ai/api/external/v1/folders/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The folder ID"
+              },
+              {
+                "name": "recursive",
+                "value": "",
+                "type": "query",
+                "description": "When `true`, recursively delete subfolders and files. Defaults to `false`."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Delete a folder. By default, only empty folders can be deleted; pass `?recursive=true` to delete a folder along with all of its subfolders and files. System folders cannot be deleted.\n\nOrg-scoped keys can delete non-access-controlled folders."
+        },
+        {
+          "info": {
+            "name": "List a folder's children",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/folders/:id/children",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The folder ID"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "List the direct children of a folder. The response items are a discriminated union of subfolders and files: subfolders are returned first (alphabetical), then files (alphabetical)."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

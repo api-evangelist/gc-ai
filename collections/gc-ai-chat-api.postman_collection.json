@@ -1,0 +1,2474 @@
+{
+  "item": [
+    {
+      "id": "dbe6062b-0a58-44d9-9693-0cc38ecd8710",
+      "name": "Chat",
+      "description": {
+        "content": "AI chat completion endpoints",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "a366bf3b-a052-4b5d-b053-f47ad334d614",
+          "name": "Create chat completion",
+          "request": {
+            "name": "Create chat completion",
+            "description": {
+              "content": "Send a message to GC AI and receive an AI-generated response.\n\n<Note>\nThis endpoint is asynchronous: it returns a job envelope, and the result is filled in once the job completes. See [Asynchronous Requests](/api-reference/concepts/async-jobs) for how waiting, polling, and the envelope work.\n</Note>\n\n## Multi-turn conversations\n\nEvery response includes a `chat_id`. Pass it back as `chat_id` on a later request to continue that conversation. Conversation state — prior messages, tool calls, and any returned documents, emails, or diagrams — is held server-side, so each turn sends only the new `message` (plus any new `file_ids`); never re-send prior turns or previously returned outputs.\n\nOnly one turn may be in flight per chat at a time: a request whose `chat_id` already has a turn running is rejected with `409`. Wait for the prior turn to reach a terminal state before sending the next.\n\nContinuing a chat is scoped like [materialization](/api-reference/concepts/chat-visibility): personal keys continue chats they created; organization keys continue organization chats. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).\n\n## Server-side tools\n\nThe model can invoke tools automatically while generating a response. Tool calls happen server-side. Only the final assistant text is returned in `result.result`.\n\n| Tool | Description | Key type |\n|---|---|---|\n| Document reading | Read, query, and search within attached files | All |\n| Web search | Search the web for current information | All |\n| Research agent | Multi-step web research with synthesis | All |\n| Case-law lookup | Search case law databases | User-scoped only |\n| Playbook review | Run playbook checks against attached files (requires `playbook_ids`) | All |\n| Document editing | Apply redline edits to an attached DOCX. All proposed revisions are auto-accepted; the edited file is returned via `result.documents`. The original file is preserved. | User-scoped only |\n| Document generation | Generate a new DOCX from a prompt. The generated file is returned via `result.documents`. | User-scoped only |\n| Slide generation | Generate a new PowerPoint deck (PPTX) from a prompt. The generated file is returned via `result.documents`. | User-scoped only |\n| Email drafting | Draft a structured email from a prompt. The draft is returned via `result.emails` (`to`, `subject`, `body`, …). | All |\n| Diagrams | Generate a diagram from a prompt. The diagram is returned via `result.diagrams` as validated Mermaid source (`mermaid`) you can render with any Mermaid-compatible renderer. | All |\n\nThe following tools are **not available** via API in beta (the response is plain text with no channel for rich outputs):\n\n| Tool | Reason unavailable |\n|---|---|\n| Interactive clarification | Requires a back-and-forth channel with the caller |\n\n<Note>\nThis is an inference endpoint and is [rate limited](/api-reference/concepts/rate-limits): during the free beta, roughly 1 request/minute per organization (burst of 3). Exceeding the limit returns `429` with a `Retry-After` header.\n</Note>",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "chat",
+                "completions"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "wait",
+                  "value": "<integer>",
+                  "description": "Optional long-poll wait time in seconds. Use `0` for fire-and-forget behavior. If both `wait` and `Prefer: wait=...` are supplied, they must match. Values above 90 are clamped."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                "key": "Prefer",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"<string>\",\n  \"file_ids\": [\n    \"<uuid>\",\n    \"<uuid>\"\n  ],\n  \"playbook_ids\": [\n    \"<uuid>\",\n    \"<uuid>\"\n  ],\n  \"playbook_id\": \"<string>\",\n  \"skill_ids\": [\n    \"<uuid>\",\n    \"<uuid>\"\n  ],\n  \"chat_id\": \"<uuid>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "0c89a422-27ec-4ba6-a755-f3a02973fa6c",
+              "name": "Job completed within the effective wait window",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "completions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"What are the key terms to look for in a software license agreement?\",\n  \"file_ids\": [\n    \"123e4567-e89b-12d3-a456-426614174000\"\n  ],\n  \"playbook_ids\": [\n    \"f9e8d7c6-b5a4-3210-fedc-ba0987654321\"\n  ],\n  \"playbook_id\": \"<string>\",\n  \"skill_ids\": [\n    \"b2c3d4e5-f6a7-4890-bcde-f12345678901\"\n  ],\n  \"chat_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"job_id\": \"a815fd48-e9c5-7d67-c259-290d52cf6cbf\",\n  \"kind\": \"chat/completions\",\n  \"status\": \"canceled\",\n  \"result\": {\n    \"result\": \"When reviewing a software license agreement, key terms to examine include:\\n\\n1. **License Grant** - Understand the scope of rights granted...\",\n    \"chat_id\": \"f1a59504-cbd8-7b3b-e70c-3dbfe727679f\",\n    \"documents\": [\n      {\n        \"file_id\": \"3cbdaf36-e081-ca6f-c4f5-45bdc6857f76\",\n        \"filename\": \"string\",\n        \"signed_url\": \"https://xvekqkBYvRCEVxv.iutjmzFltRdbSD.X+DxzujTUri3p.uzE++lFHMfBy7CR5iVEKOuXbAjPcdbYDW.nYef\",\n        \"original_file_id\": \"9dd83bd2-17ca-b812-ef9f-5b864815f1f6\",\n        \"original_filename\": \"string\"\n      },\n      {\n        \"file_id\": \"51920028-8a23-cac0-4753-44c0de4c82b9\",\n        \"filename\": \"string\",\n        \"signed_url\": \"http://itLNY.uypfDoV1\",\n        \"original_file_id\": \"cc77deb6-c686-b902-83e1-1699c9cb4f1a\",\n        \"original_filename\": \"string\"\n      }\n    ],\n    \"emails\": [\n      {\n        \"to\": \"string\",\n        \"subject\": \"string\",\n        \"body\": \"string\",\n        \"plaintext_body\": \"string\",\n        \"cc\": \"string\",\n        \"bcc\": \"string\"\n      },\n      {\n        \"to\": \"string\",\n        \"subject\": \"string\",\n        \"body\": \"string\",\n        \"plaintext_body\": \"string\",\n        \"cc\": \"string\",\n        \"bcc\": \"string\"\n      }\n    ],\n    \"diagrams\": [\n      {\n        \"title\": \"string\",\n        \"diagram_type\": \"string\",\n        \"mermaid\": \"string\"\n      },\n      {\n        \"title\": \"string\",\n        \"diagram_type\": \"string\",\n        \"mermaid\": \"string\"\n      }\n    ]\n  },\n  \"error\": {\n    \"code\": \"string\",\n    \"message\": \"string\"\n  },\n  \"created_at\": \"string\",\n  \"completed_at\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e589a5d3-2a0c-47e4-83a0-a1178b3eedec",
+              "name": "Job accepted but not yet complete, including fire-and-forget requests",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "completions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"What are the key terms to look for in a software license agreement?\",\n  \"file_ids\": [\n    \"123e4567-e89b-12d3-a456-426614174000\"\n  ],\n  \"playbook_ids\": [\n    \"f9e8d7c6-b5a4-3210-fedc-ba0987654321\"\n  ],\n  \"playbook_id\": \"<string>\",\n  \"skill_ids\": [\n    \"b2c3d4e5-f6a7-4890-bcde-f12345678901\"\n  ],\n  \"chat_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Accepted",
+              "code": 202,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"job_id\": \"c0e59e3d-38c1-d128-c2dc-6d462e77c94e\",\n  \"kind\": \"chat/completions\",\n  \"status\": \"succeeded\",\n  \"result\": {\n    \"result\": \"When reviewing a software license agreement, key terms to examine include:\\n\\n1. **License Grant** - Understand the scope of rights granted...\",\n    \"chat_id\": \"7f0f9f6d-59a1-19fc-7f6d-ace5c87bc690\",\n    \"documents\": [\n      {\n        \"file_id\": \"31c9f574-3fcc-81cb-c5f4-bc3325502f10\",\n        \"filename\": \"string\",\n        \"signed_url\": \"http://vEYXwbnn.qgeuvDEylHg\",\n        \"original_file_id\": \"717ca0a2-89a0-21a5-8978-b6ffd0e722ff\",\n        \"original_filename\": \"string\"\n      },\n      {\n        \"file_id\": \"b0be4910-95a7-52f4-335f-b887fb696311\",\n        \"filename\": \"string\",\n        \"signed_url\": \"http://KUtyf.xxmmpOhtANAKhxgQSJfM-UIcvpb1gXJGtS3ATLCKJe2OG6KC3k\",\n        \"original_file_id\": \"f4347e33-195f-a416-fb6b-af3e8e67d867\",\n        \"original_filename\": \"string\"\n      }\n    ],\n    \"emails\": [\n      {\n        \"to\": \"string\",\n        \"subject\": \"string\",\n        \"body\": \"string\",\n        \"plaintext_body\": \"string\",\n        \"cc\": \"string\",\n        \"bcc\": \"string\"\n      },\n      {\n        \"to\": \"string\",\n        \"subject\": \"string\",\n        \"body\": \"string\",\n        \"plaintext_body\": \"string\",\n        \"cc\": \"string\",\n        \"bcc\": \"string\"\n      }\n    ],\n    \"diagrams\": [\n      {\n        \"title\": \"string\",\n        \"diagram_type\": \"string\",\n        \"mermaid\": \"string\"\n      },\n      {\n        \"title\": \"string\",\n        \"diagram_type\": \"string\",\n        \"mermaid\": \"string\"\n      }\n    ]\n  },\n  \"error\": {\n    \"code\": \"string\",\n    \"message\": \"string\"\n  },\n  \"created_at\": \"string\",\n  \"completed_at\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "db64c03c-935d-4229-890b-408740737b4f",
+              "name": "Invalid request body or invalid/conflicting wait controls",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "completions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"What are the key terms to look for in a software license agreement?\",\n  \"file_ids\": [\n    \"123e4567-e89b-12d3-a456-426614174000\"\n  ],\n  \"playbook_ids\": [\n    \"f9e8d7c6-b5a4-3210-fedc-ba0987654321\"\n  ],\n  \"playbook_id\": \"<string>\",\n  \"skill_ids\": [\n    \"b2c3d4e5-f6a7-4890-bcde-f12345678901\"\n  ],\n  \"chat_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "42a200e2-7409-42e7-b7c2-b9ede070689d",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "completions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"What are the key terms to look for in a software license agreement?\",\n  \"file_ids\": [\n    \"123e4567-e89b-12d3-a456-426614174000\"\n  ],\n  \"playbook_ids\": [\n    \"f9e8d7c6-b5a4-3210-fedc-ba0987654321\"\n  ],\n  \"playbook_id\": \"<string>\",\n  \"skill_ids\": [\n    \"b2c3d4e5-f6a7-4890-bcde-f12345678901\"\n  ],\n  \"chat_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d587fd50-4925-4be6-86a2-86c2cb8fd0e6",
+              "name": "Invalid API key or playbook review not enabled for this account",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "completions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"What are the key terms to look for in a software license agreement?\",\n  \"file_ids\": [\n    \"123e4567-e89b-12d3-a456-426614174000\"\n  ],\n  \"playbook_ids\": [\n    \"f9e8d7c6-b5a4-3210-fedc-ba0987654321\"\n  ],\n  \"playbook_id\": \"<string>\",\n  \"skill_ids\": [\n    \"b2c3d4e5-f6a7-4890-bcde-f12345678901\"\n  ],\n  \"chat_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "06ab01f7-f54f-4b83-8440-c73ae2b03439",
+              "name": "One or more `file_ids`, one or more `playbook_ids`, or the `chat_id` were not found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "completions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"What are the key terms to look for in a software license agreement?\",\n  \"file_ids\": [\n    \"123e4567-e89b-12d3-a456-426614174000\"\n  ],\n  \"playbook_ids\": [\n    \"f9e8d7c6-b5a4-3210-fedc-ba0987654321\"\n  ],\n  \"playbook_id\": \"<string>\",\n  \"skill_ids\": [\n    \"b2c3d4e5-f6a7-4890-bcde-f12345678901\"\n  ],\n  \"chat_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "6cc97b6a-ec11-48f8-be82-7727620c2eae",
+              "name": "The `chat_id` refers to a non-API chat, or a turn is already in progress for that chat",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "completions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"What are the key terms to look for in a software license agreement?\",\n  \"file_ids\": [\n    \"123e4567-e89b-12d3-a456-426614174000\"\n  ],\n  \"playbook_ids\": [\n    \"f9e8d7c6-b5a4-3210-fedc-ba0987654321\"\n  ],\n  \"playbook_id\": \"<string>\",\n  \"skill_ids\": [\n    \"b2c3d4e5-f6a7-4890-bcde-f12345678901\"\n  ],\n  \"chat_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "45ed756a-7ac7-4990-a38f-2b1cd2d4be28",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "completions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"What are the key terms to look for in a software license agreement?\",\n  \"file_ids\": [\n    \"123e4567-e89b-12d3-a456-426614174000\"\n  ],\n  \"playbook_ids\": [\n    \"f9e8d7c6-b5a4-3210-fedc-ba0987654321\"\n  ],\n  \"playbook_id\": \"<string>\",\n  \"skill_ids\": [\n    \"b2c3d4e5-f6a7-4890-bcde-f12345678901\"\n  ],\n  \"chat_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a346007a-e309-4e87-a234-a61dbf65a537",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "completions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"What are the key terms to look for in a software license agreement?\",\n  \"file_ids\": [\n    \"123e4567-e89b-12d3-a456-426614174000\"\n  ],\n  \"playbook_ids\": [\n    \"f9e8d7c6-b5a4-3210-fedc-ba0987654321\"\n  ],\n  \"playbook_id\": \"<string>\",\n  \"skill_ids\": [\n    \"b2c3d4e5-f6a7-4890-bcde-f12345678901\"\n  ],\n  \"chat_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "2b93be06-99ad-4649-9a90-5ccc0b0e2cdf",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "completions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"What are the key terms to look for in a software license agreement?\",\n  \"file_ids\": [\n    \"123e4567-e89b-12d3-a456-426614174000\"\n  ],\n  \"playbook_ids\": [\n    \"f9e8d7c6-b5a4-3210-fedc-ba0987654321\"\n  ],\n  \"playbook_id\": \"<string>\",\n  \"skill_ids\": [\n    \"b2c3d4e5-f6a7-4890-bcde-f12345678901\"\n  ],\n  \"chat_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "58d00873-a116-4662-b76b-2b0cd06b1516",
+          "name": "Get async job status",
+          "request": {
+            "name": "Get async job status",
+            "description": {
+              "content": "Poll an async API job created by endpoints like `POST /chat/completions`.\n\nUse the `job_id` returned by a `202 Accepted` response to check whether the job is still pending or has reached a terminal state.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "jobs",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "wait",
+                  "value": "<integer>",
+                  "description": "Optional long-poll wait time in seconds. Use `0` for fire-and-forget behavior. If both `wait` and `Prefer: wait=...` are supplied, they must match. Values above 90 are clamped."
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "id",
+                  "description": "(Required) The async job ID"
+                }
+              ]
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                "key": "Prefer",
+                "value": "<string>"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "b3bbc354-c8bc-4efb-a1b1-f2de54d807bc",
+              "name": "Job found and currently in a terminal state",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "jobs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The async job ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"job_id\": \"c0e59e3d-38c1-d128-c2dc-6d462e77c94e\",\n  \"kind\": \"chat/completions\",\n  \"status\": \"succeeded\",\n  \"result\": {\n    \"result\": \"When reviewing a software license agreement, key terms to examine include:\\n\\n1. **License Grant** - Understand the scope of rights granted...\",\n    \"chat_id\": \"7f0f9f6d-59a1-19fc-7f6d-ace5c87bc690\",\n    \"documents\": [\n      {\n        \"file_id\": \"31c9f574-3fcc-81cb-c5f4-bc3325502f10\",\n        \"filename\": \"string\",\n        \"signed_url\": \"http://vEYXwbnn.qgeuvDEylHg\",\n        \"original_file_id\": \"717ca0a2-89a0-21a5-8978-b6ffd0e722ff\",\n        \"original_filename\": \"string\"\n      },\n      {\n        \"file_id\": \"b0be4910-95a7-52f4-335f-b887fb696311\",\n        \"filename\": \"string\",\n        \"signed_url\": \"http://KUtyf.xxmmpOhtANAKhxgQSJfM-UIcvpb1gXJGtS3ATLCKJe2OG6KC3k\",\n        \"original_file_id\": \"f4347e33-195f-a416-fb6b-af3e8e67d867\",\n        \"original_filename\": \"string\"\n      }\n    ],\n    \"emails\": [\n      {\n        \"to\": \"string\",\n        \"subject\": \"string\",\n        \"body\": \"string\",\n        \"plaintext_body\": \"string\",\n        \"cc\": \"string\",\n        \"bcc\": \"string\"\n      },\n      {\n        \"to\": \"string\",\n        \"subject\": \"string\",\n        \"body\": \"string\",\n        \"plaintext_body\": \"string\",\n        \"cc\": \"string\",\n        \"bcc\": \"string\"\n      }\n    ],\n    \"diagrams\": [\n      {\n        \"title\": \"string\",\n        \"diagram_type\": \"string\",\n        \"mermaid\": \"string\"\n      },\n      {\n        \"title\": \"string\",\n        \"diagram_type\": \"string\",\n        \"mermaid\": \"string\"\n      }\n    ]\n  },\n  \"error\": {\n    \"code\": \"string\",\n    \"message\": \"string\"\n  },\n  \"created_at\": \"string\",\n  \"completed_at\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7e2e5c93-70b5-459c-8bc4-f9e22f7585b6",
+              "name": "Job found but not yet complete",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "jobs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The async job ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Accepted",
+              "code": 202,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"job_id\": \"c0e59e3d-38c1-d128-c2dc-6d462e77c94e\",\n  \"kind\": \"chat/completions\",\n  \"status\": \"succeeded\",\n  \"result\": {\n    \"result\": \"When reviewing a software license agreement, key terms to examine include:\\n\\n1. **License Grant** - Understand the scope of rights granted...\",\n    \"chat_id\": \"7f0f9f6d-59a1-19fc-7f6d-ace5c87bc690\",\n    \"documents\": [\n      {\n        \"file_id\": \"31c9f574-3fcc-81cb-c5f4-bc3325502f10\",\n        \"filename\": \"string\",\n        \"signed_url\": \"http://vEYXwbnn.qgeuvDEylHg\",\n        \"original_file_id\": \"717ca0a2-89a0-21a5-8978-b6ffd0e722ff\",\n        \"original_filename\": \"string\"\n      },\n      {\n        \"file_id\": \"b0be4910-95a7-52f4-335f-b887fb696311\",\n        \"filename\": \"string\",\n        \"signed_url\": \"http://KUtyf.xxmmpOhtANAKhxgQSJfM-UIcvpb1gXJGtS3ATLCKJe2OG6KC3k\",\n        \"original_file_id\": \"f4347e33-195f-a416-fb6b-af3e8e67d867\",\n        \"original_filename\": \"string\"\n      }\n    ],\n    \"emails\": [\n      {\n        \"to\": \"string\",\n        \"subject\": \"string\",\n        \"body\": \"string\",\n        \"plaintext_body\": \"string\",\n        \"cc\": \"string\",\n        \"bcc\": \"string\"\n      },\n      {\n        \"to\": \"string\",\n        \"subject\": \"string\",\n        \"body\": \"string\",\n        \"plaintext_body\": \"string\",\n        \"cc\": \"string\",\n        \"bcc\": \"string\"\n      }\n    ],\n    \"diagrams\": [\n      {\n        \"title\": \"string\",\n        \"diagram_type\": \"string\",\n        \"mermaid\": \"string\"\n      },\n      {\n        \"title\": \"string\",\n        \"diagram_type\": \"string\",\n        \"mermaid\": \"string\"\n      }\n    ]\n  },\n  \"error\": {\n    \"code\": \"string\",\n    \"message\": \"string\"\n  },\n  \"created_at\": \"string\",\n  \"completed_at\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0335fc8d-4a9a-4f30-9fc9-da0e475e3767",
+              "name": "Invalid job ID, wait value, or conflicting wait controls",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "jobs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The async job ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8122fb80-d798-4065-9081-3f5903e1e662",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "jobs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The async job ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "58b034de-5e88-4adc-85bb-5f02c2ac3ecb",
+              "name": "Invalid API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "jobs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The async job ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a7508387-8d56-424b-bc2f-8233d3e81048",
+              "name": "Job not found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "jobs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The async job ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8fbee60a-a5c9-44b6-bee3-940b877728b8",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "jobs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The async job ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e61a9964-1e3e-452a-a865-4692d951cef8",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "jobs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The async job ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "1146baf1-7c79-4a33-ba4c-5b17f8b71b92",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "jobs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "wait",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The async job ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Optional RFC 7240 wait preference, for example `wait=0`. If both this header and the `wait` query parameter are supplied, they must match.",
+                    "key": "Prefer",
+                    "value": "wait=0"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "bd4e2bf7-7be2-46fe-90b0-fa59d97479e8",
+          "name": "Materialize an API chat",
+          "request": {
+            "name": "Materialize an API chat",
+            "description": {
+              "content": "Surface an API-created chat into chat history and return a shareable deep link.\n\nChats created through `POST /chat/completions` stay out of chat history (both the GC AI web app and [chat search](/api-reference/search-chats)) until you materialize them. Use the `chat_id` from a completed completion response. The endpoint is idempotent. Calling it again on an already-materialized chat returns the same link without side effects.\n\n**Authorization:** User-scoped keys can only materialize chats they created. Organization-scoped keys can only materialize chats created by other organization-scoped keys.\n\nSee [Chat Visibility](/api-reference/concepts/chat-visibility) for how this works.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "chat",
+                ":id",
+                "materialize"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "id",
+                  "description": "(Required) The chat ID"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "6bc05780-8b09-4b7e-8d75-bc7662a9604e",
+              "name": "Chat materialized (or already materialized)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    ":id",
+                    "materialize"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The chat ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"853a739d-2612-8fd2-8acc-54dd35056ba4\",\n  \"title\": \"string\",\n  \"chat_url\": \"https://XUQQfmngU.wpeiz5H0zU5UpWF5cDokgXsYpq,gImSCcmoGDrXhZQz1gsuyTiS4kr7G\",\n  \"materialized_at\": \"1951-06-28T06:48:04.638Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ff1e661d-01c2-4998-b931-d68c1abe8ed0",
+              "name": "Invalid chat ID",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    ":id",
+                    "materialize"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The chat ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "203f7deb-e427-4dbb-99d0-7a8afe92d2e5",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    ":id",
+                    "materialize"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The chat ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "790e4160-4643-49f6-bab8-4a75b9eb7ffd",
+              "name": "Token cannot materialize this chat (wrong ownership scope)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    ":id",
+                    "materialize"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The chat ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "fc402fba-5840-4b95-ac32-f7c2f67ee541",
+              "name": "Chat not found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    ":id",
+                    "materialize"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The chat ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "af55e595-54dc-4d25-9992-f5f0f84d6bbb",
+              "name": "Chat is not an API-created chat",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    ":id",
+                    "materialize"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The chat ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "cb9a2c11-8b17-4812-8f12-12456500e7b9",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    ":id",
+                    "materialize"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The chat ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "007b32eb-88e8-48e4-9269-13102390246d",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    ":id",
+                    "materialize"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The chat ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3050b412-a038-4947-845f-6001c1087363",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    ":id",
+                    "materialize"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) The chat ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "742af0aa-f1da-49f9-8271-1f27fc49d96a",
+          "name": "Search chats",
+          "request": {
+            "name": "Search chats",
+            "description": {
+              "content": "Hybrid search across the caller's chat history that merges two lanes: a case-insensitive title-substring match and a semantic (vector) match over each chat's AI-generated summary. Title matches are returned first (a strong signal the user remembers the chat name), followed by semantic matches in relevance order, de-duplicated and capped at `limit`.\n\n**Authorization:** User-scoped keys (`u:gcai_...`) search the chats that user can access. Organization-scoped keys search every chat shared with the entire organization, regardless of who or what created it. Chats that remain private to an individual user are never returned to an org-scoped key.\n\nAPI-created chats appear here only once they've been [materialized](/api-reference/concepts/chat-visibility); unmaterialized chats are not in anyone's history and won't match.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "chat",
+                "search"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "q",
+                  "value": "<string>",
+                  "description": "(Required) Search query (required, 1-500 chars). Natural language is fine."
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Max chats to return (default 20, max 50)"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "Authorization"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "a1dc47ae-cbd0-4a35-b626-883e801b513b",
+              "name": "Chats matching the query",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "force majeure carve-out"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"chats\": [\n    {\n      \"id\": \"adb4f233-e999-6ea1-c348-ed55b51436a3\",\n      \"title\": \"string\",\n      \"summary\": \"string\",\n      \"updated_at\": \"string\"\n    },\n    {\n      \"id\": \"dfb3bfa3-a24d-7223-4421-c27746d81ca6\",\n      \"title\": \"string\",\n      \"summary\": \"string\",\n      \"updated_at\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "357737ba-eadd-4fdb-822f-4918b51a206a",
+              "name": "Missing or invalid query parameters",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "force majeure carve-out"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "85df7039-ca7c-4d0c-b24a-bb4edd9aea3a",
+              "name": "Missing or malformed API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "force majeure carve-out"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "1842eaa7-3080-4306-a09b-60d8a0f9144c",
+              "name": "Invalid API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "force majeure carve-out"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3c3de316-1b1a-48f3-b0bc-a64ba49f424b",
+              "name": "Rate limit exceeded. See [Rate Limits](/api-reference/concepts/rate-limits) for the tiers, limits, and how to back off.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "force majeure carve-out"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a rate-limit block.",
+                  "key": "Retry-After",
+                  "value": "60"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Request quota for the applicable window.",
+                  "key": "RateLimit-Limit",
+                  "value": "3"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Requests remaining in the current window.",
+                  "key": "RateLimit-Remaining",
+                  "value": "0"
+                },
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds until the quota resets.",
+                  "key": "RateLimit-Reset",
+                  "value": "60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b017610a-9886-43fe-9901-bc3bbca0fd96",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "force majeure carve-out"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c414dded-dacf-4651-8ad8-7c3e788f8a50",
+              "name": "Service temporarily unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chat",
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "force majeure carve-out"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "(Required) Seconds to wait before retrying after a transient service outage.",
+                  "key": "Retry-After",
+                  "value": "5"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"code\": \"string\",\n  \"message\": \"string\",\n  \"details\": {\n    \"key_0\": {}\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://app.gc.ai/api/external/v1",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "0bb5d16f-dbfd-4a2c-bf2e-af34d7756ebb",
+    "name": "GC AI External Chat API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "The GC AI External API allows programmatic access to GC AI's chat capabilities. It's designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.\n\n## Authentication\n\nAll API requests must include an API key in the `Authorization` header:\n\n```\nAuthorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n```\n\nAPI keys can be created in the GC AI app under **Settings → API**.\n\n## Multi-turn Conversations\n\nConversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).\n\n## Current Limitations\n\nThe following is not yet available via API:\n\n- **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta\n\n## Usage\n\nUsage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.\n\n## Support\n\nFor API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.\n\nContact Support:\n Email: support@gc.ai",
+      "type": "text/plain"
+    }
+  }
+}

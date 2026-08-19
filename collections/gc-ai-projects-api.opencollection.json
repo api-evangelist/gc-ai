@@ -1,0 +1,436 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GC AI External Chat Projects API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Projects",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List projects",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/projects",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Max items to return (default 100, max 500)"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "Number of items to skip (default 0)"
+              },
+              {
+                "name": "search",
+                "value": "",
+                "type": "query",
+                "description": "Case-insensitive substring match on project name"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "List projects accessible to the caller, optionally filtered by name.\n\nWith a user-scoped key (`u:gcai_...`), the user sees projects they created, projects shared with them, and non-access-controlled projects. With an org-scoped key (`gcai_...`), only non-access-controlled (org-wide) projects are returned."
+        },
+        {
+          "info": {
+            "name": "Create a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://app.gc.ai/api/external/v1/projects",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Create a new project to group files, folders, and chats around a single matter (deal, vendor, or program).\n\nWith a user-scoped key, the caller is recorded as the project creator and granted admin access. With an org-scoped key, `creatorId` is null and the project defaults to non-access-controlled (org-wide)."
+        },
+        {
+          "info": {
+            "name": "Get a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/projects/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The project ID"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve a single project by ID. Returns the caller's access level alongside the project metadata."
+        },
+        {
+          "info": {
+            "name": "Update a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://app.gc.ai/api/external/v1/projects/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The project ID"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Update a project's name, description, or custom instructions. Only the fields you supply are changed; omitted fields are left untouched. Pass `null` for `description` or `custom_instructions` to clear them.\n\nRequires write access to the project. Org-scoped keys can update non-access-controlled projects."
+        },
+        {
+          "info": {
+            "name": "Delete a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://app.gc.ai/api/external/v1/projects/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The project ID"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Delete a project. Files, folders, and chats linked to the project are detached, not deleted — they remain in the organization and can be reattached elsewhere.\n\nRequires admin access to the project. Org-scoped keys can delete non-access-controlled projects."
+        },
+        {
+          "info": {
+            "name": "List files on a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/projects/:id/files",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The project ID"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Max items to return (default 100, max 500)"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "Number of items to skip (default 0)"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "List files directly linked to a project. Files reachable only via a linked folder are not included; list those folders separately with `GET /projects/{id}/folders`."
+        },
+        {
+          "info": {
+            "name": "Attach a file to a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://app.gc.ai/api/external/v1/projects/:id/files",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The project ID"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Attach an already-uploaded file to a project. The file remains in its current folder; this only records the project link.\n\nRequires write access to the project and read access to the file. Org-scoped keys can attach non-access-controlled files to non-access-controlled projects."
+        },
+        {
+          "info": {
+            "name": "Detach a file from a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://app.gc.ai/api/external/v1/projects/:id/files/:fileId",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The project ID"
+              },
+              {
+                "name": "fileId",
+                "value": "",
+                "type": "path",
+                "description": "The file ID"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Remove the link between a file and a project. The file itself is not deleted — it stays in the organization and can be reattached later. Idempotent: detaching a file that is not attached is a no-op.\n\nRequires write access to the project. Org-scoped keys can detach files from non-access-controlled projects."
+        },
+        {
+          "info": {
+            "name": "List folders linked to a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/projects/:id/folders",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The project ID"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Max items to return (default 100, max 500)"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "Number of items to skip (default 0)"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "List folders linked to a project. To enumerate the contents of a folder, call `GET /folders/{id}/children`."
+        },
+        {
+          "info": {
+            "name": "Attach a folder to a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://app.gc.ai/api/external/v1/projects/:id/folders",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The project ID"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Link a folder to a project. Once attached, all files in the folder become available as project context. The folder is not moved or copied; only the project link is recorded.\n\nRequires write access to the project and read access to the folder. Idempotent: re-attaching an already-linked folder is a no-op. Org-scoped keys can attach non-access-controlled folders to non-access-controlled projects."
+        },
+        {
+          "info": {
+            "name": "Detach a folder from a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://app.gc.ai/api/external/v1/projects/:id/folders/:folderId",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The project ID"
+              },
+              {
+                "name": "folderId",
+                "value": "",
+                "type": "path",
+                "description": "The folder ID"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Remove the link between a folder and a project. The folder itself is not deleted — it stays in the organization. Idempotent: detaching a folder that is not attached is a no-op.\n\nRequires write access to the project. Org-scoped keys can detach folders from non-access-controlled projects."
+        },
+        {
+          "info": {
+            "name": "Star a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://app.gc.ai/api/external/v1/projects/:id/star",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The project ID"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Pin a project to the calling user's sidebar. Idempotent. Starring is per-user state (each user has their own starred set), so it requires a user-scoped key (`u:gcai_...`). Org-scoped keys carry no user identity and receive 422."
+        },
+        {
+          "info": {
+            "name": "Unstar a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://app.gc.ai/api/external/v1/projects/:id/star",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The project ID"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Remove a project from the calling user's sidebar pins. Idempotent. Starring is per-user state (each user has their own starred set), so it requires a user-scoped key (`u:gcai_...`). Org-scoped keys carry no user identity and receive 422."
+        },
+        {
+          "info": {
+            "name": "List chats in a project",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://app.gc.ai/api/external/v1/projects/:id/chats",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The project ID"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Max items to return (default 100, max 500)"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "Number of items to skip (default 0)"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "List chats associated with a project. Returns chat metadata only. Per-chat message retrieval is not exposed via the API."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
