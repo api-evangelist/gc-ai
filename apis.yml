@@ -70,6 +70,8 @@ apis:
   humanURL: https://docs.gc.ai/api-reference/introduction
   baseURL: https://app.gc.ai/api/external/v1
   tags:
+  - File
+  tags_raw:
   - Files
   properties:
   - type: OpenAPI
@@ -126,6 +128,8 @@ apis:
   humanURL: https://docs.gc.ai/api-reference/introduction
   baseURL: https://app.gc.ai/api/external/v1
   tags:
+  - Project
+  tags_raw:
   - Projects
   properties:
   - type: OpenAPI
