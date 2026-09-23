@@ -1,51 +1,8 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
-  title: GC AI External Chat Skills API
+  title: GC AI External Skills API
   version: 1.0.0
-  description: 'The GC AI External API allows programmatic access to GC AI''s chat capabilities. It''s designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.
-
-
-    ## Authentication
-
-
-    All API requests must include an API key in the `Authorization` header:
-
-
-    ```
-
-    Authorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-    ```
-
-
-    API keys can be created in the GC AI app under **Settings → API**.
-
-
-    ## Multi-turn Conversations
-
-
-    Conversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).
-
-
-    ## Current Limitations
-
-
-    The following is not yet available via API:
-
-
-    - **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta
-
-
-    ## Usage
-
-
-    Usage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.
-
-
-    ## Support
-
-
-    For API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.'
+  description: The GC AI External API allows programmatic access to GC AI's chat capabilities.
   contact:
     email: support@gc.ai
 servers:
@@ -79,8 +36,9 @@ paths:
         name: limit
         in: query
       - schema:
-          type: integer
-          nullable: true
+          type:
+          - integer
+          - 'null'
           minimum: 0
           default: 0
           description: Number of items to skip (default 0)
@@ -619,44 +577,6 @@ components:
           description: Always `true` on success
       required:
       - deleted
-    SkillFile:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Attached file identifier
-        name:
-          type: string
-          description: Attached file name
-      required:
-      - id
-      - name
-    UpdateSkillRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 255
-          description: Updated skill name (1-255 chars)
-        content:
-          type: string
-          minLength: 1
-          maxLength: 100000
-          description: Updated skill instructions (1-100000 chars)
-        description:
-          type: string
-          nullable: true
-          maxLength: 1000
-          description: Updated description (max 1000 chars). Pass `null` or an empty string to clear it.
-        file_ids:
-          type: array
-          items:
-            type: string
-            format: uuid
-          maxItems: 50
-          description: Replacement set of attached file IDs (max 50). When provided, the skill's attachments are reconciled to exactly this list. Omit to leave attachments unchanged.
     CreateSkillRequest:
       type: object
       properties:
@@ -673,8 +593,9 @@ components:
           description: The skill instructions — the prompt text the model receives when the skill runs (required, 1-100000 chars)
           example: Review the attached NDA and flag any clauses that deviate from our standard positions.
         description:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           maxLength: 1000
           description: Optional short description of what the skill does (max 1000 chars)
         visibility:
@@ -693,18 +614,19 @@ components:
       required:
       - name
       - content
-    SkillListResponse:
+    SkillFile:
       type: object
       properties:
-        skills:
-          type: array
-          items:
-            $ref: '#/components/schemas/Skill'
-        pagination:
-          $ref: '#/components/schemas/Pagination'
+        id:
+          type: string
+          format: uuid
+          description: Attached file identifier
+        name:
+          type: string
+          description: Attached file name
       required:
-      - skills
-      - pagination
+      - id
+      - name
     Skill:
       type: object
       properties:
@@ -716,8 +638,9 @@ components:
           type: string
           description: Skill name
         description:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Short description of what the skill does, or null if unset
         content:
           type: string
@@ -737,12 +660,14 @@ components:
             $ref: '#/components/schemas/SkillFile'
           description: Files attached to the skill as reference context
         created_at:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: ISO 8601 creation timestamp
         updated_at:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: ISO 8601 last-updated timestamp
       required:
       - id
@@ -770,6 +695,44 @@ components:
       - limit
       - offset
       - has_more
+    SkillListResponse:
+      type: object
+      properties:
+        skills:
+          type: array
+          items:
+            $ref: '#/components/schemas/Skill'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      required:
+      - skills
+      - pagination
+    UpdateSkillRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Updated skill name (1-255 chars)
+        content:
+          type: string
+          minLength: 1
+          maxLength: 100000
+          description: Updated skill instructions (1-100000 chars)
+        description:
+          type:
+          - string
+          - 'null'
+          maxLength: 1000
+          description: Updated description (max 1000 chars). Pass `null` or an empty string to clear it.
+        file_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 50
+          description: Replacement set of attached file IDs (max 50). When provided, the skill's attachments are reconciled to exactly this list. Omit to leave attachments unchanged.
     Error:
       type: object
       properties:
@@ -784,8 +747,7 @@ components:
           description: Additional error details
         details:
           type: object
-          additionalProperties:
-            nullable: true
+          additionalProperties: {}
           description: Validation error details (for 400 errors)
       required:
       - error

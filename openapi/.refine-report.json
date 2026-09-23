@@ -1,15 +1,7 @@
 {
   "provider": "gc-ai",
   "sources": [
-    "gc-ai-chat-api-openapi.yml",
-    "gc-ai-files-api-openapi.yml",
-    "gc-ai-folders-api-openapi.yml",
-    "gc-ai-playbooks-api-openapi.yml",
-    "gc-ai-profiles-api-openapi.yml",
-    "gc-ai-projects-api-openapi.yml",
-    "gc-ai-skills-api-openapi.yml",
-    "gc-ai-usage-api-openapi.yml",
-    "gc-ai-utility-api-openapi.yml"
+    "_original/gc-ai-openapi-original.yml"
   ],
   "outputs": [
     "gc-ai-chat-api-openapi.yml",
@@ -25,6 +17,20 @@
   "archived": [],
   "errors": [],
   "warnings": [],
-  "notes": [],
-  "skipped": []
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "gc-ai-openapi-original.yml: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "gc-ai-chat-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "gc-ai-files-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "gc-ai-folders-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "gc-ai-playbooks-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "gc-ai-profiles-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "gc-ai-projects-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "gc-ai-skills-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "gc-ai-usage-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "gc-ai-utility-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }

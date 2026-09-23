@@ -1,51 +1,8 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
-  title: GC AI External Chat Profiles API
+  title: GC AI External Profiles API
   version: 1.0.0
-  description: 'The GC AI External API allows programmatic access to GC AI''s chat capabilities. It''s designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.
-
-
-    ## Authentication
-
-
-    All API requests must include an API key in the `Authorization` header:
-
-
-    ```
-
-    Authorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-    ```
-
-
-    API keys can be created in the GC AI app under **Settings → API**.
-
-
-    ## Multi-turn Conversations
-
-
-    Conversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).
-
-
-    ## Current Limitations
-
-
-    The following is not yet available via API:
-
-
-    - **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta
-
-
-    ## Usage
-
-
-    Usage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.
-
-
-    ## Support
-
-
-    For API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.'
+  description: The GC AI External API allows programmatic access to GC AI's chat capabilities.
   contact:
     email: support@gc.ai
 servers:
@@ -539,6 +496,81 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
+    UpdatePersonalProfileRequest:
+      type: object
+      properties:
+        preferred_name:
+          type:
+          - string
+          - 'null'
+          maxLength: 100
+          description: Preferred name to use in chats. Send null to clear.
+        use_name_in_chats:
+          type: boolean
+          description: Whether the AI should address the user by name
+        role_title:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+          description: Job title or role. Send null to clear.
+        jurisdiction_focus:
+          type:
+          - string
+          - 'null'
+          maxLength: 255
+          description: Primary jurisdiction. Send null to clear.
+        practice_areas:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+            maxLength: 100
+          maxItems: 20
+          description: Practice areas (max 20). Send null or [] to clear.
+        custom_instructions:
+          type:
+          - string
+          - 'null'
+          maxLength: 4000
+          description: Custom instructions for every chat. Send null to clear.
+        privilege_marking_enabled:
+          type: boolean
+          description: Whether AI responses include an attorney-client privilege disclaimer
+        privilege_marking_text:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+          description: Privilege disclaimer text. Send null to clear.
+        enter_to_submit:
+          type: boolean
+          description: Whether the chat composer submits on Enter instead of Cmd/Ctrl+Enter
+        document_author_name:
+          type:
+          - string
+          - 'null'
+          maxLength: 100
+          description: Name stamped on AI tracked changes. Send null to clear.
+        enabled:
+          type: boolean
+          description: Whether the personal profile is active
+    CallerOrganization:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Organization the key belongs to
+        name:
+          type:
+          - string
+          - 'null'
+          description: Organization display name, or null if unset
+      required:
+      - id
+      - name
     CallerIdentityResponse:
       type: object
       properties:
@@ -554,15 +586,17 @@ components:
         organization:
           $ref: '#/components/schemas/CallerOrganization'
         user:
-          type: object
-          nullable: true
+          type:
+          - object
+          - 'null'
           properties:
             id:
               type: integer
               description: Calling user identifier
             email:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
               description: Calling user email, or null if unset
           required:
           - id
@@ -581,73 +615,72 @@ components:
           minLength: 1
           description: Company name (cannot be cleared)
         dba_name:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Doing-business-as name. Send null to clear.
         industry:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Industry sector. Send null to clear.
         size:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Company size band. Send null to clear.
         location:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Primary office location. Send null to clear.
         incorporation_country:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Country of incorporation. Send null to clear.
         incorporation_state:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: State/province of incorporation. Send null to clear.
         description:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Short company description. Send null to clear.
         revenue:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Annual revenue band. Send null to clear.
         legal_matters:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Typical legal matters. Send null to clear.
         regulations:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Key regulations. Send null to clear.
         risk_tolerance:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Risk tolerance level. Send null to clear.
         additional_info:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Free-form additional context. Send null to clear.
         customer_types:
-          type: array
-          nullable: true
+          type:
+          - array
+          - 'null'
           items:
             type: string
           description: Types of customers served. Send null or [] to clear.
-    CallerOrganization:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Organization the key belongs to
-        name:
-          type: string
-          nullable: true
-          description: Organization display name, or null if unset
-      required:
-      - id
-      - name
     CompanyProfileResponse:
       type: object
       properties:
@@ -659,66 +692,81 @@ components:
           type: string
           description: Company name
         dba_name:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Doing-business-as name, or null
         industry:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Industry sector, or null
         size:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Company size band (e.g. "51-200"), or null
         location:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Primary office location, or null
         incorporation_country:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Country of incorporation, or null
         incorporation_state:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: State/province of incorporation, or null
         description:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Short company description, or null
         revenue:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Annual revenue band, or null
         legal_matters:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Typical legal matters the company handles, or null
         regulations:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Key regulations the company must comply with, or null
         risk_tolerance:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Risk tolerance level (e.g. "Low"), or null
         additional_info:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Free-form additional context for the AI, or null
         customer_types:
-          type: array
-          nullable: true
+          type:
+          - array
+          - 'null'
           items:
             type: string
           description: Types of customers the company serves, or null
         created_at:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: ISO 8601 creation timestamp
         updated_at:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: ISO 8601 last-update timestamp
       required:
       - id
@@ -742,19 +790,22 @@ components:
       type: object
       properties:
         preferred_name:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Preferred name to use in chats, or null if unset
         use_name_in_chats:
           type: boolean
           description: Whether the AI should address the user by name
         role_title:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Job title or role (e.g. "General Counsel"), or null
         jurisdiction_focus:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Primary jurisdiction the user practices in, or null
         practice_areas:
           type: array
@@ -762,33 +813,38 @@ components:
             type: string
           description: Practice areas the user focuses on (may be empty)
         custom_instructions:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Custom instructions injected into every chat, or null
         privilege_marking_enabled:
           type: boolean
           description: Whether AI responses include an attorney-client privilege disclaimer
         privilege_marking_text:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: The privilege disclaimer text, or null if unset
         enter_to_submit:
           type: boolean
           description: Whether the chat composer submits on Enter instead of Cmd/Ctrl+Enter
         document_author_name:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Name stamped on tracked changes when AI edits are applied, or null
         enabled:
           type: boolean
           description: Whether the personal profile is active and applied to chats
         created_at:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: ISO 8601 creation timestamp, or null if never saved
         updated_at:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: ISO 8601 last-update timestamp, or null if never saved
       required:
       - preferred_name
@@ -818,64 +874,10 @@ components:
           description: Additional error details
         details:
           type: object
-          additionalProperties:
-            nullable: true
+          additionalProperties: {}
           description: Validation error details (for 400 errors)
       required:
       - error
-    UpdatePersonalProfileRequest:
-      type: object
-      properties:
-        preferred_name:
-          type: string
-          nullable: true
-          maxLength: 100
-          description: Preferred name to use in chats. Send null to clear.
-        use_name_in_chats:
-          type: boolean
-          description: Whether the AI should address the user by name
-        role_title:
-          type: string
-          nullable: true
-          maxLength: 200
-          description: Job title or role. Send null to clear.
-        jurisdiction_focus:
-          type: string
-          nullable: true
-          maxLength: 255
-          description: Primary jurisdiction. Send null to clear.
-        practice_areas:
-          type: array
-          nullable: true
-          items:
-            type: string
-            maxLength: 100
-          maxItems: 20
-          description: Practice areas (max 20). Send null or [] to clear.
-        custom_instructions:
-          type: string
-          nullable: true
-          maxLength: 4000
-          description: Custom instructions for every chat. Send null to clear.
-        privilege_marking_enabled:
-          type: boolean
-          description: Whether AI responses include an attorney-client privilege disclaimer
-        privilege_marking_text:
-          type: string
-          nullable: true
-          maxLength: 200
-          description: Privilege disclaimer text. Send null to clear.
-        enter_to_submit:
-          type: boolean
-          description: Whether the chat composer submits on Enter instead of Cmd/Ctrl+Enter
-        document_author_name:
-          type: string
-          nullable: true
-          maxLength: 100
-          description: Name stamped on AI tracked changes. Send null to clear.
-        enabled:
-          type: boolean
-          description: Whether the personal profile is active
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

@@ -1,51 +1,8 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
-  title: GC AI External Chat Files API
+  title: GC AI External Files API
   version: 1.0.0
-  description: 'The GC AI External API allows programmatic access to GC AI''s chat capabilities. It''s designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.
-
-
-    ## Authentication
-
-
-    All API requests must include an API key in the `Authorization` header:
-
-
-    ```
-
-    Authorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-    ```
-
-
-    API keys can be created in the GC AI app under **Settings → API**.
-
-
-    ## Multi-turn Conversations
-
-
-    Conversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).
-
-
-    ## Current Limitations
-
-
-    The following is not yet available via API:
-
-
-    - **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta
-
-
-    ## Usage
-
-
-    Usage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.
-
-
-    ## Support
-
-
-    For API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.'
+  description: The GC AI External API allows programmatic access to GC AI's chat capabilities.
   contact:
     email: support@gc.ai
 servers:
@@ -919,66 +876,79 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    InitiateUploadRequest:
-      type: object
-      properties:
-        file_name:
-          type: string
-          minLength: 1
-          maxLength: 255
-          description: Original filename, including extension.
-          example: msa-2026.pdf
-        content_type:
-          type: string
-          description: MIME type of the file. When omitted, it is derived from the filename extension.
-          example: application/pdf
-        size:
-          type: integer
-          minimum: 0
-          exclusiveMinimum: true
-          description: Total size of the complete file in bytes. Validated up front against the file-size limit so oversized uploads fail before any parts are sent.
-          example: 12582912
-        folder_id:
-          type: string
-          format: uuid
-          description: Target folder ID. Defaults to the user's "My Files" folder. Mutually exclusive with `project_id` and `scope`.
-        project_id:
-          type: string
-          format: uuid
-          description: Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.
-        scope:
-          type: string
-          enum:
-          - my-files
-          - organization
-          description: Upload to the root of a meta-collection ("my-files" or "organization"). Mutually exclusive with `folder_id` and `project_id`. User-scoped keys only.
-          example: my-files
-      required:
-      - file_name
-      - size
     UpdateFileRequest:
       type: object
       properties:
         folder_id:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           format: uuid
           description: Target folder ID to move the file to. Pass null to move to the root.
       required:
       - folder_id
-    AbortUploadResponse:
+    SearchedFile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique file identifier
+        name:
+          type: string
+          description: Original filename
+        size:
+          type: number
+          description: File size in bytes
+        content_type:
+          type: string
+          description: MIME type of the file
+        status:
+          type: string
+          enum:
+          - extracting
+          - embedding
+          - ready
+          - failed
+          description: Current processing status
+        folder_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Parent folder ID, or null if the file is at the root
+        created_at:
+          type: string
+          description: ISO 8601 creation timestamp
+      required:
+      - id
+      - name
+      - size
+      - content_type
+      - status
+      - folder_id
+      - created_at
+    InitiateUploadResponse:
       type: object
       properties:
         upload_id:
           type: string
           format: uuid
-        aborted:
-          type: boolean
-          enum:
-          - true
+          description: Opaque identifier for this upload session. Use it in the part and complete requests.
+        part_size:
+          type: number
+          description: Recommended part size in bytes. Split the file into parts no larger than this for reliable transfers.
+        max_parts:
+          type: number
+          description: Maximum number of parts allowed for this session. Part numbers run from 1 to this value.
+        expires_at:
+          type: string
+          description: ISO 8601 timestamp after which the session expires. Upload all parts and call complete before this.
       required:
       - upload_id
-      - aborted
+      - part_size
+      - max_parts
+      - expires_at
     FileResponse:
       type: object
       properties:
@@ -1008,8 +978,9 @@ components:
           type: string
           description: ISO 8601 creation timestamp
         folder_id:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           format: uuid
           description: Folder the file belongs to
         extraction_error:
@@ -1029,57 +1000,52 @@ components:
       - content_type
       - status
       - created_at
-    SearchedFile:
+    FileSearchResponse:
       type: object
       properties:
-        id:
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchedFile'
+          description: Files matching the query, ranked by hybrid (vector + keyword) relevance. At most 100 results.
+      required:
+      - files
+    InitiateUploadRequest:
+      type: object
+      properties:
+        file_name:
           type: string
-          format: uuid
-          description: Unique file identifier
-        name:
-          type: string
-          description: Original filename
-        size:
-          type: number
-          description: File size in bytes
+          minLength: 1
+          maxLength: 255
+          description: Original filename, including extension.
+          example: msa-2026.pdf
         content_type:
           type: string
-          description: MIME type of the file
-        status:
-          type: string
-          enum:
-          - extracting
-          - embedding
-          - ready
-          - failed
-          description: Current processing status
+          description: MIME type of the file. When omitted, it is derived from the filename extension.
+          example: application/pdf
+        size:
+          type: integer
+          description: Total size of the complete file in bytes. Validated up front against the file-size limit so oversized uploads fail before any parts are sent.
+          example: 12582912
+          exclusiveMinimum: 0
         folder_id:
           type: string
-          nullable: true
           format: uuid
-          description: Parent folder ID, or null if the file is at the root
-        created_at:
+          description: Target folder ID. Defaults to the user's "My Files" folder. Mutually exclusive with `project_id` and `scope`.
+        project_id:
           type: string
-          description: ISO 8601 creation timestamp
+          format: uuid
+          description: Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.
+        scope:
+          type: string
+          enum:
+          - my-files
+          - organization
+          description: Upload to the root of a meta-collection ("my-files" or "organization"). Mutually exclusive with `folder_id` and `project_id`. User-scoped keys only.
+          example: my-files
       required:
-      - id
-      - name
+      - file_name
       - size
-      - content_type
-      - status
-      - folder_id
-      - created_at
-    CompleteUploadRequest:
-      type: object
-      properties:
-        part_count:
-          type: integer
-          minimum: 1
-          maximum: 32
-          description: The total number of parts you uploaded. Parts must be a contiguous run from 1 to this value; completion fails if any are missing.
-          example: 3
-      required:
-      - part_count
     UploadPartResponse:
       type: object
       properties:
@@ -1096,27 +1062,6 @@ components:
       - upload_id
       - part_number
       - size
-    InitiateUploadResponse:
-      type: object
-      properties:
-        upload_id:
-          type: string
-          format: uuid
-          description: Opaque identifier for this upload session. Use it in the part and complete requests.
-        part_size:
-          type: number
-          description: Recommended part size in bytes. Split the file into parts no larger than this for reliable transfers.
-        max_parts:
-          type: number
-          description: Maximum number of parts allowed for this session. Part numbers run from 1 to this value.
-        expires_at:
-          type: string
-          description: ISO 8601 timestamp after which the session expires. Upload all parts and call complete before this.
-      required:
-      - upload_id
-      - part_size
-      - max_parts
-      - expires_at
     Error:
       type: object
       properties:
@@ -1131,11 +1076,23 @@ components:
           description: Additional error details
         details:
           type: object
-          additionalProperties:
-            nullable: true
+          additionalProperties: {}
           description: Validation error details (for 400 errors)
       required:
       - error
+    AbortUploadResponse:
+      type: object
+      properties:
+        upload_id:
+          type: string
+          format: uuid
+        aborted:
+          type: boolean
+          enum:
+          - true
+      required:
+      - upload_id
+      - aborted
     FileUploadRequest:
       type: object
       properties:
@@ -1160,16 +1117,17 @@ components:
           example: my-files
       required:
       - file
-    FileSearchResponse:
+    CompleteUploadRequest:
       type: object
       properties:
-        files:
-          type: array
-          items:
-            $ref: '#/components/schemas/SearchedFile'
-          description: Files matching the query, ranked by hybrid (vector + keyword) relevance. At most 100 results.
+        part_count:
+          type: integer
+          minimum: 1
+          maximum: 32
+          description: The total number of parts you uploaded. Parts must be a contiguous run from 1 to this value; completion fails if any are missing.
+          example: 3
       required:
-      - files
+      - part_count
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

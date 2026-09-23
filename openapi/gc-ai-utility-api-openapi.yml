@@ -1,51 +1,8 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
-  title: GC AI External Chat Utility API
+  title: GC AI External Utility API
   version: 1.0.0
-  description: 'The GC AI External API allows programmatic access to GC AI''s chat capabilities. It''s designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.
-
-
-    ## Authentication
-
-
-    All API requests must include an API key in the `Authorization` header:
-
-
-    ```
-
-    Authorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-    ```
-
-
-    API keys can be created in the GC AI app under **Settings → API**.
-
-
-    ## Multi-turn Conversations
-
-
-    Conversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).
-
-
-    ## Current Limitations
-
-
-    The following is not yet available via API:
-
-
-    - **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta
-
-
-    ## Usage
-
-
-    Usage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.
-
-
-    ## Support
-
-
-    For API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.'
+  description: The GC AI External API allows programmatic access to GC AI's chat capabilities.
   contact:
     email: support@gc.ai
 servers:
@@ -154,8 +111,7 @@ components:
           description: Additional error details
         details:
           type: object
-          additionalProperties:
-            nullable: true
+          additionalProperties: {}
           description: Validation error details (for 400 errors)
       required:
       - error

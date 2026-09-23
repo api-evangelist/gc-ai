@@ -1,51 +1,8 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
-  title: GC AI External Chat Folders API
+  title: GC AI External Folders API
   version: 1.0.0
-  description: 'The GC AI External API allows programmatic access to GC AI''s chat capabilities. It''s designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.
-
-
-    ## Authentication
-
-
-    All API requests must include an API key in the `Authorization` header:
-
-
-    ```
-
-    Authorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-    ```
-
-
-    API keys can be created in the GC AI app under **Settings → API**.
-
-
-    ## Multi-turn Conversations
-
-
-    Conversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).
-
-
-    ## Current Limitations
-
-
-    The following is not yet available via API:
-
-
-    - **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta
-
-
-    ## Usage
-
-
-    Usage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.
-
-
-    ## Support
-
-
-    For API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.'
+  description: The GC AI External API allows programmatic access to GC AI's chat capabilities.
   contact:
     email: support@gc.ai
 servers:
@@ -88,8 +45,9 @@ paths:
         name: limit
         in: query
       - schema:
-          type: integer
-          nullable: true
+          type:
+          - integer
+          - 'null'
           minimum: 0
           default: 0
           description: Number of items to skip (default 0)
@@ -734,16 +692,18 @@ components:
           type: string
           description: Folder name
         description:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Folder description, or null if unset
         path:
           type: string
           description: Path through ancestors visible to the requester. Inaccessible ancestors are skipped, so this may not reflect absolute depth. Use `parent_folder_id` to traverse hierarchy.
           example: /My Files/Contracts
         parent_folder_id:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           format: uuid
           description: Parent folder ID, or null for root
         folder_type:
@@ -770,64 +730,6 @@ components:
           description: Direct children of the folder. Subfolders first (alphabetical), then files (alphabetical).
       required:
       - items
-    FolderListResponse:
-      type: object
-      properties:
-        folders:
-          type: array
-          items:
-            $ref: '#/components/schemas/Folder'
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-      required:
-      - folders
-      - pagination
-    FolderChild:
-      oneOf:
-      - allOf:
-        - $ref: '#/components/schemas/Folder'
-        - type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - folder
-          required:
-          - type
-      - allOf:
-        - $ref: '#/components/schemas/File'
-        - type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - file
-          required:
-          - type
-    CreateFolderRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          minLength: 2
-          description: Folder name (min 2 characters)
-          example: Q4 Contracts
-        description:
-          type: string
-          description: Optional description
-        parent_folder_id:
-          type: string
-          format: uuid
-          description: Parent folder ID. Mutually exclusive with `scope`. If both are omitted, creates a top-level folder.
-        scope:
-          type: string
-          enum:
-          - my-files
-          - organization
-          description: Create the folder at the root of a meta-collection. Mutually exclusive with `parent_folder_id`. `shared-with-me` is not valid for create.
-          example: my-files
-      required:
-      - name
     Pagination:
       type: object
       properties:
@@ -878,6 +780,30 @@ components:
       - content_type
       - status
       - created_at
+    CreateFolderRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          description: Folder name (min 2 characters)
+          example: Q4 Contracts
+        description:
+          type: string
+          description: Optional description
+        parent_folder_id:
+          type: string
+          format: uuid
+          description: Parent folder ID. Mutually exclusive with `scope`. If both are omitted, creates a top-level folder.
+        scope:
+          type: string
+          enum:
+          - my-files
+          - organization
+          description: Create the folder at the root of a meta-collection. Mutually exclusive with `parent_folder_id`. `shared-with-me` is not valid for create.
+          example: my-files
+      required:
+      - name
     Error:
       type: object
       properties:
@@ -892,8 +818,7 @@ components:
           description: Additional error details
         details:
           type: object
-          additionalProperties:
-            nullable: true
+          additionalProperties: {}
           description: Validation error details (for 400 errors)
       required:
       - error
@@ -914,6 +839,40 @@ components:
         is_access_controlled:
           type: boolean
           description: Whether the folder requires explicit access grants
+    FolderListResponse:
+      type: object
+      properties:
+        folders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Folder'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      required:
+      - folders
+      - pagination
+    FolderChild:
+      oneOf:
+      - allOf:
+        - $ref: '#/components/schemas/Folder'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - folder
+          required:
+          - type
+      - allOf:
+        - $ref: '#/components/schemas/File'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - file
+          required:
+          - type
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

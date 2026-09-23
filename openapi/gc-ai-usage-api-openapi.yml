@@ -1,51 +1,8 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
-  title: GC AI External Chat Usage API
+  title: GC AI External Usage API
   version: 1.0.0
-  description: 'The GC AI External API allows programmatic access to GC AI''s chat capabilities. It''s designed for integration with workflow automation tools like Zapier, Make, n8n, or custom applications.
-
-
-    ## Authentication
-
-
-    All API requests must include an API key in the `Authorization` header:
-
-
-    ```
-
-    Authorization: gcai_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-    ```
-
-
-    API keys can be created in the GC AI app under **Settings → API**.
-
-
-    ## Multi-turn Conversations
-
-
-    Conversations can span multiple turns: pass the `chat_id` returned by a completion back on your next request to continue the same chat. See [Multi-turn Conversations](/api-reference/concepts/multi-turn).
-
-
-    ## Current Limitations
-
-
-    The following is not yet available via API:
-
-
-    - **Interactive clarification**: the model cannot pause to ask the caller a follow-up question; the `askUserQuestions` tool is disabled on the API surface in beta
-
-
-    ## Usage
-
-
-    Usage is tracked and viewable in the GC AI app under **Settings → API → View Usage**.
-
-
-    ## Support
-
-
-    For API support, contact [support@gc.ai](mailto:support@gc.ai) or reach out to your account representative.'
+  description: The GC AI External API allows programmatic access to GC AI's chat capabilities.
   contact:
     email: support@gc.ai
 servers:
@@ -316,6 +273,31 @@ components:
       required:
       - date
       - usage
+    UsageSummaryResponse:
+      type: object
+      properties:
+        start_date:
+          type: string
+          description: Inclusive range start.
+        end_date:
+          type: string
+          description: Inclusive range end.
+        timezone:
+          type: string
+          description: IANA timezone used for day boundaries.
+        web:
+          $ref: '#/components/schemas/WebUsage'
+        word:
+          $ref: '#/components/schemas/WordUsage'
+        api:
+          $ref: '#/components/schemas/ApiUsage'
+      required:
+      - start_date
+      - end_date
+      - timezone
+      - web
+      - word
+      - api
     CreditUsageLine:
       type: object
       properties:
@@ -327,16 +309,19 @@ components:
           type: number
           description: Total billable units consumed for this line over the range.
         unit:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: Display label for one billable unit (e.g. `request`). Null when pricing is unavailable.
         credits_per_unit:
-          type: number
-          nullable: true
+          type:
+          - number
+          - 'null'
           description: Credits charged per unit, from the current rate card. Null when pricing is unavailable.
         credits:
-          type: number
-          nullable: true
+          type:
+          - number
+          - 'null'
           description: Total credits for this line (`requests × credits_per_unit`). Null when pricing is unavailable.
       required:
       - api
@@ -344,6 +329,44 @@ components:
       - unit
       - credits_per_unit
       - credits
+    CreditUsageResponse:
+      type: object
+      properties:
+        start_date:
+          type: string
+          description: Inclusive range start.
+        end_date:
+          type: string
+          description: Inclusive range end.
+        timezone:
+          type: string
+          description: IANA timezone used for day boundaries.
+        pricing_available:
+          type: boolean
+          description: Whether rate-card pricing could be resolved for every observed operation. When false, all credit fields are null and only raw request counts are returned.
+        total_credits:
+          type:
+          - number
+          - 'null'
+          description: Total credits across all operations over the range. Null when pricing is unavailable.
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditUsageLine'
+          description: Per-operation usage and credit totals over the range.
+        daily:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditUsageDay'
+          description: Daily usage buckets across the full range (days with no usage have an empty `usage` object).
+      required:
+      - start_date
+      - end_date
+      - timezone
+      - pricing_available
+      - total_credits
+      - lines
+      - daily
     ApiUsage:
       type: object
       properties:
@@ -359,6 +382,24 @@ components:
       - requests
       - by_operation
       description: API activity.
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties: {}
+          description: Validation error details (for 400 errors)
+      required:
+      - error
     WebUsage:
       type: object
       properties:
@@ -393,87 +434,6 @@ components:
       - redlines_applied
       - drafts_applied
       description: Word add-in activity.
-    CreditUsageResponse:
-      type: object
-      properties:
-        start_date:
-          type: string
-          description: Inclusive range start.
-        end_date:
-          type: string
-          description: Inclusive range end.
-        timezone:
-          type: string
-          description: IANA timezone used for day boundaries.
-        pricing_available:
-          type: boolean
-          description: Whether rate-card pricing could be resolved for every observed operation. When false, all credit fields are null and only raw request counts are returned.
-        total_credits:
-          type: number
-          nullable: true
-          description: Total credits across all operations over the range. Null when pricing is unavailable.
-        lines:
-          type: array
-          items:
-            $ref: '#/components/schemas/CreditUsageLine'
-          description: Per-operation usage and credit totals over the range.
-        daily:
-          type: array
-          items:
-            $ref: '#/components/schemas/CreditUsageDay'
-          description: Daily usage buckets across the full range (days with no usage have an empty `usage` object).
-      required:
-      - start_date
-      - end_date
-      - timezone
-      - pricing_available
-      - total_credits
-      - lines
-      - daily
-    Error:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Error message
-        code:
-          type: string
-          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
-        message:
-          type: string
-          description: Additional error details
-        details:
-          type: object
-          additionalProperties:
-            nullable: true
-          description: Validation error details (for 400 errors)
-      required:
-      - error
-    UsageSummaryResponse:
-      type: object
-      properties:
-        start_date:
-          type: string
-          description: Inclusive range start.
-        end_date:
-          type: string
-          description: Inclusive range end.
-        timezone:
-          type: string
-          description: IANA timezone used for day boundaries.
-        web:
-          $ref: '#/components/schemas/WebUsage'
-        word:
-          $ref: '#/components/schemas/WordUsage'
-        api:
-          $ref: '#/components/schemas/ApiUsage'
-      required:
-      - start_date
-      - end_date
-      - timezone
-      - web
-      - word
-      - api
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
