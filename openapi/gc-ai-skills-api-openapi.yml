@@ -569,64 +569,6 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    DeleteSkillResponse:
-      type: object
-      properties:
-        deleted:
-          type: boolean
-          description: Always `true` on success
-      required:
-      - deleted
-    CreateSkillRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 255
-          description: Skill name (required, 1-255 chars)
-          example: NDA Risk Reviewer
-        content:
-          type: string
-          minLength: 1
-          maxLength: 100000
-          description: The skill instructions — the prompt text the model receives when the skill runs (required, 1-100000 chars)
-          example: Review the attached NDA and flag any clauses that deviate from our standard positions.
-        description:
-          type:
-          - string
-          - 'null'
-          maxLength: 1000
-          description: Optional short description of what the skill does (max 1000 chars)
-        visibility:
-          type: string
-          enum:
-          - private
-          - organization
-          description: Skill visibility. Defaults to `private` for user-scoped keys. Org-scoped keys always create `organization`-visible skills (they have no owning user).
-        file_ids:
-          type: array
-          items:
-            type: string
-            format: uuid
-          maxItems: 50
-          description: Optional uploaded file IDs to attach as reference context (max 50). Upload files first via `POST /files`.
-      required:
-      - name
-      - content
-    SkillFile:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Attached file identifier
-        name:
-          type: string
-          description: Attached file name
-      required:
-      - id
-      - name
     Skill:
       type: object
       properties:
@@ -679,6 +621,81 @@ components:
       - files
       - created_at
       - updated_at
+    CreateSkillRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Skill name (required, 1-255 chars)
+          example: NDA Risk Reviewer
+        content:
+          type: string
+          minLength: 1
+          maxLength: 100000
+          description: The skill instructions — the prompt text the model receives when the skill runs (required, 1-100000 chars)
+          example: Review the attached NDA and flag any clauses that deviate from our standard positions.
+        description:
+          type:
+          - string
+          - 'null'
+          maxLength: 1000
+          description: Optional short description of what the skill does (max 1000 chars)
+        visibility:
+          type: string
+          enum:
+          - private
+          - organization
+          description: Skill visibility. Defaults to `private` for user-scoped keys. Org-scoped keys always create `organization`-visible skills (they have no owning user).
+        file_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 50
+          description: Optional uploaded file IDs to attach as reference context (max 50). Upload files first via `POST /files`.
+      required:
+      - name
+      - content
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties: {}
+          description: Validation error details (for 400 errors)
+      required:
+      - error
+    DeleteSkillResponse:
+      type: object
+      properties:
+        deleted:
+          type: boolean
+          description: Always `true` on success
+      required:
+      - deleted
+    SkillListResponse:
+      type: object
+      properties:
+        skills:
+          type: array
+          items:
+            $ref: '#/components/schemas/Skill'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      required:
+      - skills
+      - pagination
     Pagination:
       type: object
       properties:
@@ -695,18 +712,19 @@ components:
       - limit
       - offset
       - has_more
-    SkillListResponse:
+    SkillFile:
       type: object
       properties:
-        skills:
-          type: array
-          items:
-            $ref: '#/components/schemas/Skill'
-        pagination:
-          $ref: '#/components/schemas/Pagination'
+        id:
+          type: string
+          format: uuid
+          description: Attached file identifier
+        name:
+          type: string
+          description: Attached file name
       required:
-      - skills
-      - pagination
+      - id
+      - name
     UpdateSkillRequest:
       type: object
       properties:
@@ -733,24 +751,6 @@ components:
             format: uuid
           maxItems: 50
           description: Replacement set of attached file IDs (max 50). When provided, the skill's attachments are reconciled to exactly this list. Omit to leave attachments unchanged.
-    Error:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Error message
-        code:
-          type: string
-          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
-        message:
-          type: string
-          description: Additional error details
-        details:
-          type: object
-          additionalProperties: {}
-          description: Validation error details (for 400 errors)
-      required:
-      - error
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

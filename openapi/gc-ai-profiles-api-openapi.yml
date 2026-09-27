@@ -496,15 +496,14 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    UpdatePersonalProfileRequest:
+    PersonalProfileResponse:
       type: object
       properties:
         preferred_name:
           type:
           - string
           - 'null'
-          maxLength: 100
-          description: Preferred name to use in chats. Send null to clear.
+          description: Preferred name to use in chats, or null if unset
         use_name_in_chats:
           type: boolean
           description: Whether the AI should address the user by name
@@ -512,29 +511,22 @@ components:
           type:
           - string
           - 'null'
-          maxLength: 200
-          description: Job title or role. Send null to clear.
+          description: Job title or role (e.g. "General Counsel"), or null
         jurisdiction_focus:
           type:
           - string
           - 'null'
-          maxLength: 255
-          description: Primary jurisdiction. Send null to clear.
+          description: Primary jurisdiction the user practices in, or null
         practice_areas:
-          type:
-          - array
-          - 'null'
+          type: array
           items:
             type: string
-            maxLength: 100
-          maxItems: 20
-          description: Practice areas (max 20). Send null or [] to clear.
+          description: Practice areas the user focuses on (may be empty)
         custom_instructions:
           type:
           - string
           - 'null'
-          maxLength: 4000
-          description: Custom instructions for every chat. Send null to clear.
+          description: Custom instructions injected into every chat, or null
         privilege_marking_enabled:
           type: boolean
           description: Whether AI responses include an attorney-client privilege disclaimer
@@ -542,8 +534,7 @@ components:
           type:
           - string
           - 'null'
-          maxLength: 200
-          description: Privilege disclaimer text. Send null to clear.
+          description: The privilege disclaimer text, or null if unset
         enter_to_submit:
           type: boolean
           description: Whether the chat composer submits on Enter instead of Cmd/Ctrl+Enter
@@ -551,62 +542,52 @@ components:
           type:
           - string
           - 'null'
-          maxLength: 100
-          description: Name stamped on AI tracked changes. Send null to clear.
+          description: Name stamped on tracked changes when AI edits are applied, or null
         enabled:
           type: boolean
-          description: Whether the personal profile is active
-    CallerOrganization:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Organization the key belongs to
-        name:
+          description: Whether the personal profile is active and applied to chats
+        created_at:
           type:
           - string
           - 'null'
-          description: Organization display name, or null if unset
+          description: ISO 8601 creation timestamp, or null if never saved
+        updated_at:
+          type:
+          - string
+          - 'null'
+          description: ISO 8601 last-update timestamp, or null if never saved
       required:
-      - id
-      - name
-    CallerIdentityResponse:
+      - preferred_name
+      - use_name_in_chats
+      - role_title
+      - jurisdiction_focus
+      - practice_areas
+      - custom_instructions
+      - privilege_marking_enabled
+      - privilege_marking_text
+      - enter_to_submit
+      - document_author_name
+      - enabled
+      - created_at
+      - updated_at
+    Error:
       type: object
       properties:
-        token_type:
+        error:
           type: string
-          enum:
-          - user
-          - organization
-          description: Scope of the API key making the request. `user` for personal keys (`u:gcai_...`), `organization` for org keys (`gcai_...`).
-        api_key_id:
+          description: Error message
+        code:
           type: string
-          description: Identifier of the API key used to authenticate the request
-        organization:
-          $ref: '#/components/schemas/CallerOrganization'
-        user:
-          type:
-          - object
-          - 'null'
-          properties:
-            id:
-              type: integer
-              description: Calling user identifier
-            email:
-              type:
-              - string
-              - 'null'
-              description: Calling user email, or null if unset
-          required:
-          - id
-          - email
-          description: The authenticated user, or null for org-scoped keys (which carry no user identity).
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties: {}
+          description: Validation error details (for 400 errors)
       required:
-      - token_type
-      - api_key_id
-      - organization
-      - user
+      - error
     UpdateCompanyProfileRequest:
       type: object
       properties:
@@ -786,14 +767,51 @@ components:
       - customer_types
       - created_at
       - updated_at
-    PersonalProfileResponse:
+    CallerIdentityResponse:
+      type: object
+      properties:
+        token_type:
+          type: string
+          enum:
+          - user
+          - organization
+          description: Scope of the API key making the request. `user` for personal keys (`u:gcai_...`), `organization` for org keys (`gcai_...`).
+        api_key_id:
+          type: string
+          description: Identifier of the API key used to authenticate the request
+        organization:
+          $ref: '#/components/schemas/CallerOrganization'
+        user:
+          type:
+          - object
+          - 'null'
+          properties:
+            id:
+              type: integer
+              description: Calling user identifier
+            email:
+              type:
+              - string
+              - 'null'
+              description: Calling user email, or null if unset
+          required:
+          - id
+          - email
+          description: The authenticated user, or null for org-scoped keys (which carry no user identity).
+      required:
+      - token_type
+      - api_key_id
+      - organization
+      - user
+    UpdatePersonalProfileRequest:
       type: object
       properties:
         preferred_name:
           type:
           - string
           - 'null'
-          description: Preferred name to use in chats, or null if unset
+          maxLength: 100
+          description: Preferred name to use in chats. Send null to clear.
         use_name_in_chats:
           type: boolean
           description: Whether the AI should address the user by name
@@ -801,22 +819,29 @@ components:
           type:
           - string
           - 'null'
-          description: Job title or role (e.g. "General Counsel"), or null
+          maxLength: 200
+          description: Job title or role. Send null to clear.
         jurisdiction_focus:
           type:
           - string
           - 'null'
-          description: Primary jurisdiction the user practices in, or null
+          maxLength: 255
+          description: Primary jurisdiction. Send null to clear.
         practice_areas:
-          type: array
+          type:
+          - array
+          - 'null'
           items:
             type: string
-          description: Practice areas the user focuses on (may be empty)
+            maxLength: 100
+          maxItems: 20
+          description: Practice areas (max 20). Send null or [] to clear.
         custom_instructions:
           type:
           - string
           - 'null'
-          description: Custom instructions injected into every chat, or null
+          maxLength: 4000
+          description: Custom instructions for every chat. Send null to clear.
         privilege_marking_enabled:
           type: boolean
           description: Whether AI responses include an attorney-client privilege disclaimer
@@ -824,7 +849,8 @@ components:
           type:
           - string
           - 'null'
-          description: The privilege disclaimer text, or null if unset
+          maxLength: 200
+          description: Privilege disclaimer text. Send null to clear.
         enter_to_submit:
           type: boolean
           description: Whether the chat composer submits on Enter instead of Cmd/Ctrl+Enter
@@ -832,52 +858,26 @@ components:
           type:
           - string
           - 'null'
-          description: Name stamped on tracked changes when AI edits are applied, or null
+          maxLength: 100
+          description: Name stamped on AI tracked changes. Send null to clear.
         enabled:
           type: boolean
-          description: Whether the personal profile is active and applied to chats
-        created_at:
-          type:
-          - string
-          - 'null'
-          description: ISO 8601 creation timestamp, or null if never saved
-        updated_at:
-          type:
-          - string
-          - 'null'
-          description: ISO 8601 last-update timestamp, or null if never saved
-      required:
-      - preferred_name
-      - use_name_in_chats
-      - role_title
-      - jurisdiction_focus
-      - practice_areas
-      - custom_instructions
-      - privilege_marking_enabled
-      - privilege_marking_text
-      - enter_to_submit
-      - document_author_name
-      - enabled
-      - created_at
-      - updated_at
-    Error:
+          description: Whether the personal profile is active
+    CallerOrganization:
       type: object
       properties:
-        error:
+        id:
           type: string
-          description: Error message
-        code:
-          type: string
-          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
-        message:
-          type: string
-          description: Additional error details
-        details:
-          type: object
-          additionalProperties: {}
-          description: Validation error details (for 400 errors)
+          format: uuid
+          description: Organization the key belongs to
+        name:
+          type:
+          - string
+          - 'null'
+          description: Organization display name, or null if unset
       required:
-      - error
+      - id
+      - name
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

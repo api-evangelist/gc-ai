@@ -681,6 +681,159 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
+    File:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique file identifier
+        name:
+          type: string
+          description: Original filename
+        size:
+          type: number
+          description: File size in bytes
+        content_type:
+          type: string
+          description: MIME type of the file
+        status:
+          type: string
+          enum:
+          - extracting
+          - embedding
+          - ready
+          - failed
+          description: Current processing status
+        created_at:
+          type: string
+          description: ISO 8601 creation timestamp
+      required:
+      - id
+      - name
+      - size
+      - content_type
+      - status
+      - created_at
+    FolderChild:
+      oneOf:
+      - allOf:
+        - $ref: '#/components/schemas/Folder'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - folder
+          required:
+          - type
+      - allOf:
+        - $ref: '#/components/schemas/File'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - file
+          required:
+          - type
+    UpdateFolderRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          description: New folder name (minimum 2 characters)
+        description:
+          type: string
+          description: New folder description
+        parent_folder_id:
+          type: string
+          format: uuid
+          description: Target parent folder ID. The destination must not be the folder itself or one of its descendants.
+        is_access_controlled:
+          type: boolean
+          description: Whether the folder requires explicit access grants
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties: {}
+          description: Validation error details (for 400 errors)
+      required:
+      - error
+    CreateFolderRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          description: Folder name (min 2 characters)
+          example: Q4 Contracts
+        description:
+          type: string
+          description: Optional description
+        parent_folder_id:
+          type: string
+          format: uuid
+          description: Parent folder ID. Mutually exclusive with `scope`. If both are omitted, creates a top-level folder.
+        scope:
+          type: string
+          enum:
+          - my-files
+          - organization
+          description: Create the folder at the root of a meta-collection. Mutually exclusive with `parent_folder_id`. `shared-with-me` is not valid for create.
+          example: my-files
+      required:
+      - name
+    FolderChildrenResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FolderChild'
+          description: Direct children of the folder. Subfolders first (alphabetical), then files (alphabetical).
+      required:
+      - items
+    FolderListResponse:
+      type: object
+      properties:
+        folders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Folder'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      required:
+      - folders
+      - pagination
+    Pagination:
+      type: object
+      properties:
+        limit:
+          type: number
+          description: Page size
+        offset:
+          type: number
+          description: Current offset
+        has_more:
+          type: boolean
+          description: Whether more results exist
+      required:
+      - limit
+      - offset
+      - has_more
     Folder:
       type: object
       properties:
@@ -720,159 +873,6 @@ components:
       - parent_folder_id
       - folder_type
       - created_at
-    FolderChildrenResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/FolderChild'
-          description: Direct children of the folder. Subfolders first (alphabetical), then files (alphabetical).
-      required:
-      - items
-    Pagination:
-      type: object
-      properties:
-        limit:
-          type: number
-          description: Page size
-        offset:
-          type: number
-          description: Current offset
-        has_more:
-          type: boolean
-          description: Whether more results exist
-      required:
-      - limit
-      - offset
-      - has_more
-    File:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Unique file identifier
-        name:
-          type: string
-          description: Original filename
-        size:
-          type: number
-          description: File size in bytes
-        content_type:
-          type: string
-          description: MIME type of the file
-        status:
-          type: string
-          enum:
-          - extracting
-          - embedding
-          - ready
-          - failed
-          description: Current processing status
-        created_at:
-          type: string
-          description: ISO 8601 creation timestamp
-      required:
-      - id
-      - name
-      - size
-      - content_type
-      - status
-      - created_at
-    CreateFolderRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          minLength: 2
-          description: Folder name (min 2 characters)
-          example: Q4 Contracts
-        description:
-          type: string
-          description: Optional description
-        parent_folder_id:
-          type: string
-          format: uuid
-          description: Parent folder ID. Mutually exclusive with `scope`. If both are omitted, creates a top-level folder.
-        scope:
-          type: string
-          enum:
-          - my-files
-          - organization
-          description: Create the folder at the root of a meta-collection. Mutually exclusive with `parent_folder_id`. `shared-with-me` is not valid for create.
-          example: my-files
-      required:
-      - name
-    Error:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Error message
-        code:
-          type: string
-          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
-        message:
-          type: string
-          description: Additional error details
-        details:
-          type: object
-          additionalProperties: {}
-          description: Validation error details (for 400 errors)
-      required:
-      - error
-    UpdateFolderRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          minLength: 2
-          description: New folder name (minimum 2 characters)
-        description:
-          type: string
-          description: New folder description
-        parent_folder_id:
-          type: string
-          format: uuid
-          description: Target parent folder ID. The destination must not be the folder itself or one of its descendants.
-        is_access_controlled:
-          type: boolean
-          description: Whether the folder requires explicit access grants
-    FolderListResponse:
-      type: object
-      properties:
-        folders:
-          type: array
-          items:
-            $ref: '#/components/schemas/Folder'
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-      required:
-      - folders
-      - pagination
-    FolderChild:
-      oneOf:
-      - allOf:
-        - $ref: '#/components/schemas/Folder'
-        - type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - folder
-          required:
-          - type
-      - allOf:
-        - $ref: '#/components/schemas/File'
-        - type: object
-          properties:
-            type:
-              type: string
-              enum:
-              - file
-          required:
-          - type
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

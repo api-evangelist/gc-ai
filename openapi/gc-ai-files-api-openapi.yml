@@ -876,17 +876,74 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    UpdateFileRequest:
+    UploadPartResponse:
       type: object
       properties:
-        folder_id:
-          type:
-          - string
-          - 'null'
+        upload_id:
+          type: string
           format: uuid
-          description: Target folder ID to move the file to. Pass null to move to the root.
+        part_number:
+          type: number
+          description: The part just stored.
+        size:
+          type: number
+          description: Bytes received for this part.
       required:
-      - folder_id
+      - upload_id
+      - part_number
+      - size
+    FileUploadRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: The file to upload
+        folder_id:
+          type: string
+          format: uuid
+          description: Target folder ID. Defaults to the user's "My Files" folder. Mutually exclusive with `project_id` and `scope`.
+        project_id:
+          type: string
+          format: uuid
+          description: Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.
+        scope:
+          type: string
+          enum:
+          - my-files
+          - organization
+          description: Upload to the root of a meta-collection ("my-files" or "organization"). Mutually exclusive with `folder_id` and `project_id`. `shared-with-me` is not valid for upload.
+          example: my-files
+      required:
+      - file
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties: {}
+          description: Validation error details (for 400 errors)
+      required:
+      - error
+    FileSearchResponse:
+      type: object
+      properties:
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchedFile'
+          description: Files matching the query, ranked by hybrid (vector + keyword) relevance. At most 100 results.
+      required:
+      - files
     SearchedFile:
       type: object
       properties:
@@ -928,27 +985,28 @@ components:
       - status
       - folder_id
       - created_at
-    InitiateUploadResponse:
+    UpdateFileRequest:
       type: object
       properties:
-        upload_id:
-          type: string
+        folder_id:
+          type:
+          - string
+          - 'null'
           format: uuid
-          description: Opaque identifier for this upload session. Use it in the part and complete requests.
-        part_size:
-          type: number
-          description: Recommended part size in bytes. Split the file into parts no larger than this for reliable transfers.
-        max_parts:
-          type: number
-          description: Maximum number of parts allowed for this session. Part numbers run from 1 to this value.
-        expires_at:
-          type: string
-          description: ISO 8601 timestamp after which the session expires. Upload all parts and call complete before this.
+          description: Target folder ID to move the file to. Pass null to move to the root.
       required:
-      - upload_id
-      - part_size
-      - max_parts
-      - expires_at
+      - folder_id
+    CompleteUploadRequest:
+      type: object
+      properties:
+        part_count:
+          type: integer
+          minimum: 1
+          maximum: 32
+          description: The total number of parts you uploaded. Parts must be a contiguous run from 1 to this value; completion fails if any are missing.
+          example: 3
+      required:
+      - part_count
     FileResponse:
       type: object
       properties:
@@ -1000,16 +1058,6 @@ components:
       - content_type
       - status
       - created_at
-    FileSearchResponse:
-      type: object
-      properties:
-        files:
-          type: array
-          items:
-            $ref: '#/components/schemas/SearchedFile'
-          description: Files matching the query, ranked by hybrid (vector + keyword) relevance. At most 100 results.
-      required:
-      - files
     InitiateUploadRequest:
       type: object
       properties:
@@ -1046,40 +1094,27 @@ components:
       required:
       - file_name
       - size
-    UploadPartResponse:
+    InitiateUploadResponse:
       type: object
       properties:
         upload_id:
           type: string
           format: uuid
-        part_number:
+          description: Opaque identifier for this upload session. Use it in the part and complete requests.
+        part_size:
           type: number
-          description: The part just stored.
-        size:
+          description: Recommended part size in bytes. Split the file into parts no larger than this for reliable transfers.
+        max_parts:
           type: number
-          description: Bytes received for this part.
+          description: Maximum number of parts allowed for this session. Part numbers run from 1 to this value.
+        expires_at:
+          type: string
+          description: ISO 8601 timestamp after which the session expires. Upload all parts and call complete before this.
       required:
       - upload_id
-      - part_number
-      - size
-    Error:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Error message
-        code:
-          type: string
-          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
-        message:
-          type: string
-          description: Additional error details
-        details:
-          type: object
-          additionalProperties: {}
-          description: Validation error details (for 400 errors)
-      required:
-      - error
+      - part_size
+      - max_parts
+      - expires_at
     AbortUploadResponse:
       type: object
       properties:
@@ -1093,41 +1128,6 @@ components:
       required:
       - upload_id
       - aborted
-    FileUploadRequest:
-      type: object
-      properties:
-        file:
-          type: string
-          format: binary
-          description: The file to upload
-        folder_id:
-          type: string
-          format: uuid
-          description: Target folder ID. Defaults to the user's "My Files" folder. Mutually exclusive with `project_id` and `scope`.
-        project_id:
-          type: string
-          format: uuid
-          description: Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.
-        scope:
-          type: string
-          enum:
-          - my-files
-          - organization
-          description: Upload to the root of a meta-collection ("my-files" or "organization"). Mutually exclusive with `folder_id` and `project_id`. `shared-with-me` is not valid for upload.
-          example: my-files
-      required:
-      - file
-    CompleteUploadRequest:
-      type: object
-      properties:
-        part_count:
-          type: integer
-          minimum: 1
-          maximum: 32
-          description: The total number of parts you uploaded. Parts must be a contiguous run from 1 to this value; completion fails if any are missing.
-          example: 3
-      required:
-      - part_count
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
