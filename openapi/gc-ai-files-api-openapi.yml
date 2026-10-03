@@ -876,46 +876,17 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    UploadPartResponse:
+    CompleteUploadRequest:
       type: object
       properties:
-        upload_id:
-          type: string
-          format: uuid
-        part_number:
-          type: number
-          description: The part just stored.
-        size:
-          type: number
-          description: Bytes received for this part.
+        part_count:
+          type: integer
+          minimum: 1
+          maximum: 32
+          description: The total number of parts you uploaded. Parts must be a contiguous run from 1 to this value; completion fails if any are missing.
+          example: 3
       required:
-      - upload_id
-      - part_number
-      - size
-    FileUploadRequest:
-      type: object
-      properties:
-        file:
-          type: string
-          format: binary
-          description: The file to upload
-        folder_id:
-          type: string
-          format: uuid
-          description: Target folder ID. Defaults to the user's "My Files" folder. Mutually exclusive with `project_id` and `scope`.
-        project_id:
-          type: string
-          format: uuid
-          description: Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.
-        scope:
-          type: string
-          enum:
-          - my-files
-          - organization
-          description: Upload to the root of a meta-collection ("my-files" or "organization"). Mutually exclusive with `folder_id` and `project_id`. `shared-with-me` is not valid for upload.
-          example: my-files
-      required:
-      - file
+      - part_count
     Error:
       type: object
       properties:
@@ -934,6 +905,69 @@ components:
           description: Validation error details (for 400 errors)
       required:
       - error
+    InitiateUploadRequest:
+      type: object
+      properties:
+        file_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Original filename, including extension.
+          example: msa-2026.pdf
+        content_type:
+          type: string
+          description: MIME type of the file. When omitted, it is derived from the filename extension.
+          example: application/pdf
+        size:
+          type: integer
+          description: Total size of the complete file in bytes. Validated up front against the file-size limit so oversized uploads fail before any parts are sent.
+          example: 12582912
+          exclusiveMinimum: 0
+        folder_id:
+          type: string
+          format: uuid
+          description: Target folder ID. Defaults to the user's "My Files" folder. Mutually exclusive with `project_id` and `scope`.
+        project_id:
+          type: string
+          format: uuid
+          description: Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.
+        scope:
+          type: string
+          enum:
+          - my-files
+          - organization
+          description: Upload to the root of a meta-collection ("my-files" or "organization"). Mutually exclusive with `folder_id` and `project_id`. User-scoped keys only.
+          example: my-files
+      required:
+      - file_name
+      - size
+    UploadPartResponse:
+      type: object
+      properties:
+        upload_id:
+          type: string
+          format: uuid
+        part_number:
+          type: number
+          description: The part just stored.
+        size:
+          type: number
+          description: Bytes received for this part.
+      required:
+      - upload_id
+      - part_number
+      - size
+    UpdateFileRequest:
+      type: object
+      properties:
+        folder_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Target folder ID to move the file to. Pass null to move to the root.
+      required:
+      - folder_id
     FileSearchResponse:
       type: object
       properties:
@@ -985,28 +1019,64 @@ components:
       - status
       - folder_id
       - created_at
-    UpdateFileRequest:
+    InitiateUploadResponse:
       type: object
       properties:
-        folder_id:
-          type:
-          - string
-          - 'null'
+        upload_id:
+          type: string
           format: uuid
-          description: Target folder ID to move the file to. Pass null to move to the root.
+          description: Opaque identifier for this upload session. Use it in the part and complete requests.
+        part_size:
+          type: number
+          description: Recommended part size in bytes. Split the file into parts no larger than this for reliable transfers.
+        max_parts:
+          type: number
+          description: Maximum number of parts allowed for this session. Part numbers run from 1 to this value.
+        expires_at:
+          type: string
+          description: ISO 8601 timestamp after which the session expires. Upload all parts and call complete before this.
       required:
-      - folder_id
-    CompleteUploadRequest:
+      - upload_id
+      - part_size
+      - max_parts
+      - expires_at
+    FileUploadRequest:
       type: object
       properties:
-        part_count:
-          type: integer
-          minimum: 1
-          maximum: 32
-          description: The total number of parts you uploaded. Parts must be a contiguous run from 1 to this value; completion fails if any are missing.
-          example: 3
+        file:
+          type: string
+          format: binary
+          description: The file to upload
+        folder_id:
+          type: string
+          format: uuid
+          description: Target folder ID. Defaults to the user's "My Files" folder. Mutually exclusive with `project_id` and `scope`.
+        project_id:
+          type: string
+          format: uuid
+          description: Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.
+        scope:
+          type: string
+          enum:
+          - my-files
+          - organization
+          description: Upload to the root of a meta-collection ("my-files" or "organization"). Mutually exclusive with `folder_id` and `project_id`. `shared-with-me` is not valid for upload.
+          example: my-files
       required:
-      - part_count
+      - file
+    AbortUploadResponse:
+      type: object
+      properties:
+        upload_id:
+          type: string
+          format: uuid
+        aborted:
+          type: boolean
+          enum:
+          - true
+      required:
+      - upload_id
+      - aborted
     FileResponse:
       type: object
       properties:
@@ -1058,76 +1128,6 @@ components:
       - content_type
       - status
       - created_at
-    InitiateUploadRequest:
-      type: object
-      properties:
-        file_name:
-          type: string
-          minLength: 1
-          maxLength: 255
-          description: Original filename, including extension.
-          example: msa-2026.pdf
-        content_type:
-          type: string
-          description: MIME type of the file. When omitted, it is derived from the filename extension.
-          example: application/pdf
-        size:
-          type: integer
-          description: Total size of the complete file in bytes. Validated up front against the file-size limit so oversized uploads fail before any parts are sent.
-          example: 12582912
-          exclusiveMinimum: 0
-        folder_id:
-          type: string
-          format: uuid
-          description: Target folder ID. Defaults to the user's "My Files" folder. Mutually exclusive with `project_id` and `scope`.
-        project_id:
-          type: string
-          format: uuid
-          description: Upload the file into a project. The file is placed in the project's upload folder and linked to the project. Mutually exclusive with `folder_id` and `scope`.
-        scope:
-          type: string
-          enum:
-          - my-files
-          - organization
-          description: Upload to the root of a meta-collection ("my-files" or "organization"). Mutually exclusive with `folder_id` and `project_id`. User-scoped keys only.
-          example: my-files
-      required:
-      - file_name
-      - size
-    InitiateUploadResponse:
-      type: object
-      properties:
-        upload_id:
-          type: string
-          format: uuid
-          description: Opaque identifier for this upload session. Use it in the part and complete requests.
-        part_size:
-          type: number
-          description: Recommended part size in bytes. Split the file into parts no larger than this for reliable transfers.
-        max_parts:
-          type: number
-          description: Maximum number of parts allowed for this session. Part numbers run from 1 to this value.
-        expires_at:
-          type: string
-          description: ISO 8601 timestamp after which the session expires. Upload all parts and call complete before this.
-      required:
-      - upload_id
-      - part_size
-      - max_parts
-      - expires_at
-    AbortUploadResponse:
-      type: object
-      properties:
-        upload_id:
-          type: string
-          format: uuid
-        aborted:
-          type: boolean
-          enum:
-          - true
-      required:
-      - upload_id
-      - aborted
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

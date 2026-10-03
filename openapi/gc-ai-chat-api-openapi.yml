@@ -573,6 +573,41 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
+    ChatSearchResponse:
+      type: object
+      properties:
+        chats:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatSearchResult'
+          description: Chats matching the query. Title-substring matches first, then semantic (vector) matches in relevance order, de-duplicated and capped at `limit`.
+      required:
+      - chats
+    ApiDocument:
+      type: object
+      properties:
+        file_id:
+          type: string
+          format: uuid
+          description: The new uploaded file ID for the produced document. Use it with `POST /chat/completions` `file_ids` to apply further edits to this version. Download via `signed_url` for the finished file.
+        original_file_id:
+          type: string
+          format: uuid
+          description: The `file_id` the changes were applied to (edits only). The original file is preserved unchanged. Omitted for newly generated documents.
+        filename:
+          type: string
+          description: Filename of the produced document (edits are prefixed with `edited_`).
+        original_filename:
+          type: string
+          description: Filename of the source file the changes were applied to (edits only). Omitted for newly generated documents.
+        signed_url:
+          type: string
+          format: uri
+          description: Time-limited download URL for the produced document. Valid for 7 days from job completion. Download promptly — the URL is not re-minted, so re-fetching the job after expiry returns the same expired URL.
+      required:
+      - file_id
+      - filename
+      - signed_url
     ChatCompletionResponse:
       type: object
       properties:
@@ -625,41 +660,6 @@ components:
       - error
       - created_at
       - completed_at
-    ChatSearchResponse:
-      type: object
-      properties:
-        chats:
-          type: array
-          items:
-            $ref: '#/components/schemas/ChatSearchResult'
-          description: Chats matching the query. Title-substring matches first, then semantic (vector) matches in relevance order, de-duplicated and capped at `limit`.
-      required:
-      - chats
-    ApiDocument:
-      type: object
-      properties:
-        file_id:
-          type: string
-          format: uuid
-          description: The new uploaded file ID for the produced document. Use it with `POST /chat/completions` `file_ids` to apply further edits to this version. Download via `signed_url` for the finished file.
-        original_file_id:
-          type: string
-          format: uuid
-          description: The `file_id` the changes were applied to (edits only). The original file is preserved unchanged. Omitted for newly generated documents.
-        filename:
-          type: string
-          description: Filename of the produced document (edits are prefixed with `edited_`).
-        original_filename:
-          type: string
-          description: Filename of the source file the changes were applied to (edits only). Omitted for newly generated documents.
-        signed_url:
-          type: string
-          format: uri
-          description: Time-limited download URL for the produced document. Valid for 7 days from job completion. Download promptly — the URL is not re-minted, so re-fetching the job after expiry returns the same expired URL.
-      required:
-      - file_id
-      - filename
-      - signed_url
     ApiEmail:
       type: object
       properties:
@@ -686,6 +686,24 @@ components:
       - subject
       - body
       - plaintext_body
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties: {}
+          description: Validation error details (for 400 errors)
+      required:
+      - error
     MaterializeChatResponse:
       type: object
       properties:
@@ -711,24 +729,57 @@ components:
       - title
       - chat_url
       - materialized_at
-    Error:
+    ApiDiagram:
       type: object
       properties:
-        error:
+        title:
           type: string
-          description: Error message
-        code:
+          description: A short descriptive title for the diagram.
+        diagram_type:
           type: string
-          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
-        message:
+          description: The semantic type of diagram, e.g. orgChart, dealStructure, workflow, timeline, sequence, entityRelationship, or general.
+        mermaid:
           type: string
-          description: Additional error details
-        details:
-          type: object
-          additionalProperties: {}
-          description: Validation error details (for 400 errors)
+          description: The diagram source as validated Mermaid syntax. Render it with any Mermaid-compatible renderer.
       required:
-      - error
+      - title
+      - diagram_type
+      - mermaid
+    ChatCompletionResult:
+      type:
+      - object
+      - 'null'
+      properties:
+        result:
+          type: string
+          description: The AI-generated response text
+          example: 'When reviewing a software license agreement, key terms to examine include:
+
+
+            1. **License Grant** - Understand the scope of rights granted...'
+        chat_id:
+          type: string
+          format: uuid
+          description: The chat ID. API chats stay out of chat history until you materialize them. Pass this ID to `POST /chat/{id}/materialize` to surface the chat. See [Chat Visibility](/api-reference/concepts/chat-visibility).
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiDocument'
+          description: Documents produced during this completion — either edits of an attached file (the document editing tool) or newly generated files (the document or slide generation tools). Present only when at least one document was produced. Each entry exposes a new `file_id` and a signed download URL; edits also reference the preserved original via `original_file_id`.
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiEmail'
+          description: Email drafts produced during this completion by the email drafting tool. Present only when at least one email was drafted. Each entry is a structured draft (`to`, `subject`, `body`, …) ready to send via your own mail client or provider.
+        diagrams:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiDiagram'
+          description: Diagrams produced during this completion by the diagram tool. Present only when at least one diagram was produced. Each entry exposes validated Mermaid source (`mermaid`) you can render with any Mermaid-compatible renderer.
+      required:
+      - result
+      - chat_id
+      description: Completion payload when the job has succeeded
     ChatCompletionRequest:
       type: object
       properties:
@@ -782,41 +833,6 @@ components:
           example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
       required:
       - message
-    ChatCompletionResult:
-      type:
-      - object
-      - 'null'
-      properties:
-        result:
-          type: string
-          description: The AI-generated response text
-          example: 'When reviewing a software license agreement, key terms to examine include:
-
-
-            1. **License Grant** - Understand the scope of rights granted...'
-        chat_id:
-          type: string
-          format: uuid
-          description: The chat ID. API chats stay out of chat history until you materialize them. Pass this ID to `POST /chat/{id}/materialize` to surface the chat. See [Chat Visibility](/api-reference/concepts/chat-visibility).
-        documents:
-          type: array
-          items:
-            $ref: '#/components/schemas/ApiDocument'
-          description: Documents produced during this completion — either edits of an attached file (the document editing tool) or newly generated files (the document or slide generation tools). Present only when at least one document was produced. Each entry exposes a new `file_id` and a signed download URL; edits also reference the preserved original via `original_file_id`.
-        emails:
-          type: array
-          items:
-            $ref: '#/components/schemas/ApiEmail'
-          description: Email drafts produced during this completion by the email drafting tool. Present only when at least one email was drafted. Each entry is a structured draft (`to`, `subject`, `body`, …) ready to send via your own mail client or provider.
-        diagrams:
-          type: array
-          items:
-            $ref: '#/components/schemas/ApiDiagram'
-          description: Diagrams produced during this completion by the diagram tool. Present only when at least one diagram was produced. Each entry exposes validated Mermaid source (`mermaid`) you can render with any Mermaid-compatible renderer.
-      required:
-      - result
-      - chat_id
-      description: Completion payload when the job has succeeded
     ChatSearchResult:
       type: object
       properties:
@@ -842,22 +858,6 @@ components:
       - title
       - summary
       - updated_at
-    ApiDiagram:
-      type: object
-      properties:
-        title:
-          type: string
-          description: A short descriptive title for the diagram.
-        diagram_type:
-          type: string
-          description: The semantic type of diagram, e.g. orgChart, dealStructure, workflow, timeline, sequence, entityRelationship, or general.
-        mermaid:
-          type: string
-          description: The diagram source as validated Mermaid syntax. Render it with any Mermaid-compatible renderer.
-      required:
-      - title
-      - diagram_type
-      - mermaid
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

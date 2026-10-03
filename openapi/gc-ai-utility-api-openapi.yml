@@ -97,20 +97,6 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    PingResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          enum:
-          - pong
-          description: Always `pong`
-        timestamp:
-          type: string
-          description: ISO 8601 server timestamp
-      required:
-      - status
-      - timestamp
     Error:
       type: object
       properties:
@@ -129,6 +115,20 @@ components:
           description: Validation error details (for 400 errors)
       required:
       - error
+    PingResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - pong
+          description: Always `pong`
+        timestamp:
+          type: string
+          description: ISO 8601 server timestamp
+      required:
+      - status
+      - timestamp
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

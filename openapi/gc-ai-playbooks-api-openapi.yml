@@ -1458,46 +1458,155 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    PlaybookCheckPositionInput:
+    ReorderPlaybookChecksRequest:
       type: object
       properties:
-        type:
+        check_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+          description: All check IDs of the playbook in the desired order. Checks omitted from the list keep their existing order relative to one another.
+      required:
+      - check_ids
+    RunPlaybookResult:
+      type:
+      - object
+      - 'null'
+      properties:
+        playbookTitle:
           type: string
-          enum:
-          - standard
-          - fallback
-          description: Use `standard` for the primary stance and `fallback` for an alternative the reviewer may accept.
-        guidance:
+        totalChecks:
+          type: number
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaybookCheckResult'
+        summary:
+          type: object
+          properties:
+            flags:
+              type: number
+            fallbacks:
+              type: number
+            passes:
+              type: number
+            errors:
+              type: number
+          required:
+          - flags
+          - fallbacks
+          - passes
+          - errors
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiDocument'
+          description: Redlined documents produced from the review's suggested revisions, applied as tracked changes. Present only when a single DOCX file was reviewed under a user-scoped key and at least one revision applied. The original file is preserved; each entry exposes a new `file_id` and a signed download URL.
+      required:
+      - playbookTitle
+      - totalChecks
+      - results
+      - summary
+      description: Playbook review payload when the job has succeeded
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties: {}
+          description: Validation error details (for 400 errors)
+      required:
+      - error
+    CreatePlaybookRequest:
+      type: object
+      properties:
+        title:
           type: string
           minLength: 1
-          description: The review stance for this position — what to require, accept, or flag.
-          example: Require a mutual liability cap at 12 months of fees.
+          description: Playbook title (required, non-empty).
+          example: Vendor NDA review
+        description:
+          type:
+          - string
+          - 'null'
+          description: Optional human-facing description.
+        guide:
+          type:
+          - string
+          - 'null'
+          description: Optional free-text guidance applied across the whole playbook when it runs.
       required:
-      - type
-      - guidance
-    PlaybookCheckResult:
+      - title
+    UpdatePlaybookRequest:
       type: object
       properties:
-        checkId:
+        title:
+          type: string
+          minLength: 1
+          description: New title (non-empty).
+        description:
+          type:
+          - string
+          - 'null'
+          description: New description, or null to clear.
+        guide:
+          type:
+          - string
+          - 'null'
+          description: New guide text, or null to clear.
+    DeletePlaybookResponse:
+      type: object
+      properties:
+        deleted:
+          type: boolean
+          description: Always `true` on success
+      required:
+      - deleted
+    ApiDocument:
+      type: object
+      properties:
+        file_id:
           type: string
           format: uuid
-        checkTitle:
+          description: The new uploaded file ID for the produced document. Use it with `POST /chat/completions` `file_ids` to apply further edits to this version. Download via `signed_url` for the finished file.
+        original_file_id:
           type: string
-        evaluationResult:
+          format: uuid
+          description: The `file_id` the changes were applied to (edits only). The original file is preserved unchanged. Omitted for newly generated documents.
+        filename:
           type: string
-          description: Evaluation outcome. One of `Pass`, `Flag`, `Fallback`, or `Error`.
-        documentPosition:
-          type:
-          - number
-          - 'null'
-          description: Position in the document where the matched language was found, or null if not anchored.
+          description: Filename of the produced document (edits are prefixed with `edited_`).
+        original_filename:
+          type: string
+          description: Filename of the source file the changes were applied to (edits only). Omitted for newly generated documents.
+        signed_url:
+          type: string
+          format: uri
+          description: Time-limited download URL for the produced document. Valid for 7 days from job completion. Download promptly — the URL is not re-minted, so re-fetching the job after expiry returns the same expired URL.
       required:
-      - checkId
-      - checkTitle
-      - evaluationResult
-      - documentPosition
-      additionalProperties: {}
-      description: Per-check evaluation result. Additional fields (e.g. `analysis`, `revisions`) may appear depending on the check type.
+      - file_id
+      - filename
+      - signed_url
+    PlaybookCheckListResponse:
+      type: object
+      properties:
+        checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaybookCheck'
+      required:
+      - checks
     CreatePlaybookCheckRequest:
       type: object
       properties:
@@ -1530,43 +1639,6 @@ components:
       required:
       - title
       - positions
-    PlaybookCheckListResponse:
-      type: object
-      properties:
-        checks:
-          type: array
-          items:
-            $ref: '#/components/schemas/PlaybookCheck'
-      required:
-      - checks
-    UpdatePlaybookCheckRequest:
-      type: object
-      properties:
-        title:
-          type: string
-          minLength: 1
-          description: New title (non-empty).
-        description:
-          type:
-          - string
-          - 'null'
-          description: New description, or null to clear.
-        importance:
-          type:
-          - string
-          - 'null'
-          enum:
-          - low
-          - medium
-          - high
-          - null
-          description: New priority, or null to clear.
-        positions:
-          type: array
-          items:
-            $ref: '#/components/schemas/PlaybookCheckPositionInput'
-          minItems: 1
-          description: Replacement set of positions (full desired state). Omit to leave positions unchanged.
     PlaybookCheck:
       type: object
       properties:
@@ -1615,41 +1687,6 @@ components:
       - positions
       - created_at
       - updated_at
-    Error:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Error message
-        code:
-          type: string
-          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
-        message:
-          type: string
-          description: Additional error details
-        details:
-          type: object
-          additionalProperties: {}
-          description: Validation error details (for 400 errors)
-      required:
-      - error
-    UpdatePlaybookRequest:
-      type: object
-      properties:
-        title:
-          type: string
-          minLength: 1
-          description: New title (non-empty).
-        description:
-          type:
-          - string
-          - 'null'
-          description: New description, or null to clear.
-        guide:
-          type:
-          - string
-          - 'null'
-          description: New guide text, or null to clear.
     PlaybookListResponse:
       type: object
       properties:
@@ -1662,46 +1699,211 @@ components:
       required:
       - playbooks
       - pagination
-    RunPlaybookResult:
-      type:
-      - object
-      - 'null'
+    Pagination:
+      type: object
       properties:
-        playbookTitle:
-          type: string
-        totalChecks:
+        limit:
           type: number
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/PlaybookCheckResult'
-        summary:
-          type: object
-          properties:
-            flags:
-              type: number
-            fallbacks:
-              type: number
-            passes:
-              type: number
-            errors:
-              type: number
-          required:
-          - flags
-          - fallbacks
-          - passes
-          - errors
-        documents:
-          type: array
-          items:
-            $ref: '#/components/schemas/ApiDocument'
-          description: Redlined documents produced from the review's suggested revisions, applied as tracked changes. Present only when a single DOCX file was reviewed under a user-scoped key and at least one revision applied. The original file is preserved; each entry exposes a new `file_id` and a signed download URL.
+          description: Page size
+        offset:
+          type: number
+          description: Current offset
+        has_more:
+          type: boolean
+          description: Whether more results exist
       required:
-      - playbookTitle
-      - totalChecks
-      - results
-      - summary
-      description: Playbook review payload when the job has succeeded
+      - limit
+      - offset
+      - has_more
+    ReorderPlaybookChecksResponse:
+      type: object
+      properties:
+        reordered:
+          type: boolean
+          description: Always `true` on success
+      required:
+      - reordered
+    PlaybookSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique playbook identifier
+        title:
+          type: string
+          description: Playbook title
+        description:
+          type:
+          - string
+          - 'null'
+          description: Playbook description, or null if unset
+        is_official:
+          type: boolean
+          description: Whether this is an official GC AI playbook
+        status:
+          type: string
+          enum:
+          - draft
+          - processing
+          - completed
+          - failed
+          description: Playbook processing status
+        created_at:
+          type:
+          - string
+          - 'null'
+          description: ISO 8601 creation timestamp
+      required:
+      - id
+      - title
+      - description
+      - is_official
+      - status
+      - created_at
+    UpdatePlaybookCheckRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: New title (non-empty).
+        description:
+          type:
+          - string
+          - 'null'
+          description: New description, or null to clear.
+        importance:
+          type:
+          - string
+          - 'null'
+          enum:
+          - low
+          - medium
+          - high
+          - null
+          description: New priority, or null to clear.
+        positions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaybookCheckPositionInput'
+          minItems: 1
+          description: Replacement set of positions (full desired state). Omit to leave positions unchanged.
+    DeletePlaybookCheckResponse:
+      type: object
+      properties:
+        deleted:
+          type: boolean
+          description: Always `true` on success
+      required:
+      - deleted
+    PlaybookCheckResult:
+      type: object
+      properties:
+        checkId:
+          type: string
+          format: uuid
+        checkTitle:
+          type: string
+        evaluationResult:
+          type: string
+          description: Evaluation outcome. One of `Pass`, `Flag`, `Fallback`, or `Error`.
+        documentPosition:
+          type:
+          - number
+          - 'null'
+          description: Position in the document where the matched language was found, or null if not anchored.
+      required:
+      - checkId
+      - checkTitle
+      - evaluationResult
+      - documentPosition
+      additionalProperties: {}
+      description: Per-check evaluation result. Additional fields (e.g. `analysis`, `revisions`) may appear depending on the check type.
+    PlaybookCheckPositionInput:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - standard
+          - fallback
+          description: Use `standard` for the primary stance and `fallback` for an alternative the reviewer may accept.
+        guidance:
+          type: string
+          minLength: 1
+          description: The review stance for this position — what to require, accept, or flag.
+          example: Require a mutual liability cap at 12 months of fees.
+      required:
+      - type
+      - guidance
+    PlaybookCheckPosition:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - standard
+          - fallback
+          description: The primary stance (`standard`) or an alternative fallback the reviewer may accept (`fallback`). Each check has exactly one standard position.
+        guidance:
+          type:
+          - string
+          - 'null'
+          description: The review stance for this position — what to require, accept, or flag. May be null for positions authored in the web app without guidance.
+      required:
+      - type
+      - guidance
+    Playbook:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique playbook identifier
+        title:
+          type: string
+          description: Playbook title
+        description:
+          type:
+          - string
+          - 'null'
+          description: Playbook description, or null if unset
+        guide:
+          type:
+          - string
+          - 'null'
+          description: Free-text guidance applied across the whole playbook when it runs, or null if unset.
+        is_official:
+          type: boolean
+          description: Whether this is an official GC AI playbook
+        status:
+          type: string
+          enum:
+          - draft
+          - processing
+          - completed
+          - failed
+          description: Playbook processing status
+        created_at:
+          type:
+          - string
+          - 'null'
+          description: ISO 8601 creation timestamp
+        updated_at:
+          type:
+          - string
+          - 'null'
+          description: ISO 8601 last-update timestamp
+      required:
+      - id
+      - title
+      - description
+      - guide
+      - is_official
+      - status
+      - created_at
+      - updated_at
     RunPlaybookResponse:
       type: object
       properties:
@@ -1784,208 +1986,6 @@ components:
           description: Optional subset of check IDs to evaluate. Omit to run every check in the playbook.
       required:
       - file_ids
-    DeletePlaybookCheckResponse:
-      type: object
-      properties:
-        deleted:
-          type: boolean
-          description: Always `true` on success
-      required:
-      - deleted
-    DeletePlaybookResponse:
-      type: object
-      properties:
-        deleted:
-          type: boolean
-          description: Always `true` on success
-      required:
-      - deleted
-    CreatePlaybookRequest:
-      type: object
-      properties:
-        title:
-          type: string
-          minLength: 1
-          description: Playbook title (required, non-empty).
-          example: Vendor NDA review
-        description:
-          type:
-          - string
-          - 'null'
-          description: Optional human-facing description.
-        guide:
-          type:
-          - string
-          - 'null'
-          description: Optional free-text guidance applied across the whole playbook when it runs.
-      required:
-      - title
-    Pagination:
-      type: object
-      properties:
-        limit:
-          type: number
-          description: Page size
-        offset:
-          type: number
-          description: Current offset
-        has_more:
-          type: boolean
-          description: Whether more results exist
-      required:
-      - limit
-      - offset
-      - has_more
-    ReorderPlaybookChecksRequest:
-      type: object
-      properties:
-        check_ids:
-          type: array
-          items:
-            type: string
-            format: uuid
-          minItems: 1
-          description: All check IDs of the playbook in the desired order. Checks omitted from the list keep their existing order relative to one another.
-      required:
-      - check_ids
-    Playbook:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Unique playbook identifier
-        title:
-          type: string
-          description: Playbook title
-        description:
-          type:
-          - string
-          - 'null'
-          description: Playbook description, or null if unset
-        guide:
-          type:
-          - string
-          - 'null'
-          description: Free-text guidance applied across the whole playbook when it runs, or null if unset.
-        is_official:
-          type: boolean
-          description: Whether this is an official GC AI playbook
-        status:
-          type: string
-          enum:
-          - draft
-          - processing
-          - completed
-          - failed
-          description: Playbook processing status
-        created_at:
-          type:
-          - string
-          - 'null'
-          description: ISO 8601 creation timestamp
-        updated_at:
-          type:
-          - string
-          - 'null'
-          description: ISO 8601 last-update timestamp
-      required:
-      - id
-      - title
-      - description
-      - guide
-      - is_official
-      - status
-      - created_at
-      - updated_at
-    PlaybookSummary:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Unique playbook identifier
-        title:
-          type: string
-          description: Playbook title
-        description:
-          type:
-          - string
-          - 'null'
-          description: Playbook description, or null if unset
-        is_official:
-          type: boolean
-          description: Whether this is an official GC AI playbook
-        status:
-          type: string
-          enum:
-          - draft
-          - processing
-          - completed
-          - failed
-          description: Playbook processing status
-        created_at:
-          type:
-          - string
-          - 'null'
-          description: ISO 8601 creation timestamp
-      required:
-      - id
-      - title
-      - description
-      - is_official
-      - status
-      - created_at
-    ApiDocument:
-      type: object
-      properties:
-        file_id:
-          type: string
-          format: uuid
-          description: The new uploaded file ID for the produced document. Use it with `POST /chat/completions` `file_ids` to apply further edits to this version. Download via `signed_url` for the finished file.
-        original_file_id:
-          type: string
-          format: uuid
-          description: The `file_id` the changes were applied to (edits only). The original file is preserved unchanged. Omitted for newly generated documents.
-        filename:
-          type: string
-          description: Filename of the produced document (edits are prefixed with `edited_`).
-        original_filename:
-          type: string
-          description: Filename of the source file the changes were applied to (edits only). Omitted for newly generated documents.
-        signed_url:
-          type: string
-          format: uri
-          description: Time-limited download URL for the produced document. Valid for 7 days from job completion. Download promptly — the URL is not re-minted, so re-fetching the job after expiry returns the same expired URL.
-      required:
-      - file_id
-      - filename
-      - signed_url
-    PlaybookCheckPosition:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - standard
-          - fallback
-          description: The primary stance (`standard`) or an alternative fallback the reviewer may accept (`fallback`). Each check has exactly one standard position.
-        guidance:
-          type:
-          - string
-          - 'null'
-          description: The review stance for this position — what to require, accept, or flag. May be null for positions authored in the web app without guidance.
-      required:
-      - type
-      - guidance
-    ReorderPlaybookChecksResponse:
-      type: object
-      properties:
-        reordered:
-          type: boolean
-          description: Always `true` on success
-      required:
-      - reordered
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

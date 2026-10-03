@@ -258,98 +258,6 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    WebUsage:
-      type: object
-      properties:
-        messages:
-          type: number
-          description: Web-app chat messages sent.
-        web_pages_scraped:
-          type: number
-          description: Web pages read by GC AI to compose answers.
-        files_uploaded:
-          type: number
-          description: Files uploaded.
-      required:
-      - messages
-      - web_pages_scraped
-      - files_uploaded
-      description: Web-app activity.
-    UsageSummaryResponse:
-      type: object
-      properties:
-        start_date:
-          type: string
-          description: Inclusive range start.
-        end_date:
-          type: string
-          description: Inclusive range end.
-        timezone:
-          type: string
-          description: IANA timezone used for day boundaries.
-        web:
-          $ref: '#/components/schemas/WebUsage'
-        word:
-          $ref: '#/components/schemas/WordUsage'
-        api:
-          $ref: '#/components/schemas/ApiUsage'
-      required:
-      - start_date
-      - end_date
-      - timezone
-      - web
-      - word
-      - api
-    CreditUsageDay:
-      type: object
-      properties:
-        date:
-          type: string
-          description: Calendar day (`YYYY-MM-DD`) in the requested timezone.
-          example: 2026-06-01
-        usage:
-          type: object
-          additionalProperties:
-            type: number
-          description: Billable units consumed that day, keyed by billable operation. Operations with no usage are omitted.
-      required:
-      - date
-      - usage
-    WordUsage:
-      type: object
-      properties:
-        messages:
-          type: number
-          description: Word add-in messages sent.
-        redlines_applied:
-          type: number
-          description: Redlines applied from the Word add-in.
-        drafts_applied:
-          type: number
-          description: Drafts applied from the Word add-in.
-      required:
-      - messages
-      - redlines_applied
-      - drafts_applied
-      description: Word add-in activity.
-    Error:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Error message
-        code:
-          type: string
-          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
-        message:
-          type: string
-          description: Additional error details
-        details:
-          type: object
-          additionalProperties: {}
-          description: Validation error details (for 400 errors)
-      required:
-      - error
     ApiUsage:
       type: object
       properties:
@@ -403,6 +311,49 @@ components:
       - total_credits
       - lines
       - daily
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Machine-readable error code present on some errors (e.g. `RATE_LIMITED`, `INSUFFICIENT_CREDITS`, `TRIAL_NOT_STARTED`, `BILLING_NOT_CONFIGURED`). Branch on this rather than the human-readable `error` string.
+        message:
+          type: string
+          description: Additional error details
+        details:
+          type: object
+          additionalProperties: {}
+          description: Validation error details (for 400 errors)
+      required:
+      - error
+    UsageSummaryResponse:
+      type: object
+      properties:
+        start_date:
+          type: string
+          description: Inclusive range start.
+        end_date:
+          type: string
+          description: Inclusive range end.
+        timezone:
+          type: string
+          description: IANA timezone used for day boundaries.
+        web:
+          $ref: '#/components/schemas/WebUsage'
+        word:
+          $ref: '#/components/schemas/WordUsage'
+        api:
+          $ref: '#/components/schemas/ApiUsage'
+      required:
+      - start_date
+      - end_date
+      - timezone
+      - web
+      - word
+      - api
     CreditUsageLine:
       type: object
       properties:
@@ -434,6 +385,55 @@ components:
       - unit
       - credits_per_unit
       - credits
+    WebUsage:
+      type: object
+      properties:
+        messages:
+          type: number
+          description: Web-app chat messages sent.
+        web_pages_scraped:
+          type: number
+          description: Web pages read by GC AI to compose answers.
+        files_uploaded:
+          type: number
+          description: Files uploaded.
+      required:
+      - messages
+      - web_pages_scraped
+      - files_uploaded
+      description: Web-app activity.
+    CreditUsageDay:
+      type: object
+      properties:
+        date:
+          type: string
+          description: Calendar day (`YYYY-MM-DD`) in the requested timezone.
+          example: 2026-06-01
+        usage:
+          type: object
+          additionalProperties:
+            type: number
+          description: Billable units consumed that day, keyed by billable operation. Operations with no usage are omitted.
+      required:
+      - date
+      - usage
+    WordUsage:
+      type: object
+      properties:
+        messages:
+          type: number
+          description: Word add-in messages sent.
+        redlines_applied:
+          type: number
+          description: Redlines applied from the Word add-in.
+        drafts_applied:
+          type: number
+          description: Drafts applied from the Word add-in.
+      required:
+      - messages
+      - redlines_applied
+      - drafts_applied
+      description: Word add-in activity.
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
