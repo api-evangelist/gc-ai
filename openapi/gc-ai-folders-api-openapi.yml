@@ -681,18 +681,23 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    FolderListResponse:
+    UpdateFolderRequest:
       type: object
       properties:
-        folders:
-          type: array
-          items:
-            $ref: '#/components/schemas/Folder'
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-      required:
-      - folders
-      - pagination
+        name:
+          type: string
+          minLength: 2
+          description: New folder name (minimum 2 characters)
+        description:
+          type: string
+          description: New folder description
+        parent_folder_id:
+          type: string
+          format: uuid
+          description: Target parent folder ID. The destination must not be the folder itself or one of its descendants.
+        is_access_controlled:
+          type: boolean
+          description: Whether the folder requires explicit access grants
     FolderChild:
       oneOf:
       - allOf:
@@ -715,6 +720,44 @@ components:
               - file
           required:
           - type
+    Pagination:
+      type: object
+      properties:
+        limit:
+          type: number
+          description: Page size
+        offset:
+          type: number
+          description: Current offset
+        has_more:
+          type: boolean
+          description: Whether more results exist
+      required:
+      - limit
+      - offset
+      - has_more
+    FolderListResponse:
+      type: object
+      properties:
+        folders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Folder'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      required:
+      - folders
+      - pagination
+    FolderChildrenResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FolderChild'
+          description: Direct children of the folder. Subfolders first (alphabetical), then files (alphabetical).
+      required:
+      - items
     Error:
       type: object
       properties:
@@ -757,22 +800,6 @@ components:
           example: my-files
       required:
       - name
-    Pagination:
-      type: object
-      properties:
-        limit:
-          type: number
-          description: Page size
-        offset:
-          type: number
-          description: Current offset
-        has_more:
-          type: boolean
-          description: Whether more results exist
-      required:
-      - limit
-      - offset
-      - has_more
     File:
       type: object
       properties:
@@ -846,33 +873,6 @@ components:
       - parent_folder_id
       - folder_type
       - created_at
-    UpdateFolderRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          minLength: 2
-          description: New folder name (minimum 2 characters)
-        description:
-          type: string
-          description: New folder description
-        parent_folder_id:
-          type: string
-          format: uuid
-          description: Target parent folder ID. The destination must not be the folder itself or one of its descendants.
-        is_access_controlled:
-          type: boolean
-          description: Whether the folder requires explicit access grants
-    FolderChildrenResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/FolderChild'
-          description: Direct children of the folder. Subfolders first (alphabetical), then files (alphabetical).
-      required:
-      - items
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

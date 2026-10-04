@@ -258,21 +258,94 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    ApiUsage:
+    WebUsage:
       type: object
       properties:
+        messages:
+          type: number
+          description: Web-app chat messages sent.
+        web_pages_scraped:
+          type: number
+          description: Web pages read by GC AI to compose answers.
+        files_uploaded:
+          type: number
+          description: Files uploaded.
+      required:
+      - messages
+      - web_pages_scraped
+      - files_uploaded
+      description: Web-app activity.
+    CreditUsageLine:
+      type: object
+      properties:
+        api:
+          type: string
+          description: The billable operation, e.g. `chat:completions` or `playbook:run`.
+          example: chat:completions
         requests:
           type: number
-          description: Total billable API requests across all operations.
-        by_operation:
+          description: Total billable units consumed for this line over the range.
+        unit:
+          type:
+          - string
+          - 'null'
+          description: Display label for one billable unit (e.g. `request`). Null when pricing is unavailable.
+        credits_per_unit:
+          type:
+          - number
+          - 'null'
+          description: Credits charged per unit, from the current rate card. Null when pricing is unavailable.
+        credits:
+          type:
+          - number
+          - 'null'
+          description: Total credits for this line (`requests × credits_per_unit`). Null when pricing is unavailable.
+      required:
+      - api
+      - requests
+      - unit
+      - credits_per_unit
+      - credits
+    UsageSummaryResponse:
+      type: object
+      properties:
+        start_date:
+          type: string
+          description: Inclusive range start.
+        end_date:
+          type: string
+          description: Inclusive range end.
+        timezone:
+          type: string
+          description: IANA timezone used for day boundaries.
+        web:
+          $ref: '#/components/schemas/WebUsage'
+        word:
+          $ref: '#/components/schemas/WordUsage'
+        api:
+          $ref: '#/components/schemas/ApiUsage'
+      required:
+      - start_date
+      - end_date
+      - timezone
+      - web
+      - word
+      - api
+    CreditUsageDay:
+      type: object
+      properties:
+        date:
+          type: string
+          description: Calendar day (`YYYY-MM-DD`) in the requested timezone.
+          example: 2026-06-01
+        usage:
           type: object
           additionalProperties:
             type: number
-          description: Billable API requests keyed by operation (e.g. `chat:completions`, `playbook:run`).
+          description: Billable units consumed that day, keyed by billable operation. Operations with no usage are omitted.
       required:
-      - requests
-      - by_operation
-      description: API activity.
+      - date
+      - usage
     CreditUsageResponse:
       type: object
       properties:
@@ -329,94 +402,21 @@ components:
           description: Validation error details (for 400 errors)
       required:
       - error
-    UsageSummaryResponse:
+    ApiUsage:
       type: object
       properties:
-        start_date:
-          type: string
-          description: Inclusive range start.
-        end_date:
-          type: string
-          description: Inclusive range end.
-        timezone:
-          type: string
-          description: IANA timezone used for day boundaries.
-        web:
-          $ref: '#/components/schemas/WebUsage'
-        word:
-          $ref: '#/components/schemas/WordUsage'
-        api:
-          $ref: '#/components/schemas/ApiUsage'
-      required:
-      - start_date
-      - end_date
-      - timezone
-      - web
-      - word
-      - api
-    CreditUsageLine:
-      type: object
-      properties:
-        api:
-          type: string
-          description: The billable operation, e.g. `chat:completions` or `playbook:run`.
-          example: chat:completions
         requests:
           type: number
-          description: Total billable units consumed for this line over the range.
-        unit:
-          type:
-          - string
-          - 'null'
-          description: Display label for one billable unit (e.g. `request`). Null when pricing is unavailable.
-        credits_per_unit:
-          type:
-          - number
-          - 'null'
-          description: Credits charged per unit, from the current rate card. Null when pricing is unavailable.
-        credits:
-          type:
-          - number
-          - 'null'
-          description: Total credits for this line (`requests × credits_per_unit`). Null when pricing is unavailable.
-      required:
-      - api
-      - requests
-      - unit
-      - credits_per_unit
-      - credits
-    WebUsage:
-      type: object
-      properties:
-        messages:
-          type: number
-          description: Web-app chat messages sent.
-        web_pages_scraped:
-          type: number
-          description: Web pages read by GC AI to compose answers.
-        files_uploaded:
-          type: number
-          description: Files uploaded.
-      required:
-      - messages
-      - web_pages_scraped
-      - files_uploaded
-      description: Web-app activity.
-    CreditUsageDay:
-      type: object
-      properties:
-        date:
-          type: string
-          description: Calendar day (`YYYY-MM-DD`) in the requested timezone.
-          example: 2026-06-01
-        usage:
+          description: Total billable API requests across all operations.
+        by_operation:
           type: object
           additionalProperties:
             type: number
-          description: Billable units consumed that day, keyed by billable operation. Operations with no usage are omitted.
+          description: Billable API requests keyed by operation (e.g. `chat:completions`, `playbook:run`).
       required:
-      - date
-      - usage
+      - requests
+      - by_operation
+      description: API activity.
     WordUsage:
       type: object
       properties:
