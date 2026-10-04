@@ -48,6 +48,10 @@ x-tier-reason: portfolio-lead
 specificationVersion: '0.23'
 created: '2026-07-17'
 modified: '2026-07-19'
+x-docs-platform: mintlify
+x-docs-platform-confidence: medium
+x-docs-platform-checked: 2026-10-03
+x-docs-hosting: vercel
 tags:
 - Company
 - Legal
@@ -195,6 +199,9 @@ apis:
   - type: APIReference
     url: https://docs.gc.ai/api-reference/introduction
 common:
+- type: CapabilityMap
+  url: capabilities/gc-ai-capability-edges.yml
+  name: GC AI Business Capability Map
 - type: DeveloperPortal
   url: https://docs.gc.ai/
 - type: Documentation
