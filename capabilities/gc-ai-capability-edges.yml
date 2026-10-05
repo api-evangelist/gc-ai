@@ -1,0 +1,26 @@
+slug: gc-ai
+provider: GC AI
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 1
+edges:
+- tag: Playbooks
+  spec_file: gc-ai-playbooks-api-openapi.yml
+  capability_id: BC-150.10
+  capability_id_l1: BC-150
+  capability_name: Contract Management
+  confidence: 0.7
+  evidence: 'POST /playbooks/{id}/run — ''Run a playbook against uploaded files''; schemas PlaybookCheck,
+    PlaybookCheckResult; vendor: ''run reusable review Playbooks'' to ''draft and review contracts'''
+  reason: Playbooks are reusable contract-review checklists executed against documents, which realises
+    contract review within legal contract lifecycle management. Some ambiguity because the API surface
+    is generic playbook CRUD rather than contract records.
