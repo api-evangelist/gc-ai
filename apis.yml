@@ -199,6 +199,8 @@ apis:
   - type: APIReference
     url: https://docs.gc.ai/api-reference/introduction
 common:
+- type: Plans
+  url: plans/gc-ai-plans-pricing.yml
 - url: https://gc.ai/rss.xml
   type: BlogRSS
 - type: CapabilityMap
