@@ -1,4 +1,4 @@
-# Gc Ai
+# GC AI
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -64,6 +64,150 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Gc Ai is a company surfaced as a portfolio company of northzone, scale-venture-partners and added to the API Evangelist network as a stub for enrichment. Sector: enterprise; ai. This profile is a lead awaiting the enrichment pipeline.
+GC AI is the AI platform for in-house legal teams, built by three-time General Counsel Cecilia Ziniti. It helps corporate counsel draft and review contracts, run reusable review Playbooks, conduct grounded legal research across 13M+ US court opinions, and work directly inside Microsoft Word. The GC AI External API (v1) gives programmatic access to chat completions, files, folders, projects, playbooks, and skills for workflow automation (Zapier, Make, n8n, or custom apps), and GC AI also operates an OAuth-protected Model Context Protocol (MCP) server. The platform is SOC 2 Type II, SOC 3, and GDPR compliant, with zero data-retention agreements with its model providers.
 
-Backed by: northzone, scale-venture-partners — https://gc.ai
+**Areas:** Company · Legal · Legal AI · Contracts · In-House Counsel · Artificial Intelligence · Document Review · Enterprise · MCP
+
+## GC AI on APIs.io
+
+Everything profiled for GC AI is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/gc-ai/](https://apis.io/providers/gc-ai/)** — or go straight to one of the APIs or properties below.
+
+### APIs (9)
+
+- [GC AI Chat API](https://apis.io/apis/gc-ai/gc-ai-chat-api/) — AI chat completion endpoints
+- [GC AI Files API](https://apis.io/apis/gc-ai/gc-ai-files-api/) — File upload and management endpoints
+- [GC AI Folders API](https://apis.io/apis/gc-ai/gc-ai-folders-api/) — Folder management endpoints
+- [GC AI Playbooks API](https://apis.io/apis/gc-ai/gc-ai-playbooks-api/) — Playbook review endpoints
+- [GC AI Profiles API](https://apis.io/apis/gc-ai/gc-ai-profiles-api/) — Personal and company profile endpoints
+- [GC AI Projects API](https://apis.io/apis/gc-ai/gc-ai-projects-api/) — Project management endpoints
+- [GC AI Skills API](https://apis.io/apis/gc-ai/gc-ai-skills-api/) — Skill library management endpoints
+- [GC AI Usage API](https://apis.io/apis/gc-ai/gc-ai-usage-api/) — Usage and credit/billing reporting endpoints
+- [GC AI Utility API](https://apis.io/apis/gc-ai/gc-ai-utility-api/) — Health check and connectivity endpoints
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [gc-ai](https://apis.io/servers/gc-ai/gc-ai/)
+
+#### Agentic access (1)
+
+Which operations an agent can call, which act, and which need a human in the loop.
+
+- [Gc Ai Agentic Access](https://apis.io/agentic-access/gc-ai/gc-ai-agentic-access/)
+
+#### Collections (9)
+
+Postman and Open Collection request collections.
+
+- [GC AI External Chat API](https://apis.io/collections/gc-ai/open-gc-ai-chat-api/)
+- [GC AI External Chat Files API](https://apis.io/collections/gc-ai/open-gc-ai-files-api/)
+- [GC AI External Chat Folders API](https://apis.io/collections/gc-ai/open-gc-ai-folders-api/)
+- [GC AI External Chat Playbooks API](https://apis.io/collections/gc-ai/open-gc-ai-playbooks-api/)
+- [GC AI External Chat Profiles API](https://apis.io/collections/gc-ai/open-gc-ai-profiles-api/)
+- [GC AI External Chat Projects API](https://apis.io/collections/gc-ai/open-gc-ai-projects-api/)
+- [GC AI External Chat Skills API](https://apis.io/collections/gc-ai/open-gc-ai-skills-api/)
+- [GC AI External Chat Usage API](https://apis.io/collections/gc-ai/open-gc-ai-usage-api/)
+- [GC AI External Chat Utility API](https://apis.io/collections/gc-ai/open-gc-ai-utility-api/)
+
+#### Overlays (1)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Gc Ai Openapi Overlay](https://apis.io/overlays/gc-ai/gc-ai-openapi-overlay/)
+
+#### Security (3)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Gc Ai Authentication](https://apis.io/security/gc-ai/gc-ai-authentication/)
+- [Gc Ai Domain Security](https://apis.io/security/gc-ai/gc-ai-domain-security/)
+- [Gc Ai Trust Center](https://apis.io/security/gc-ai/gc-ai-trust-center/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Gc Ai Plans Pricing](https://apis.io/plans/gc-ai/gc-ai-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Gc Ai Rate Limits](https://apis.io/rate-limits/gc-ai/gc-ai-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://gc.ai)
+- [Documentation](https://docs.gc.ai/)
+- [Getting started](https://docs.gc.ai/guides/getting-started/first-steps)
+- [API reference](https://docs.gc.ai/api-reference/introduction)
+- [Pricing](https://gc.ai/pricing)
+- [Sign up](https://app.gc.ai/signup)
+- [Changelog](https://docs.gc.ai/changelog)
+- [Blog](https://gc.ai/blog)
+- [Compliance](https://trust.gc.ai/)
+- [Terms of service](https://gc.ai/terms)
+- [Privacy policy](https://gc.ai/privacy)
+- [Status](https://status.gc.ai)
+
+## API Evangelist rating
+
+**Kin Score 51.9** — developing · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 75.0 |
+| Contract quality | 57.7 |
+| Contract governance | 4.5 |
+| Operational transparency | 52.6 |
+| Developer ergonomics | 60.1 |
+| Access clarity | 47.4 |
+
+**Agent readiness 57.7** — agent-ready (gated down from agent-native)
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | derived (partial credit) |
+| Reversibility Documented | — |
+| MCP Server | verified |
+| Auth Clarity | served (partial credit) |
+| Idempotency | — |
+| Error Semantics | verified |
+| OpenAPI Examples | verified |
+| Rate Limit Signal | verified |
+| Event Surface Described | — |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | served (partial credit) |
+| Protected Resource Metadata | verified |
+| Dynamic Client Registration | yes |
+| Agentic Commerce | — |
+| Pagination Ratio | — |
+| Operation Distinctiveness | distinct |
+
+**Regulatory alignment 27.3** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/gc-ai/](https://apis.io/providers/gc-ai/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for GC AI: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/gc-ai/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
